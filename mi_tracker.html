@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mi Tracker">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAFE0lEQVR4nO3dP4tcVRiA8XcG+3SCwmpn2lQ2IVXExipIsBVsLBLwoywkRRohbQiSykZMJTZWtrHTwAp28wXUQu8ysztz55y75/6Z531+TQKbnbnMPvvmzLl7965iAW7dev+fuY9BbWw2F6s5n3+WJzfgPKYOfLInM2JNEfeoT2DEOmSsuEd5UENWqdZhr1s+WIQxq07rXpp9dxiybqrFtG4yoY1ZLbTo6EbfEYassQyd1oMntDFrTEP7GhS0MWsKQzqrDtqYNaXa3qqCNmbNoaa74qCNWXMq7a8oaGPWEpR0eDRoY9aSHOux+alvaU69QTudtUR9XR4M2pi1ZIf6dMkhlL1BO511CvZ1ei1oY9YpudqrSw6h7ATtdNYp2u7WCS0UgxbKZdAuN3TKun6d0EIxaKGsIlxuiMMJLRSDFopBC2Xt+lkkTmihGLRQDFooBi0UgxaKQQvFoIVi0EIxaKEYtFAMWigGLRSDFopBC8WghWLQQnln7gMYy9nZnbkPYdHevv117kMYBXJCG/Nx1NdoRbsEq/tCUSdQK9TXCTWhqV+kMXSvEW1SY4I25nrEqDFBSxEGLRiDFgp2H7rEN1//dPn382f3jv6bJfju+8e9H8/+HiLthL4a6r5wlxZzRMTnnz3p/TjpDd4QaYMucWhqz8kJ3S/1kqPEEqPWYWkn9NVQDZch9YQ2Yp60E1pMBi0UgxaKQQvFoIVi0ELBbdtlP/WbHS7o7Kd+a9EGgEsOoRi0UAxaKAYtFIMWikELBbdtV6PkmsIPX38x+nH8/eWbZo+Vfdsy7YTejvnVw6d7rx+cIuaIiPXz280ei7avXCtt0J1XD5/u/Lnt9/svJjkGJ3Q7qZcc2xE/ePkozuN6wFNFrTbSTujzZ/fiwctHEfF/zF6OhYD5dbr+ssZhaK9b2gktJoMWikELxaCFYtBCMWih4E6sZD/1mx0uaMp+6lRoA8Alh1AMWigGLRSDFopBCwW3y9Habx9/Oujz7v/5V+MjKZN9lyd10MeuKRwac0TE6/fenSXqs7M7qaNOu+QouU/hR7/8MPjxndDzSD2hI/6bzH032LxJ1Jpe2gndWeLdYjVc2qC9TyFT6iWHEfOkndBiMmihGLRQDFooBi0U3C4H7QoM1cEFnf3Uby3aAHDJIRSDFopBC8WghWLQQjFooeC27WqU3Nbtk7vfTnU4O9788WTQ52Xftkw7oUsuwZor5oiI2x88HvR5tH3lWmmD7vT9TPSPP3814ZHsckIPk3rJEXH8Eqw5o1a9tBPaS7CYUk9oI+ZJO6HFZNBCMWihYILutquy78PWoN0WOQIUdIRR1yDGHAG6ef02gy5DizkCNqE7xC9Ua9TXCDmhlRdyQisvgxaKQQvFoIVi0EIxaKEYtFAMWigGLRSDFopBC8WghWLQQjFooRi0UAxaKAYtlPVmc7Ga+yCkVpzQQjFooRi0UNYREa6jRbDZXKyc0EIxaKFcBu2yQ6es69cJLRSDFspO0C47dIq2u3VCC+Va0E5pnZKrve6d0EatU7CvU5ccQjkYtFNaS3aoz94JbdRaor4uXXII5WjQTmktybEeiya0UWsJSjosXnIYteZU2l/VGtqoNYea7qrfFBq1plTb26BdDqPWFIZ0Nnjbzqg1pqF9NYnS2yurlZsOyiYnVpzWaqFFR81DdFqrVsuB2PzUt9NaNVr3Mmp8TmsdMtbgm2yaGrem+N97luWBcecx9RL0X4BXdnWjzIYAAAAAAElFTkSuQmCC">
 <title>Mi Tracker</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -79,7 +80,6 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── EDITA TUS HABITOS AQUI ──────────────────────────────
 const SECTIONS = [
   {
     id:'morning', label:'Rutina de manana', icon:'🌅',
@@ -88,7 +88,7 @@ const SECTIONS = [
       {id:'water',       text:'Beber agua al levantarme'},
       {id:'nomobile_am', text:'Sin movil los primeros 30 min'},
       {id:'breakfast',   text:'Desayunar bien'},
-      {id:'punctual',    text:'Ser puntual — salir a tiempo'},
+      {id:'punctual',    text:'Ser puntual - salir a tiempo'},
     ]
   },
   {
@@ -112,7 +112,6 @@ const SECTIONS = [
     ]
   },
 ];
-// ────────────────────────────────────────────────────────
 
 const DAYS = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
 const today = new Date();
