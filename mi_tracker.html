@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Tracker">
+<title>Mi Tracker</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f1a;color:#eee;min-height:100vh;padding-bottom:40px}
+  .app{max-width:420px;margin:0 auto;padding:14px}
+  .header{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+  .header h1{font-size:18px;font-weight:600;color:#fff}
+  .header p{font-size:12px;color:#888;margin-top:2px}
+  .score-ring{width:54px;height:54px;position:relative;display:flex;align-items:center;justify-content:center}
+  .score-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+  .score-ring span{font-size:13px;font-weight:600;color:#fff;position:relative;z-index:1}
+  .days-nav{display:flex;gap:6px;margin-bottom:12px}
+  .day-btn{flex:1;padding:8px 2px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;cursor:pointer;text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
+  .day-btn.active{background:#534AB7;border-color:#534AB7}
+  .day-btn .dn{font-size:10px;color:#888;display:block}
+  .day-btn .dd{font-size:14px;font-weight:600;color:#fff;display:block}
+  .day-btn.active .dn{color:rgba(255,255,255,0.7)}
+  .dot{width:5px;height:5px;border-radius:50%;background:#2c2c4a;margin:4px auto 0;display:block}
+  .day-btn.active .dot{background:rgba(255,255,255,0.4)}
+  .day-btn.has-data .dot{background:#63991b}
+  .day-btn.active.has-data .dot{background:#C0DD97}
+  .section{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;margin-bottom:10px;overflow:hidden}
+  .section-header{padding:12px 14px;display:flex;align-items:center;gap:10px}
+  .sec-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+  .sec-title{font-size:14px;font-weight:600;color:#fff}
+  .sec-score{margin-left:auto;font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px}
+  .habit-item{padding:12px 14px;border-top:1px solid #2c2c4a;display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+  .habit-item:active{background:#16213e}
+  .habit-text{flex:1;font-size:13px;color:#ccc;line-height:1.35}
+  .check-box{width:28px;height:28px;border-radius:50%;border:1.5px solid #444;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+  .check-box.done{background:#3B6D11;border-color:#3B6D11}
+  .check-box.fail{background:#1a0808;border-color:#A32D2D}
+  .check-icon,.x-icon{display:none;width:14px;height:14px}
+  .check-box.done .check-icon{display:block}
+  .check-box.fail .x-icon{display:block}
+  .streak-bar{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;padding:14px;margin-bottom:10px}
+  .streak-title{font-size:12px;color:#888;margin-bottom:10px;font-weight:500}
+  .streak-grid{display:flex;gap:5px;flex-wrap:wrap}
+  .sday{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#555;background:#111}
+  .sday.s-high{background:#27500A;color:#C0DD97}
+  .sday.s-mid{background:#633806;color:#FAC775}
+  .hint{text-align:center;font-size:11px;color:#444;margin-top:14px;line-height:1.6}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:999}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <h1>Mi Tracker</h1>
+      <p id="header-date"></p>
+    </div>
+    <div class="score-ring">
+      <svg width="54" height="54" viewBox="0 0 54 54">
+        <circle cx="27" cy="27" r="22" fill="none" stroke="#2c2c4a" stroke-width="4"/>
+        <circle cx="27" cy="27" r="22" fill="none" stroke="#7F77DD" stroke-width="4" stroke-linecap="round"
+          id="ring-circle" stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
+      </svg>
+      <span id="ring-pct">0%</span>
+    </div>
+  </div>
+  <div class="days-nav" id="days-nav"></div>
+  <div id="sections-container"></div>
+  <div class="streak-bar">
+    <div class="streak-title">Ultimas 3 semanas</div>
+    <div class="streak-grid" id="streak-grid"></div>
+  </div>
+  <div class="hint">Toca un habito para marcarlo como hecho o no hecho<br>Toca de nuevo para desmarcar</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── EDITA TUS HABITOS AQUI ──────────────────────────────
+const SECTIONS = [
+  {
+    id:'morning', label:'Rutina de manana', icon:'🌅',
+    bg:'rgba(233,69,96,0.15)',
+    habits:[
+      {id:'water',       text:'Beber agua al levantarme'},
+      {id:'nomobile_am', text:'Sin movil los primeros 30 min'},
+      {id:'breakfast',   text:'Desayunar bien'},
+      {id:'punctual',    text:'Ser puntual — salir a tiempo'},
+    ]
+  },
+  {
+    id:'study', label:'Plan de estudios', icon:'📚',
+    bg:'rgba(55,138,221,0.15)',
+    habits:[
+      {id:'study_block',    text:'Cumplir el bloque de estudio del dia'},
+      {id:'nomobile_study', text:'Sin movil durante el estudio'},
+      {id:'review',         text:'Repasar y consolidar lo aprendido'},
+    ]
+  },
+  {
+    id:'night', label:'Rutina de noche', icon:'🌙',
+    bg:'rgba(127,119,221,0.15)',
+    habits:[
+      {id:'nomobile_pm', text:'Sin movil 1h antes de dormir'},
+      {id:'teeth',       text:'Lavarme los dientes'},
+      {id:'order',       text:'Habitacion y zonas comunes ordenadas'},
+      {id:'read',        text:'Leer aunque sea 10 min'},
+      {id:'prep',        text:'Todo listo para manana'},
+    ]
+  },
+];
+// ────────────────────────────────────────────────────────
+
+const DAYS = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
+const today = new Date();
+let currentDay = 0;
+
+function getWeekDays(){
+  const dow = today.getDay();
+  const mon = new Date(today);
+  mon.setDate(today.getDate() - ((dow+6)%7));
+  return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+}
+const weekDays = getWeekDays();
+
+function dateKey(d){return d.toISOString().slice(0,10);}
+function load(k){try{return JSON.parse(localStorage.getItem('tr_'+k)||'{}');}catch(e){return {};}}
+function save(k,v){localStorage.setItem('tr_'+k,JSON.stringify(v));}
+function allIds(){return SECTIONS.flatMap(s=>s.habits.map(h=>h.id));}
+function score(k){const d=load(k),ids=allIds();return ids.length?ids.filter(id=>d[id]===true).length/ids.length:0;}
+
+function renderNav(){
+  const nav=document.getElementById('days-nav');
+  nav.innerHTML='';
+  weekDays.forEach((d,i)=>{
+    const s=score(dateKey(d));
+    const b=document.createElement('div');
+    b.className='day-btn'+(i===currentDay?' active':'')+(s>0?' has-data':'');
+    b.innerHTML='<span class="dn">'+DAYS[d.getDay()]+'</span><span class="dd">'+d.getDate()+'</span><span class="dot"></span>';
+    b.addEventListener('click',()=>{currentDay=i;render();});
+    nav.appendChild(b);
+  });
+}
+
+function renderSections(){
+  const key=dateKey(weekDays[currentDay]);
+  const data=load(key);
+  const c=document.getElementById('sections-container');
+  c.innerHTML='';
+  SECTIONS.forEach(sec=>{
+    const total=sec.habits.length;
+    const done=sec.habits.filter(h=>data[h.id]===true).length;
+    const pct=Math.round(done/total*100);
+    const sc=pct>=75?'#C0DD97':pct>=40?'#FAC775':'#f09595';
+    const sb=pct>=75?'#1a3a08':pct>=40?'#3a1f04':'#2a0808';
+    const div=document.createElement('div');
+    div.className='section';
+    div.innerHTML='<div class="section-header"><div class="sec-icon" style="background:'+sec.bg+'">'+sec.icon+'</div><span class="sec-title">'+sec.label+'</span><span class="sec-score" style="background:'+sb+';color:'+sc+'">'+done+'/'+total+'</span></div>';
+    sec.habits.forEach(habit=>{
+      const state=data[habit.id];
+      const item=document.createElement('div');
+      item.className='habit-item';
+      const cc=state===true?'done':state===false?'fail':'';
+      item.innerHTML='<div class="check-box '+cc+'"><svg class="check-icon" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,11 12,3" stroke="#C0DD97" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="x-icon" viewBox="0 0 14 14" fill="none"><line x1="3" y1="3" x2="11" y2="11" stroke="#f09595" stroke-width="2" stroke-linecap="round"/><line x1="11" y1="3" x2="3" y2="11" stroke="#f09595" stroke-width="2" stroke-linecap="round"/></svg></div><span class="habit-text">'+habit.text+'</span>';
+      item.addEventListener('click',()=>{
+        const d2=load(key);
+        if(d2[habit.id]===true){d2[habit.id]=false;toast('No hecho');}
+        else if(d2[habit.id]===false){delete d2[habit.id];toast('Desmarcado');}
+        else{d2[habit.id]=true;toast('Hecho!');}
+        save(key,d2);render();
+      });
+      div.appendChild(item);
+    });
+    c.appendChild(div);
+  });
+}
+
+function renderRing(){
+  const s=score(dateKey(weekDays[currentDay]));
+  document.getElementById('ring-circle').style.strokeDashoffset=138.2*(1-s);
+  document.getElementById('ring-pct').textContent=Math.round(s*100)+'%';
+}
+
+function renderStreak(){
+  const g=document.getElementById('streak-grid');
+  g.innerHTML='';
+  for(let i=20;i>=0;i--){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const s=score(dateKey(d));
+    const el=document.createElement('div');
+    el.className='sday '+(s>=0.75?'s-high':s>=0.35?'s-mid':'');
+    el.textContent=d.getDate();
+    g.appendChild(el);
+  }
+}
+
+function renderHeader(){
+  const d=weekDays[currentDay];
+  const isToday=dateKey(d)===dateKey(today);
+  document.getElementById('header-date').textContent=isToday
+    ?'Hoy - '+d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
+    :d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+}
+
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1400);
+}
+
+function render(){renderHeader();renderNav();renderSections();renderRing();renderStreak();}
+currentDay=(today.getDay()+6)%7;
+render();
+</script>
+</body>
+</html>
