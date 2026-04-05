@@ -16,15 +16,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .header h1{font-size:18px;font-weight:600;color:#fff}
 .header p{font-size:12px;color:#888;margin-top:2px}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#444;flex-shrink:0;margin-left:8px}
-.sync-dot.ok{background:#63991b}
-.sync-dot.syncing{background:#BA7517;animation:pulse 1s infinite}
-.sync-dot.err{background:#A32D2D}
+.sync-dot.ok{background:#63991b}.sync-dot.syncing{background:#BA7517;animation:pulse 1s infinite}.sync-dot.err{background:#A32D2D}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .score-ring{width:54px;height:54px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .score-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
 .score-ring span{font-size:13px;font-weight:600;color:#fff;position:relative;z-index:1}
 .days-nav{display:flex;gap:6px;margin-bottom:12px}
-.day-btn{flex:1;padding:8px 2px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
+.day-btn{flex:1;padding:8px 2px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;cursor:pointer;text-align:center}
 .day-btn.active{background:#534AB7;border-color:#534AB7}
 .day-btn .dn{font-size:10px;color:#888;display:block}
 .day-btn .dd{font-size:14px;font-weight:600;color:#fff;display:block}
@@ -66,7 +64,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <p id="header-date"></p>
     </div>
     <div style="display:flex;align-items:center">
-      <div class="sync-dot" id="sync-dot" title="Estado sync"></div>
+      <div class="sync-dot" id="sync-dot"></div>
       <div style="width:12px"></div>
       <div class="score-ring">
         <svg width="54" height="54" viewBox="0 0 54 54">
@@ -84,252 +82,214 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="streak-title">Ultimas 3 semanas</div>
     <div class="streak-grid" id="streak-grid"></div>
   </div>
-  <div class="hint">Toca un habito para marcarlo · Los datos se sincronizan en la nube</div>
+  <div class="hint">Toca: sin marcar → hecho → no hecho → sin marcar</div>
 </div>
 <div class="toast" id="toast"></div>
- 
+
 <script>
-var SUPABASE_URL = "https://jqmfbodxyidnwnvqfjfh.supabase.co";
-var SUPABASE_KEY = "sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey";
- 
+var SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
+var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
+
 var SECTIONS = [
-  {
-    id:'morning', label:'Rutina de manana', icon:'🌅',
-    bg:'rgba(233,69,96,0.15)',
-    habits:[
-      {id:'water',        text:'Beber agua al levantarme'},
-      {id:'nomobile_am',  text:'Sin movil los primeros 30 min'},
-      {id:'breakfast',    text:'Desayunar bien'},
-      {id:'punctual',     text:'Ser puntual - salir a tiempo'}
-    ]
-  },
-  {
-    id:'study', label:'Plan de estudios', icon:'📚',
-    bg:'rgba(55,138,221,0.15)',
-    habits:[
-      {id:'study_block',    text:'Cumplir el bloque de estudio del dia'},
-      {id:'nomobile_study', text:'Sin movil durante el estudio'},
-      {id:'review',         text:'Repasar y consolidar lo aprendido'}
-    ]
-  },
-  {
-    id:'night', label:'Rutina de noche', icon:'🌙',
-    bg:'rgba(127,119,221,0.15)',
-    habits:[
-      {id:'nomobile_pm', text:'Sin movil 1h antes de dormir'},
-      {id:'teeth',       text:'Lavarme los dientes'},
-      {id:'order',       text:'Habitacion y zonas comunes ordenadas'},
-      {id:'read',        text:'Leer aunque sea 10 min'},
-      {id:'prep',        text:'Todo listo para manana'}
-    ]
-  }
+  {id:'morning',label:'Rutina de manana',icon:'🌅',bg:'rgba(233,69,96,0.15)',
+   habits:[
+     {id:'water',       text:'Beber agua al levantarme'},
+     {id:'nomobile_am', text:'Sin movil los primeros 30 min'},
+     {id:'breakfast',   text:'Desayunar bien'},
+     {id:'punctual',    text:'Ser puntual - salir a tiempo'}
+   ]},
+  {id:'study',label:'Plan de estudios',icon:'📚',bg:'rgba(55,138,221,0.15)',
+   habits:[
+     {id:'study_block',   text:'Cumplir el bloque de estudio del dia'},
+     {id:'nomobile_study',text:'Sin movil durante el estudio'},
+     {id:'review',        text:'Repasar y consolidar lo aprendido'}
+   ]},
+  {id:'night',label:'Rutina de noche',icon:'🌙',bg:'rgba(127,119,221,0.15)',
+   habits:[
+     {id:'nomobile_pm',text:'Sin movil 1h antes de dormir'},
+     {id:'teeth',      text:'Lavarme los dientes'},
+     {id:'order',      text:'Habitacion y zonas comunes ordenadas'},
+     {id:'read',       text:'Leer aunque sea 10 min'},
+     {id:'prep',       text:'Todo listo para manana'}
+   ]}
 ];
- 
-var DAYS = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
-var today = new Date();
-var currentDay = 0;
-var cache = {};
-var weekDays = [];
- 
-function getWeekDays() {
-  var dow = today.getDay();
-  var mon = new Date(today);
-  mon.setDate(today.getDate() - ((dow+6)%7));
-  var days = [];
-  for (var i=0; i<7; i++) {
-    var d = new Date(mon);
-    d.setDate(mon.getDate()+i);
-    days.push(d);
-  }
+
+var DAYS=['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
+var today=new Date();
+var currentDay=0;
+var cache={};
+var weekDays=[];
+
+function getWeekDays(){
+  var dow=today.getDay();
+  var mon=new Date(today);
+  mon.setDate(today.getDate()-((dow+6)%7));
+  var days=[];
+  for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d);}
   return days;
 }
- 
-function dateKey(d) { return d.toISOString().slice(0,10); }
-function allIds() { return SECTIONS.reduce(function(a,s){return a.concat(s.habits.map(function(h){return h.id;}));},[]); }
- 
-function setSyncStatus(status) {
-  var dot = document.getElementById('sync-dot');
-  dot.className = 'sync-dot ' + status;
-}
- 
-function supabaseRequest(method, path, body) {
-  return fetch(SUPABASE_URL + '/rest/v1/' + path, {
-    method: method,
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': method === 'POST' ? 'resolution=merge-duplicates' : ''
+
+function dateKey(d){return d.toISOString().slice(0,10);}
+function allIds(){return SECTIONS.reduce(function(a,s){return a.concat(s.habits.map(function(h){return h.id;}));},[]);}
+function setSyncStatus(s){document.getElementById('sync-dot').className='sync-dot '+s;}
+
+function sbReq(method,path,body){
+  return fetch(SB_URL+'/rest/v1/'+path,{
+    method:method,
+    headers:{
+      'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
+      'Content-Type':'application/json',
+      'Prefer': 'resolution=merge-duplicates'
     },
-    body: body ? JSON.stringify(body) : undefined
-  }).then(function(r){ return r.json(); });
+    body:body?JSON.stringify(body):undefined
+  }).then(function(r){return r.status===204?null:r.json();});
 }
- 
-function loadDayFromCloud(dateStr) {
+
+function loadDayFromCloud(dateStr){
   setSyncStatus('syncing');
-  return supabaseRequest('GET', 'habit_logs?date=eq.' + dateStr + '&select=habit_id,done')
-    .then(function(rows) {
-      var data = {};
-      if (Array.isArray(rows)) {
-        rows.forEach(function(r){ data[r.habit_id] = r.done; });
-      }
-      cache[dateStr] = data;
+  return sbReq('GET','habit_logs?date=eq.'+dateStr+'&select=habit_id,done')
+    .then(function(rows){
+      var data={};
+      if(Array.isArray(rows)) rows.forEach(function(r){data[r.habit_id]=r.done;});
+      cache[dateStr]=data;
       setSyncStatus('ok');
       return data;
-    }).catch(function() {
-      setSyncStatus('err');
-      return cache[dateStr] || {};
-    });
+    }).catch(function(){setSyncStatus('err');return cache[dateStr]||{};});
 }
- 
-function loadStreakFromCloud() {
-  var dates = [];
-  for (var i=20; i>=0; i--) {
-    var d = new Date(today);
-    d.setDate(today.getDate()-i);
-    dates.push(dateKey(d));
-  }
-  var filter = 'date=in.(' + dates.join(',') + ')&select=date,habit_id,done';
-  return supabaseRequest('GET', 'habit_logs?' + filter)
-    .then(function(rows) {
-      if (!Array.isArray(rows)) return;
-      dates.forEach(function(dt){ if(!cache[dt]) cache[dt]={}; });
-      rows.forEach(function(r){ if(!cache[r.date]) cache[r.date]={}; cache[r.date][r.habit_id]=r.done; });
+
+function loadStreakFromCloud(){
+  var dates=[];
+  for(var i=20;i>=0;i--){var d=new Date(today);d.setDate(today.getDate()-i);dates.push(dateKey(d));}
+  return sbReq('GET','habit_logs?date=in.('+dates.join(',')+')'+'&select=date,habit_id,done')
+    .then(function(rows){
+      dates.forEach(function(dt){if(!cache[dt])cache[dt]={};});
+      if(Array.isArray(rows)) rows.forEach(function(r){
+        if(!cache[r.date])cache[r.date]={};
+        cache[r.date][r.habit_id]=r.done;
+      });
     }).catch(function(){});
 }
- 
-function saveHabit(dateStr, habitId, done) {
+
+function saveHabit(dateStr,habitId,done){
   setSyncStatus('syncing');
-  if (!cache[dateStr]) cache[dateStr] = {};
-  if (done === undefined) {
+  if(!cache[dateStr])cache[dateStr]={};
+  // Always store the value — null means unmarked, true=done, false=not done
+  if(done===null){
     delete cache[dateStr][habitId];
+    // Delete from DB
+    return sbReq('DELETE','habit_logs?date=eq.'+dateStr+'&habit_id=eq.'+habitId)
+      .then(function(){setSyncStatus('ok');})
+      .catch(function(){setSyncStatus('err');});
   } else {
-    cache[dateStr][habitId] = done;
+    cache[dateStr][habitId]=done;
+    var body={date:dateStr,habit_id:habitId,done:done};
+    return sbReq('POST','habit_logs',body)
+      .then(function(){setSyncStatus('ok');})
+      .catch(function(){setSyncStatus('err');showToast('Error de conexion');});
   }
-  var body = {date: dateStr, habit_id: habitId, done: done === undefined ? false : done};
-  return supabaseRequest('POST', 'habit_logs', body)
-    .then(function(){ setSyncStatus('ok'); })
-    .catch(function(){ setSyncStatus('err'); showToast('Error de conexion'); });
 }
- 
-function getDayScore(dateStr) {
-  var data = cache[dateStr] || {};
-  var ids = allIds();
-  var done = ids.filter(function(id){ return data[id] === true; }).length;
-  return ids.length ? done / ids.length : 0;
+
+function getDayScore(dateStr){
+  var data=cache[dateStr]||{};
+  var ids=allIds();
+  var done=ids.filter(function(id){return data[id]===true;}).length;
+  return ids.length?done/ids.length:0;
 }
- 
-function renderNav() {
-  var nav = document.getElementById('days-nav');
-  nav.innerHTML = '';
-  weekDays.forEach(function(d, i) {
-    var score = getDayScore(dateKey(d));
-    var btn = document.createElement('div');
-    btn.className = 'day-btn' + (i===currentDay?' active':'') + (score>0?' has-data':'');
-    btn.innerHTML = '<span class="dn">'+DAYS[d.getDay()]+'</span><span class="dd">'+d.getDate()+'</span><span class="dot"></span>';
-    btn.addEventListener('click', function(){ currentDay=i; render(); });
+
+function renderNav(){
+  var nav=document.getElementById('days-nav');
+  nav.innerHTML='';
+  weekDays.forEach(function(d,i){
+    var score=getDayScore(dateKey(d));
+    var btn=document.createElement('div');
+    btn.className='day-btn'+(i===currentDay?' active':'')+(score>0?' has-data':'');
+    btn.innerHTML='<span class="dn">'+DAYS[d.getDay()]+'</span><span class="dd">'+d.getDate()+'</span><span class="dot"></span>';
+    btn.addEventListener('click',function(){currentDay=i;loadDayFromCloud(dateKey(weekDays[i])).then(function(){render();});});
     nav.appendChild(btn);
   });
 }
- 
-function renderSections() {
-  var dateStr = dateKey(weekDays[currentDay]);
-  var data = cache[dateStr] || {};
-  var container = document.getElementById('sections-container');
-  container.innerHTML = '';
- 
-  SECTIONS.forEach(function(sec) {
-    var total = sec.habits.length;
-    var done = sec.habits.filter(function(h){ return data[h.id]===true; }).length;
-    var pct = Math.round(done/total*100);
-    var sc = pct>=75?'#C0DD97':pct>=40?'#FAC775':'#f09595';
-    var sb = pct>=75?'#1a3a08':pct>=40?'#3a1f04':'#2a0808';
- 
-    var div = document.createElement('div');
-    div.className = 'section';
- 
-    var hdr = document.createElement('div');
-    hdr.className = 'section-header';
-    hdr.innerHTML = '<div class="sec-icon" style="background:'+sec.bg+'">'+sec.icon+'</div><span class="sec-title">'+sec.label+'</span><span class="sec-score" style="background:'+sb+';color:'+sc+'">'+done+'/'+total+'</span>';
+
+function renderSections(){
+  var dateStr=dateKey(weekDays[currentDay]);
+  var data=cache[dateStr]||{};
+  var container=document.getElementById('sections-container');
+  container.innerHTML='';
+
+  SECTIONS.forEach(function(sec){
+    var total=sec.habits.length;
+    var done=sec.habits.filter(function(h){return data[h.id]===true;}).length;
+    var pct=Math.round(done/total*100);
+    var sc=pct>=75?'#C0DD97':pct>=40?'#FAC775':'#f09595';
+    var sb=pct>=75?'#1a3a08':pct>=40?'#3a1f04':'#2a0808';
+
+    var div=document.createElement('div');
+    div.className='section';
+    var hdr=document.createElement('div');
+    hdr.className='section-header';
+    hdr.innerHTML='<div class="sec-icon" style="background:'+sec.bg+'">'+sec.icon+'</div><span class="sec-title">'+sec.label+'</span><span class="sec-score" style="background:'+sb+';color:'+sc+'">'+done+'/'+total+'</span>';
     div.appendChild(hdr);
- 
-    sec.habits.forEach(function(habit) {
-      var state = data[habit.id];
-      var item = document.createElement('div');
-      item.className = 'habit-item';
-      var cc = state===true?'done':state===false?'fail':'';
-      item.innerHTML = '<div class="check-box '+cc+'"><svg class="check-icon" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,11 12,3" stroke="#C0DD97" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="x-icon" viewBox="0 0 14 14" fill="none"><line x1="3" y1="3" x2="11" y2="11" stroke="#f09595" stroke-width="2" stroke-linecap="round"/><line x1="11" y1="3" x2="3" y2="11" stroke="#f09595" stroke-width="2" stroke-linecap="round"/></svg></div><span class="habit-text">'+habit.text+'</span>';
- 
-      item.addEventListener('click', function() {
-        var cur = (cache[dateStr]||{})[habit.id];
-        var next;
-        if (cur === true) { next = false; showToast('No hecho'); }
-        else if (cur === false) { next = undefined; showToast('Desmarcado'); }
-        else { next = true; showToast('Hecho!'); }
-        saveHabit(dateStr, habit.id, next).then(function(){ render(); });
+
+    sec.habits.forEach(function(habit){
+      var state=data[habit.id]; // true, false, or undefined
+      var item=document.createElement('div');
+      item.className='habit-item';
+      var cc=state===true?'done':state===false?'fail':'';
+      item.innerHTML='<div class="check-box '+cc+'"><svg class="check-icon" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,11 12,3" stroke="#C0DD97" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="x-icon" viewBox="0 0 14 14" fill="none"><line x1="3" y1="3" x2="11" y2="11" stroke="#f09595" stroke-width="2" stroke-linecap="round"/><line x1="11" y1="3" x2="3" y2="11" stroke="#f09595" stroke-width="2" stroke-linecap="round"/></svg></div><span class="habit-text">'+habit.text+'</span>';
+
+      item.addEventListener('click',function(){
+        var cur=cache[dateStr]!==undefined?cache[dateStr][habit.id]:undefined;
+        var next, msg;
+        if(cur===undefined){next=true;msg='Hecho!';}
+        else if(cur===true){next=false;msg='No hecho';}
+        else{next=null;msg='Desmarcado';}
+        saveHabit(dateStr,habit.id,next).then(function(){render();});
+        showToast(msg);
       });
- 
+
       div.appendChild(item);
     });
     container.appendChild(div);
   });
 }
- 
-function renderRing() {
-  var s = getDayScore(dateKey(weekDays[currentDay]));
-  document.getElementById('ring-circle').style.strokeDashoffset = 138.2*(1-s);
-  document.getElementById('ring-pct').textContent = Math.round(s*100)+'%';
+
+function renderRing(){
+  var s=getDayScore(dateKey(weekDays[currentDay]));
+  document.getElementById('ring-circle').style.strokeDashoffset=138.2*(1-s);
+  document.getElementById('ring-pct').textContent=Math.round(s*100)+'%';
 }
- 
-function renderStreak() {
-  var g = document.getElementById('streak-grid');
-  g.innerHTML = '';
-  for (var i=20; i>=0; i--) {
-    var d = new Date(today);
-    d.setDate(today.getDate()-i);
-    var s = getDayScore(dateKey(d));
-    var el = document.createElement('div');
-    el.className = 'sday '+(s>=0.75?'s-high':s>=0.35?'s-mid':'');
-    el.textContent = d.getDate();
+
+function renderStreak(){
+  var g=document.getElementById('streak-grid');
+  g.innerHTML='';
+  for(var i=20;i>=0;i--){
+    var d=new Date(today);d.setDate(today.getDate()-i);
+    var s=getDayScore(dateKey(d));
+    var el=document.createElement('div');
+    el.className='sday '+(s>=0.75?'s-high':s>=0.35?'s-mid':'');
+    el.textContent=d.getDate();
     g.appendChild(el);
   }
 }
- 
-function renderHeader() {
-  var d = weekDays[currentDay];
-  var isToday = dateKey(d)===dateKey(today);
-  document.getElementById('header-date').textContent = isToday
-    ? 'Hoy - '+d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
-    : d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+
+function renderHeader(){
+  var d=weekDays[currentDay];
+  var isToday=dateKey(d)===dateKey(today);
+  document.getElementById('header-date').textContent=isToday
+    ?'Hoy - '+d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
+    :d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
 }
- 
-function render() {
-  renderHeader();
-  renderNav();
-  renderSections();
-  renderRing();
-  renderStreak();
-}
- 
+
+function render(){renderHeader();renderNav();renderSections();renderRing();renderStreak();}
+
 var toastT;
-function showToast(msg) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastT);
-  toastT = setTimeout(function(){ t.classList.remove('show'); }, 1400);
-}
- 
-// Init
-weekDays = getWeekDays();
-currentDay = (today.getDay()+6)%7;
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},1400);}
+
+weekDays=getWeekDays();
+currentDay=(today.getDay()+6)%7;
 setSyncStatus('syncing');
- 
-loadStreakFromCloud().then(function() {
+loadStreakFromCloud().then(function(){
   return loadDayFromCloud(dateKey(weekDays[currentDay]));
-}).then(function() {
-  render();
-});
+}).then(function(){render();});
 </script>
 </body>
 </html>
