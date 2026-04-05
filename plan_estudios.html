@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Estudios">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<title>Plan de Estudios</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f1a;color:#eee;min-height:100vh;padding-bottom:40px}
+  .app{max-width:420px;margin:0 auto;padding:14px}
+  .header{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+  .header h1{font-size:18px;font-weight:600;color:#fff}
+  .header p{font-size:12px;color:#888;margin-top:2px}
+  .score-pill{background:#0F3460;border:1px solid #185FA5;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:#85B7EB}
+  .days-nav{display:flex;gap:6px;margin-bottom:12px}
+  .day-btn{flex:1;padding:8px 2px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
+  .day-btn.active{background:#0F3460;border-color:#185FA5}
+  .day-btn .dn{font-size:10px;color:#888;display:block}
+  .day-btn .dd{font-size:14px;font-weight:600;color:#fff;display:block}
+  .day-btn.active .dn{color:rgba(133,183,235,0.8)}
+  .day-btn.active .dd{color:#85B7EB}
+  .dot{width:5px;height:5px;border-radius:50%;background:#2c2c4a;margin:4px auto 0;display:block}
+  .day-btn.has-data .dot{background:#378ADD}
+  .day-btn.active .dot{background:rgba(133,183,235,0.4)}
+
+  .day-header{padding:10px 0 8px;display:flex;align-items:center;justify-content:space-between}
+  .day-title{font-size:15px;font-weight:600;color:#fff}
+  .day-progress{font-size:12px;color:#888}
+
+  .block-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:14px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+  .block-card.done{border-color:#0F3460}
+  .block-main{padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .block-main:active{background:#16213e}
+  .block-info{flex:1;min-width:0}
+  .block-time{font-size:11px;color:#888;margin-bottom:3px;font-weight:500}
+  .block-task{font-size:13px;color:#ccc;line-height:1.35}
+  .block-card.done .block-task{color:#888;text-decoration:line-through;text-decoration-color:#444}
+  .check-box{width:26px;height:26px;border-radius:50%;border:1.5px solid #444;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+  .check-box.done{background:#0F3460;border-color:#185FA5}
+  .check-icon{display:none;width:13px;height:13px}
+  .check-box.done .check-icon{display:block}
+
+  .note-area{padding:0 14px 12px;display:none}
+  .block-card.open .note-area{display:block}
+  .note-input{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:8px 10px;font-size:12px;color:#aaa;font-family:inherit;resize:none;outline:none;min-height:52px}
+  .note-input:focus{border-color:#185FA5}
+  .note-label{font-size:10px;color:#555;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
+  .note-saved{font-size:10px;color:#378ADD;opacity:0;transition:opacity .3s}
+  .note-saved.show{opacity:1}
+
+  .empty-day{text-align:center;padding:40px 20px;color:#444;font-size:13px;line-height:1.8}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:999}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <h1>Plan de estudios</h1>
+      <p id="header-date"></p>
+    </div>
+    <div class="score-pill" id="score-pill">0 / 0</div>
+  </div>
+
+  <div class="days-nav" id="days-nav"></div>
+  <div class="day-header">
+    <span class="day-title" id="day-title"></span>
+    <span class="day-progress" id="day-progress"></span>
+  </div>
+  <div id="blocks-container"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// EDITA TU PLAN AQUI — añade o quita bloques en cada día
+// Formato: { time: "HH:MM - HH:MM", task: "descripción" }
+// ═══════════════════════════════════════════════════════
+const PLAN = {
+  lun: [
+    { time: "7:00 - 8:30",   task: "" },
+    { time: "10:00 - 14:00", task: "" },
+    { time: "16:00 - 18:00", task: "" },
+    { time: "19:30 - 21:30", task: "" },
+  ],
+  mar: [
+    { time: "7:00 - 8:30",   task: "" },
+    { time: "10:00 - 14:00", task: "" },
+    { time: "16:00 - 18:00", task: "" },
+    { time: "19:30 - 21:30", task: "" },
+  ],
+  mie: [
+    { time: "7:00 - 8:30",   task: "" },
+    { time: "10:00 - 14:00", task: "" },
+    { time: "16:00 - 18:00", task: "" },
+    { time: "19:30 - 21:30", task: "" },
+  ],
+  jue: [
+    { time: "7:00 - 8:30",   task: "" },
+    { time: "10:00 - 14:00", task: "" },
+    { time: "16:00 - 18:00", task: "" },
+    { time: "19:30 - 21:30", task: "" },
+  ],
+  vie: [
+    { time: "7:00 - 8:30",   task: "" },
+    { time: "8:30 - 9:45",   task: "" },
+    { time: "10:00 - 14:00", task: "" },
+    { time: "16:00 - 18:00", task: "" },
+    { time: "18:00 - 19:15", task: "" },
+    { time: "19:30 - 21:30", task: "" },
+  ],
+  sab: [
+    { time: "7:00 - 8:30",   task: "" },
+    { time: "8:30 - 9:30",   task: "" },
+    { time: "10:00 - 14:00", task: "" },
+    { time: "16:00 - 20:00", task: "" },
+  ],
+  dom: [
+    { time: "8:00 - 9:00",   task: "" },
+    { time: "10:00 - 13:00", task: "" },
+    { time: "16:00 - 20:00", task: "" },
+    { time: "22:30",          task: "Planificar semana siguiente" },
+  ],
+};
+// ═══════════════════════════════════════════════════════
+
+const DAYS_LABEL = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const DAYS_KEY   = ["dom","lun","mar","mie","jue","vie","sab"];
+const DAYS_FULL  = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+
+const today = new Date();
+let currentDow = today.getDay();
+
+function load(k){try{return JSON.parse(localStorage.getItem("sp_"+k)||"{}");}catch(e){return {};}}
+function save(k,v){localStorage.setItem("sp_"+k,JSON.stringify(v));}
+
+function weekKey(){
+  const d=new Date(today);
+  d.setDate(today.getDate()-((today.getDay()+6)%7));
+  return d.toISOString().slice(0,10);
+}
+
+function blockKey(dow,idx){return weekKey()+"_"+dow+"_"+idx;}
+
+function getDayBlocks(dow){return PLAN[DAYS_KEY[dow]]||[];}
+
+function getDayScore(dow){
+  const blocks=getDayBlocks(dow);
+  if(!blocks.length)return null;
+  const done=blocks.filter((_,i)=>load(blockKey(dow,i)).done).length;
+  return {done,total:blocks.length};
+}
+
+function renderNav(){
+  const nav=document.getElementById("days-nav");
+  nav.innerHTML="";
+  DAYS_LABEL.forEach((label,dow)=>{
+    const blocks=getDayBlocks(dow);
+    const sc=getDayScore(dow);
+    const hasData=sc&&sc.done>0;
+    const b=document.createElement("div");
+    b.className="day-btn"+(dow===currentDow?" active":"")+(hasData?" has-data":"");
+    const d=new Date(today);d.setDate(today.getDate()-(today.getDay()-dow));
+    b.innerHTML='<span class="dn">'+label+'</span><span class="dd">'+d.getDate()+'</span><span class="dot"></span>';
+    if(!blocks.length)b.style.opacity="0.35";
+    b.addEventListener("click",()=>{currentDow=dow;render();});
+    nav.appendChild(b);
+  });
+}
+
+function renderBlocks(){
+  const dow=currentDow;
+  const blocks=getDayBlocks(dow);
+  const container=document.getElementById("blocks-container");
+  container.innerHTML="";
+
+  document.getElementById("day-title").textContent=DAYS_FULL[dow];
+
+  if(!blocks.length){
+    container.innerHTML='<div class="empty-day">Sin bloques planificados<br>para este dia</div>';
+    document.getElementById("day-progress").textContent="";
+    document.getElementById("score-pill").textContent="— / —";
+    return;
+  }
+
+  const doneCount=blocks.filter((_,i)=>load(blockKey(dow,i)).done).length;
+  document.getElementById("day-progress").textContent=doneCount+" de "+blocks.length+" completados";
+  document.getElementById("score-pill").textContent=doneCount+" / "+blocks.length;
+
+  blocks.forEach((block,idx)=>{
+    const key=blockKey(dow,idx);
+    const data=load(key);
+    const card=document.createElement("div");
+    card.className="block-card"+(data.done?" done":"");
+
+    const noteId="note_"+dow+"_"+idx;
+    card.innerHTML=
+      '<div class="block-main">'+
+        '<div class="check-box'+(data.done?" done":"")+'">'+
+          '<svg class="check-icon" viewBox="0 0 13 13" fill="none">'+
+            '<polyline points="2,6.5 5,10 11,3" stroke="#85B7EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
+          '</svg>'+
+        '</div>'+
+        '<div class="block-info">'+
+          '<div class="block-time">'+block.time+'</div>'+
+          '<div class="block-task">'+(block.task||'<span style="color:#555;font-style:italic">Sin tarea asignada</span>')+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="note-area">'+
+        '<div class="note-label"><span>Nota</span><span class="note-saved" id="saved_'+idx+'">Guardado</span></div>'+
+        '<textarea class="note-input" id="'+noteId+'" placeholder="Añade una nota...">'+(data.note||'')+'</textarea>'+
+      '</div>';
+
+    // Toggle note area on tap
+    card.querySelector(".block-main").addEventListener("click",(e)=>{
+      card.classList.toggle("open");
+    });
+
+    // Checkbox toggle
+    card.querySelector(".check-box").addEventListener("click",(e)=>{
+      e.stopPropagation();
+      const d2=load(key);
+      d2.done=!d2.done;
+      save(key,d2);
+      toast(d2.done?"Completado!":"Desmarcado");
+      render();
+    });
+
+    card.addEventListener("click",()=>{});
+
+    container.appendChild(card);
+
+    // Note autosave
+    const textarea=document.getElementById(noteId);
+    const savedEl=document.getElementById("saved_"+idx);
+    let saveTimer;
+    textarea.addEventListener("input",()=>{
+      clearTimeout(saveTimer);
+      saveTimer=setTimeout(()=>{
+        const d2=load(key);
+        d2.note=textarea.value;
+        save(key,d2);
+        savedEl.classList.add("show");
+        setTimeout(()=>savedEl.classList.remove("show"),1500);
+      },600);
+    });
+    textarea.addEventListener("click",(e)=>e.stopPropagation());
+  });
+}
+
+function renderHeader(){
+  const d=new Date(today);
+  d.setDate(today.getDate()-(today.getDay()-currentDow));
+  const isToday=currentDow===today.getDay();
+  document.getElementById("header-date").textContent=isToday
+    ?"Hoy · "+d.toLocaleDateString("es-ES",{day:"numeric",month:"long"})
+    :d.toLocaleDateString("es-ES",{day:"numeric",month:"long"});
+}
+
+let toastT;
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("show");
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),1400);
+}
+
+function render(){renderHeader();renderNav();renderBlocks();}
+render();
+</script>
+</body>
+</html>
