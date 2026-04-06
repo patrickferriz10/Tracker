@@ -370,7 +370,20 @@ function renderBlocks(){
       });
       btnDel.addEventListener('click', function(e){
         e.stopPropagation();
-        if(confirm('Eliminar este bloque?')) deleteBlock(block.id, dow);
+        if(btnDel.dataset.confirm==='1'){
+          deleteBlock(block.id, dow);
+        } else {
+          btnDel.dataset.confirm='1';
+          btnDel.textContent='Seguro?';
+          btnDel.style.color='#f09595';
+          btnDel.style.borderColor='#A32D2D';
+          setTimeout(function(){
+            btnDel.dataset.confirm='';
+            btnDel.textContent='x';
+            btnDel.style.color='';
+            btnDel.style.borderColor='';
+          }, 2500);
+        }
       });
       saveBtn.addEventListener('click', function(){
         updateBlock(block.id, timeInput.value.trim(), taskInput.value.trim(), chk.checked);
