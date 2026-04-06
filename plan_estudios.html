@@ -22,6 +22,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .score-pill{background:#0F3460;border:1px solid #185FA5;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:#85B7EB;white-space:nowrap}
 .edit-toggle{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;color:#888;cursor:pointer}
 .edit-toggle.active{border-color:#534AB7;color:#7F77DD;background:#16132a}
+
 .days-nav{display:flex;gap:6px;margin-bottom:12px}
 .day-btn{flex:1;padding:8px 2px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;cursor:pointer;text-align:center}
 .day-btn.active{background:#0F3460;border-color:#185FA5}
@@ -32,23 +33,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .dot{width:5px;height:5px;border-radius:50%;background:#2c2c4a;margin:4px auto 0;display:block}
 .day-btn.has-data .dot{background:#378ADD}
 .day-btn.active .dot{background:rgba(133,183,235,0.4)}
+
 .day-header{padding:10px 0 8px;display:flex;align-items:center;justify-content:space-between}
 .day-title{font-size:15px;font-weight:600;color:#fff}
 .day-progress{font-size:12px;color:#888}
 
 .block-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:14px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
 .block-card.done{border-color:#0F3460}
+.block-card.is-class{border-left:3px solid #534AB7}
 .block-card.editing{border-color:#534AB7}
+
 .block-main{padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer}
 .block-main:active{background:#16213e}
 .block-info{flex:1;min-width:0}
 .block-time{font-size:11px;color:#888;margin-bottom:3px;font-weight:500}
 .block-task{font-size:13px;color:#ccc;line-height:1.35}
 .block-card.done .block-task{color:#888;text-decoration:line-through;text-decoration-color:#444}
+.class-badge{display:inline-block;font-size:9px;background:#16132a;color:#7F77DD;border-radius:4px;padding:1px 5px;margin-left:5px;font-weight:600;vertical-align:middle}
+
 .check-box{width:26px;height:26px;border-radius:50%;border:1.5px solid #444;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
 .check-box.done{background:#0F3460;border-color:#185FA5}
 .check-icon{display:none;width:13px;height:13px}
 .check-box.done .check-icon{display:block}
+
 .block-actions{display:flex;gap:6px;flex-shrink:0}
 .btn-edit{background:none;border:1px solid #2c2c4a;border-radius:6px;color:#666;font-size:12px;padding:4px 8px;cursor:pointer}
 .btn-edit:active{color:#7F77DD;border-color:#534AB7}
@@ -57,11 +64,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 .edit-area{padding:0 14px 14px;display:none}
 .block-card.open .edit-area{display:block}
-.edit-row{display:flex;gap:8px;margin-bottom:8px}
+.edit-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
 .edit-input{flex:1;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:8px 10px;font-size:13px;color:#eee;font-family:inherit;outline:none}
 .edit-input:focus{border-color:#185FA5}
 .edit-input.time-input{max-width:130px;flex:none}
-.edit-save{padding:8px 16px;background:#0F3460;border:1px solid #185FA5;border-radius:8px;color:#85B7EB;font-size:12px;font-weight:600;cursor:pointer}
+.edit-save{padding:8px 16px;background:#0F3460;border:1px solid #185FA5;border-radius:8px;color:#85B7EB;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.class-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:#888;margin-bottom:8px}
+.class-toggle input{accent-color:#534AB7;width:16px;height:16px}
 
 .note-area{padding:0 14px 12px;display:none}
 .block-card.note-open .note-area{display:block}
@@ -73,8 +82,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 .add-block-btn{width:100%;padding:13px;background:#16132a;border:1px dashed #534AB7;border-radius:12px;color:#7F77DD;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;display:none}
 .add-block-btn.visible{display:block}
-
 .empty-day{text-align:center;padding:40px 20px;color:#444;font-size:13px;line-height:1.8}
+
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:999}
 .toast.show{opacity:1}
 </style>
@@ -106,6 +115,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 var SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
 var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 
+// Clases fijas predeterminadas — editables desde el modo editar
+var DEFAULT_BLOCKS = [
+  {day:'mar', block_idx:10, time:'17:00 - 19:00', task:'ENCO - Clase Teoria', is_class:true},
+  {day:'mar', block_idx:11, time:'19:00 - 21:00', task:'ENCO - Clase Practica', is_class:true},
+  {day:'mie', block_idx:10, time:'15:00 - 17:00', task:'SIRO - Clase Teoria', is_class:true},
+  {day:'mie', block_idx:11, time:'17:00 - 19:00', task:'ININ - Clase Practica', is_class:true},
+  {day:'jue', block_idx:10, time:'15:00 - 17:00', task:'INEL - Clase Teoria', is_class:true},
+  {day:'jue', block_idx:11, time:'17:00 - 19:00', task:'INEL - Clase Practica', is_class:true},
+  {day:'jue', block_idx:12, time:'19:00 - 21:00', task:'SIRO - Clase Practica', is_class:true},
+  {day:'vie', block_idx:10, time:'15:00 - 17:00', task:'ININ - Clase Teoria', is_class:true},
+];
+
 var DAYS_LABEL = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
 var DAYS_KEY   = ['dom','lun','mar','mie','jue','vie','sab'];
 var DAYS_FULL  = ['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
@@ -117,80 +138,104 @@ var logsCache = {};
 
 function setSyncStatus(s){ document.getElementById('sync-dot').className='sync-dot '+s; }
 
-function weekKey(){
-  var d=new Date(today);
-  d.setDate(today.getDate()-((today.getDay()+6)%7));
-  return d.toISOString().slice(0,10);
+function dateKey(d){
+  var dt = new Date(today);
+  dt.setDate(today.getDate() - (today.getDay() - d));
+  return dt.toISOString().slice(0,10);
 }
 
-function sbReq(method,path,body){
+function sbReq(method, path, body){
   return fetch(SB_URL+'/rest/v1/'+path,{
-    method:method,
+    method: method,
     headers:{
-      'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
-      'Content-Type':'application/json',
-      'Prefer':method==='POST'?'return=representation,resolution=merge-duplicates':method==='PATCH'?'return=representation':''
+      'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': method==='POST' ? 'return=representation,resolution=merge-duplicates' : method==='PATCH' ? 'return=representation' : ''
     },
-    body:body?JSON.stringify(body):undefined
-  }).then(function(r){ return r.status===204?null:r.json(); });
+    body: body ? JSON.stringify(body) : undefined
+  }).then(function(r){ return r.status===204 ? null : r.json(); });
 }
 
-function loadWeek(){
+function loadAll(){
   setSyncStatus('syncing');
-  var wk = weekKey();
-  var p1 = sbReq('GET','study_blocks?week_key=eq.'+wk+'&order=block_idx.asc&select=*');
-  var p2 = sbReq('GET','study_logs?week_key=eq.'+wk+'&select=*');
+  var p1 = sbReq('GET','study_blocks?order=block_idx.asc&select=*');
+  // Load logs for this whole week
+  var dates = [];
+  for(var i=0;i<7;i++) dates.push(dateKey(i));
+  var p2 = sbReq('GET','study_logs?date=in.('+dates.join(',')+')'+'&select=*');
   return Promise.all([p1,p2]).then(function(res){
     blocksCache = {};
     logsCache = {};
-    if(Array.isArray(res[0])) res[0].forEach(function(b){ if(!blocksCache[b.day]) blocksCache[b.day]=[]; blocksCache[b.day].push(b); });
-    if(Array.isArray(res[1])) res[1].forEach(function(r){ logsCache[r.day+'_'+r.block_idx]={done:r.done,note:r.note||'',id:r.id}; });
+    if(Array.isArray(res[0])) res[0].forEach(function(b){
+      if(!blocksCache[b.day]) blocksCache[b.day]=[];
+      blocksCache[b.day].push(b);
+    });
+    if(Array.isArray(res[1])) res[1].forEach(function(r){
+      var k = r.day+'_'+r.block_idx+'_'+r.date;
+      logsCache[k] = {done:r.done, note:r.note||'', id:r.id};
+    });
     setSyncStatus('ok');
   }).catch(function(){ setSyncStatus('err'); });
 }
 
-function getDayBlocks(dow){ return blocksCache[DAYS_KEY[dow]]||[]; }
-
-function getDayDone(dow){
-  var blocks=getDayBlocks(dow);
-  var done=0;
-  blocks.forEach(function(b,i){ var k=DAYS_KEY[dow]+'_'+b.block_idx; if(logsCache[k]&&logsCache[k].done) done++; });
-  return {done:done,total:blocks.length};
+function getDayBlocks(dow){
+  var day = DAYS_KEY[dow];
+  var blocks = (blocksCache[day]||[]).slice();
+  blocks.sort(function(a,b){ return a.block_idx - b.block_idx; });
+  return blocks;
 }
 
-function saveLog(dow,blockIdx,done,note){
+function getLogKey(dow, blockIdx){
+  return DAYS_KEY[dow]+'_'+blockIdx+'_'+dateKey(dow);
+}
+
+function getDayDone(dow){
+  var blocks = getDayBlocks(dow);
+  var done = 0;
+  blocks.forEach(function(b){
+    var k = getLogKey(dow, b.block_idx);
+    if(logsCache[k] && logsCache[k].done) done++;
+  });
+  return {done:done, total:blocks.length};
+}
+
+function saveLog(dow, blockIdx, done, note){
   setSyncStatus('syncing');
-  var wk=weekKey();
-  var day=DAYS_KEY[dow];
-  var k=day+'_'+blockIdx;
-  var body={week_key:wk,day:day,block_idx:blockIdx,done:done,note:note||''};
-  return sbReq('POST','study_logs',body).then(function(){
-    logsCache[k]={done:done,note:note||''};
+  var day = DAYS_KEY[dow];
+  var date = dateKey(dow);
+  var k = getLogKey(dow, blockIdx);
+  var body = {day:day, block_idx:blockIdx, date:date, done:done, note:note||''};
+  return sbReq('POST','study_logs',body).then(function(res){
+    var r = Array.isArray(res)?res[0]:res;
+    if(r) logsCache[k] = {done:r.done, note:r.note||'', id:r.id};
+    else logsCache[k] = {done:done, note:note||''};
     setSyncStatus('ok');
   }).catch(function(){ setSyncStatus('err'); showToast('Error de conexion'); });
 }
 
 function addBlock(dow){
   setSyncStatus('syncing');
-  var wk=weekKey();
-  var day=DAYS_KEY[dow];
-  var blocks=getDayBlocks(dow);
-  var nextIdx = blocks.length>0 ? Math.max.apply(null,blocks.map(function(b){return b.block_idx;}))+1 : 0;
-  var body={week_key:wk,day:day,block_idx:nextIdx,time:'',task:''};
+  var day = DAYS_KEY[dow];
+  var blocks = getDayBlocks(dow);
+  var maxIdx = blocks.length>0 ? Math.max.apply(null, blocks.map(function(b){return b.block_idx;})) : -1;
+  var nextIdx = maxIdx + 1;
+  var body = {day:day, block_idx:nextIdx, time:'', task:'', is_class:false};
   return sbReq('POST','study_blocks',body).then(function(res){
-    var newBlock = Array.isArray(res)?res[0]:res;
-    if(newBlock){ if(!blocksCache[day]) blocksCache[day]=[]; blocksCache[day].push(newBlock); }
+    var nb = Array.isArray(res)?res[0]:res;
+    if(nb){ if(!blocksCache[day]) blocksCache[day]=[]; blocksCache[day].push(nb); }
     setSyncStatus('ok');
     render();
     showToast('Bloque añadido');
   }).catch(function(){ setSyncStatus('err'); });
 }
 
-function updateBlock(id,time,task){
+function updateBlock(id, time, task, is_class){
   setSyncStatus('syncing');
-  return sbReq('PATCH','study_blocks?id=eq.'+id,{time:time,task:task}).then(function(){
+  return sbReq('PATCH','study_blocks?id=eq.'+id,{time:time, task:task, is_class:is_class}).then(function(){
     Object.keys(blocksCache).forEach(function(day){
-      blocksCache[day]=blocksCache[day].map(function(b){ return b.id===id?Object.assign({},b,{time:time,task:task}):b; });
+      blocksCache[day] = blocksCache[day].map(function(b){
+        return b.id===id ? Object.assign({},b,{time:time,task:task,is_class:is_class}) : b;
+      });
     });
     setSyncStatus('ok');
     render();
@@ -198,11 +243,11 @@ function updateBlock(id,time,task){
   }).catch(function(){ setSyncStatus('err'); });
 }
 
-function deleteBlock(id,dow){
+function deleteBlock(id, dow){
   setSyncStatus('syncing');
-  var day=DAYS_KEY[dow];
+  var day = DAYS_KEY[dow];
   return sbReq('DELETE','study_blocks?id=eq.'+id).then(function(){
-    blocksCache[day]=(blocksCache[day]||[]).filter(function(b){return b.id!==id;});
+    blocksCache[day] = (blocksCache[day]||[]).filter(function(b){return b.id!==id;});
     setSyncStatus('ok');
     render();
     showToast('Bloque eliminado');
@@ -210,139 +255,161 @@ function deleteBlock(id,dow){
 }
 
 function renderNav(){
-  var nav=document.getElementById('days-nav');
-  nav.innerHTML='';
-  DAYS_LABEL.forEach(function(label,dow){
-    var sc=getDayDone(dow);
-    var blocks=getDayBlocks(dow);
-    var b=document.createElement('div');
-    b.className='day-btn'+(dow===currentDow?' active':'')+(sc.done>0?' has-data':'');
-    var d=new Date(today);d.setDate(today.getDate()-(today.getDay()-dow));
-    b.innerHTML='<span class="dn">'+label+'</span><span class="dd">'+d.getDate()+'</span><span class="dot"></span>';
-    if(!blocks.length&&!editMode) b.style.opacity='0.35';
-    b.addEventListener('click',function(){currentDow=dow;render();});
+  var nav = document.getElementById('days-nav');
+  nav.innerHTML = '';
+  DAYS_LABEL.forEach(function(label, dow){
+    var sc = getDayDone(dow);
+    var blocks = getDayBlocks(dow);
+    var b = document.createElement('div');
+    b.className = 'day-btn'+(dow===currentDow?' active':'')+(sc.done>0?' has-data':'');
+    var d = new Date(today); d.setDate(today.getDate()-(today.getDay()-dow));
+    b.innerHTML = '<span class="dn">'+label+'</span><span class="dd">'+d.getDate()+'</span><span class="dot"></span>';
+    if(!blocks.length && !editMode) b.style.opacity='0.35';
+    b.addEventListener('click', function(){ currentDow=dow; render(); });
     nav.appendChild(b);
   });
 }
 
 function renderBlocks(){
-  var dow=currentDow;
-  var blocks=getDayBlocks(dow);
-  var container=document.getElementById('blocks-container');
-  container.innerHTML='';
+  var dow = currentDow;
+  var blocks = getDayBlocks(dow);
+  var container = document.getElementById('blocks-container');
+  container.innerHTML = '';
 
-  document.getElementById('day-title').textContent=DAYS_FULL[dow];
-  document.getElementById('add-block-btn').className='add-block-btn'+(editMode?' visible':'');
+  document.getElementById('day-title').textContent = DAYS_FULL[dow];
+  document.getElementById('add-block-btn').className = 'add-block-btn'+(editMode?' visible':'');
 
   if(!blocks.length){
-    var emp=document.createElement('div');
-    emp.className='empty-day';
-    emp.textContent=editMode?'Sin bloques. Pulsa + Añadir bloque para empezar.':'Sin bloques planificados para este dia';
+    var emp = document.createElement('div');
+    emp.className = 'empty-day';
+    emp.textContent = editMode ? 'Sin bloques. Pulsa + Añadir bloque.' : 'Sin bloques para este dia';
     container.appendChild(emp);
-    document.getElementById('day-progress').textContent='';
-    document.getElementById('score-pill').textContent='— / —';
+    document.getElementById('day-progress').textContent = '';
+    document.getElementById('score-pill').textContent = '— / —';
     return;
   }
 
-  var sc=getDayDone(dow);
-  document.getElementById('day-progress').textContent=sc.done+' de '+sc.total+' completados';
-  document.getElementById('score-pill').textContent=sc.done+' / '+sc.total;
+  var sc = getDayDone(dow);
+  document.getElementById('day-progress').textContent = sc.done+' de '+sc.total+' completados';
+  document.getElementById('score-pill').textContent = sc.done+' / '+sc.total;
 
   blocks.forEach(function(block){
-    var idx=block.block_idx;
-    var k=DAYS_KEY[dow]+'_'+idx;
-    var data=logsCache[k]||{done:false,note:''};
+    var logKey = getLogKey(dow, block.block_idx);
+    var data = logsCache[logKey]||{done:false, note:''};
+    var isClass = block.is_class;
 
-    var card=document.createElement('div');
-    card.className='block-card'+(data.done?' done':'');
+    var card = document.createElement('div');
+    card.className = 'block-card'+(data.done?' done':'')+(isClass?' is-class':'');
 
-    var main=document.createElement('div');
-    main.className='block-main';
+    var main = document.createElement('div');
+    main.className = 'block-main';
 
-    var checkBox=document.createElement('div');
-    checkBox.className='check-box'+(data.done?' done':'');
-    checkBox.innerHTML='<svg class="check-icon" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5,10 11,3" stroke="#85B7EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    var checkBox = document.createElement('div');
+    checkBox.className = 'check-box'+(data.done?' done':'');
+    checkBox.innerHTML = '<svg class="check-icon" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5,10 11,3" stroke="#85B7EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-    var info=document.createElement('div');
-    info.className='block-info';
-    info.innerHTML='<div class="block-time">'+(block.time||'Sin hora')+'</div><div class="block-task">'+(block.task||'<span style="color:#555;font-style:italic">Sin tarea</span>')+'</div>';
+    var info = document.createElement('div');
+    info.className = 'block-info';
+    var taskHtml = (block.task||'<span style="color:#555;font-style:italic">Sin tarea</span>');
+    if(isClass) taskHtml += '<span class="class-badge">Clase</span>';
+    info.innerHTML = '<div class="block-time">'+(block.time||'Sin hora')+'</div><div class="block-task">'+taskHtml+'</div>';
 
     main.appendChild(checkBox);
     main.appendChild(info);
 
     if(editMode){
-      var actions=document.createElement('div');
-      actions.className='block-actions';
-      var btnEdit=document.createElement('button');
-      btnEdit.className='btn-edit';btnEdit.textContent='Editar';
-      var btnDel=document.createElement('button');
-      btnDel.className='btn-del';btnDel.textContent='×';
+      var actions = document.createElement('div');
+      actions.className = 'block-actions';
+      var btnEdit = document.createElement('button');
+      btnEdit.className = 'btn-edit'; btnEdit.textContent = 'Editar';
+      var btnDel = document.createElement('button');
+      btnDel.className = 'btn-del'; btnDel.textContent = '×';
       actions.appendChild(btnEdit);
       actions.appendChild(btnDel);
       main.appendChild(actions);
 
-      btnEdit.addEventListener('click',function(e){
+      var editArea = document.createElement('div');
+      editArea.className = 'edit-area';
+
+      var classToggle = document.createElement('label');
+      classToggle.className = 'class-toggle';
+      var chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.checked = !!isClass;
+      classToggle.appendChild(chk);
+      classToggle.appendChild(document.createTextNode('Marcar como clase fija'));
+
+      var timeRow = document.createElement('div');
+      timeRow.className = 'edit-row';
+      var timeInput = document.createElement('input');
+      timeInput.className = 'edit-input time-input';
+      timeInput.placeholder = 'Ej: 10:00 - 14:00';
+      timeInput.value = block.time||'';
+      timeRow.appendChild(timeInput);
+
+      var taskRow = document.createElement('div');
+      taskRow.className = 'edit-row';
+      var taskInput = document.createElement('input');
+      taskInput.className = 'edit-input';
+      taskInput.placeholder = 'Tarea o asunto...';
+      taskInput.value = block.task||'';
+      var saveBtn = document.createElement('button');
+      saveBtn.className = 'edit-save';
+      saveBtn.textContent = 'Guardar';
+      taskRow.appendChild(taskInput);
+      taskRow.appendChild(saveBtn);
+
+      editArea.appendChild(classToggle);
+      editArea.appendChild(timeRow);
+      editArea.appendChild(taskRow);
+
+      btnEdit.addEventListener('click', function(e){
         e.stopPropagation();
         card.classList.toggle('open');
         card.classList.remove('note-open');
       });
-      btnDel.addEventListener('click',function(e){
+      btnDel.addEventListener('click', function(e){
         e.stopPropagation();
-        if(confirm('Eliminar este bloque?')) deleteBlock(block.id,dow);
+        if(confirm('Eliminar este bloque?')) deleteBlock(block.id, dow);
+      });
+      saveBtn.addEventListener('click', function(){
+        updateBlock(block.id, timeInput.value.trim(), taskInput.value.trim(), chk.checked);
       });
 
-      var editArea=document.createElement('div');
-      editArea.className='edit-area';
-      editArea.innerHTML=
-        '<div class="edit-row">'+
-          '<input class="edit-input time-input" placeholder="Ej: 10:00 - 14:00" value="'+(block.time||'')+'">'+
-        '</div>'+
-        '<div class="edit-row">'+
-          '<input class="edit-input" placeholder="Tarea o asunto..." value="'+(block.task||'')+'">'+
-          '<button class="edit-save">Guardar</button>'+
-        '</div>';
       card.appendChild(main);
       card.appendChild(editArea);
-
-      editArea.querySelector('.edit-save').addEventListener('click',function(){
-        var t=editArea.querySelector('.time-input').value.trim();
-        var ta=editArea.querySelector('.edit-input:not(.time-input)').value.trim();
-        updateBlock(block.id,t,ta);
-      });
-
     } else {
-      main.addEventListener('click',function(){
-        card.classList.toggle('note-open');
-      });
-      checkBox.addEventListener('click',function(e){
+      checkBox.addEventListener('click', function(e){
         e.stopPropagation();
-        var newDone=!data.done;
-        var curNote=card.querySelector('.note-input')?card.querySelector('.note-input').value:'';
-        saveLog(dow,idx,newDone,curNote).then(function(){render();});
+        var newDone = !data.done;
+        var curNote = card.querySelector('.note-input') ? card.querySelector('.note-input').value : '';
+        saveLog(dow, block.block_idx, newDone, curNote).then(function(){ render(); });
+        showToast(newDone ? 'Completado!' : 'Desmarcado');
       });
+      main.addEventListener('click', function(){ card.classList.toggle('note-open'); });
 
-      var noteArea=document.createElement('div');
-      noteArea.className='note-area';
-      var savedId='saved_'+dow+'_'+idx;
-      noteArea.innerHTML=
+      var noteArea = document.createElement('div');
+      noteArea.className = 'note-area';
+      var savedId = 'saved_'+dow+'_'+block.block_idx;
+      noteArea.innerHTML =
         '<div class="note-label"><span>Nota</span><span class="note-saved" id="'+savedId+'">Guardado</span></div>'+
         '<textarea class="note-input" placeholder="Añade una nota...">'+data.note+'</textarea>';
 
       card.appendChild(main);
       card.appendChild(noteArea);
 
-      var textarea=noteArea.querySelector('textarea');
+      var textarea = noteArea.querySelector('textarea');
       var saveTimer;
-      textarea.addEventListener('input',function(){
+      textarea.addEventListener('input', function(){
         clearTimeout(saveTimer);
-        saveTimer=setTimeout(function(){
-          var savedEl=document.getElementById(savedId);
-          saveLog(dow,idx,data.done,textarea.value).then(function(){
-            if(savedEl){savedEl.classList.add('show');setTimeout(function(){savedEl.classList.remove('show');},1500);}
+        saveTimer = setTimeout(function(){
+          var savedEl = document.getElementById(savedId);
+          saveLog(dow, block.block_idx, data.done, textarea.value).then(function(){
+            if(savedEl){ savedEl.classList.add('show'); setTimeout(function(){ savedEl.classList.remove('show'); }, 1500); }
           });
-        },800);
+        }, 800);
       });
-      textarea.addEventListener('click',function(e){e.stopPropagation();});
+      textarea.addEventListener('click', function(e){ e.stopPropagation(); });
     }
 
     container.appendChild(card);
@@ -350,31 +417,54 @@ function renderBlocks(){
 }
 
 function renderHeader(){
-  var d=new Date(today);d.setDate(today.getDate()-(today.getDay()-currentDow));
-  var isToday=currentDow===today.getDay();
-  document.getElementById('header-date').textContent=isToday
-    ?'Hoy - '+d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
-    :d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+  var d = new Date(today); d.setDate(today.getDate()-(today.getDay()-currentDow));
+  var isToday = currentDow===today.getDay();
+  document.getElementById('header-date').textContent = isToday
+    ? 'Hoy - '+d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
+    : d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
 }
 
 function render(){ renderHeader(); renderNav(); renderBlocks(); }
 
-document.getElementById('edit-toggle').addEventListener('click',function(){
-  editMode=!editMode;
-  this.textContent=editMode?'Listo':'Editar';
-  this.className='edit-toggle'+(editMode?' active':'');
+document.getElementById('edit-toggle').addEventListener('click', function(){
+  editMode = !editMode;
+  this.textContent = editMode ? 'Listo' : 'Editar';
+  this.className = 'edit-toggle'+(editMode?' active':'');
   render();
 });
 
-document.getElementById('add-block-btn').addEventListener('click',function(){
-  addBlock(currentDow);
-});
+document.getElementById('add-block-btn').addEventListener('click', function(){ addBlock(currentDow); });
+
+// Seed default class blocks if DB is empty
+function seedDefaultsIfEmpty(){
+  var allBlocks = Object.values(blocksCache).reduce(function(a,b){return a.concat(b);},[]);
+  if(allBlocks.length > 0) return Promise.resolve();
+  var inserts = DEFAULT_BLOCKS.map(function(b){ return {day:b.day, block_idx:b.block_idx, time:b.time, task:b.task, is_class:b.is_class}; });
+  return fetch(SB_URL+'/rest/v1/study_blocks',{
+    method:'POST',
+    headers:{
+      'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
+      'Content-Type':'application/json',
+      'Prefer':'return=representation'
+    },
+    body:JSON.stringify(inserts)
+  }).then(function(r){return r.json();}).then(function(res){
+    if(Array.isArray(res)) res.forEach(function(b){
+      if(!blocksCache[b.day]) blocksCache[b.day]=[];
+      blocksCache[b.day].push(b);
+    });
+  }).catch(function(){});
+}
 
 var toastT;
-function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},1400);}
+function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove('show'); },1400); }
 
 setSyncStatus('syncing');
-loadWeek().then(function(){ render(); });
+loadAll().then(function(){
+  return seedDefaultsIfEmpty();
+}).then(function(){
+  render();
+});
 </script>
 </body>
 </html>
