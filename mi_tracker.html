@@ -133,7 +133,7 @@ var SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
 var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 
 var SECTIONS = [
-  {id:'morning',label:'Rutina de mañana',icon:'🌅',bg:'rgba(233,69,96,0.15)',
+  {id:'morning',label:'Rutina de manana',icon:'🌅',bg:'rgba(233,69,96,0.15)',
    habits:[
      {id:'water',       text:'Beber agua al levantarme'},
      {id:'nomobile_am', text:'Sin movil los primeros 30 min'},
@@ -145,6 +145,7 @@ var SECTIONS = [
    habits:[
      {id:'study_block',   text:'Cumplir el bloque de estudio del dia'},
      {id:'nomobile_study',text:'Sin movil durante el estudio'},
+     {id:'review',        text:'Repasar y consolidar lo aprendido'}
    ]},
   {id:'night',label:'Rutina de noche',icon:'🌙',bg:'rgba(127,119,221,0.15)',
    habits:[
@@ -152,7 +153,7 @@ var SECTIONS = [
      {id:'teeth',      text:'Lavarme los dientes'},
      {id:'order',      text:'Habitacion y zonas comunes ordenadas'},
      {id:'read',       text:'Leer aunque sea 10 min'},
-     {id:'prep',       text:'Todo listo para mañana'}
+     {id:'prep',       text:'Todo listo para manana'}
    ]}
 ];
 
@@ -231,12 +232,23 @@ function saveHabit(dateStr,habitId,done){
   if(!cache[dateStr])cache[dateStr]={};
   if(done===null){
     delete cache[dateStr][habitId];
-    return sbReq('DELETE','habit_logs?date=eq.'+dateStr+'&habit_id=eq.'+habitId)
-      .then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});
+    return fetch(SB_URL+'/rest/v1/habit_logs?date=eq.'+dateStr+'&habit_id=eq.'+habitId,{
+      method:'DELETE',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
+    }).then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});
   } else {
     cache[dateStr][habitId]=done;
-    return sbReq('POST','habit_logs',{date:dateStr,habit_id:habitId,done:done})
-      .then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});
+    return fetch(SB_URL+'/rest/v1/habit_logs',{
+      method:'POST',
+      headers:{
+        'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
+        'Content-Type':'application/json',
+        'Prefer':'return=representation,resolution=merge-duplicates'
+      },
+      body:JSON.stringify({date:dateStr,habit_id:habitId,done:done})
+    }).then(function(r){return r.json();})
+    .then(function(){setSyncStatus('ok');})
+    .catch(function(){setSyncStatus('err');});
   }
 }
 
@@ -396,11 +408,17 @@ function renderSueno(){
   hrsVal.textContent=(todayLog?todayLog.hours:selectedHours).toFixed(1)+'h';
   var slider=document.createElement('input');
   slider.type='range';slider.className='sleep-slider';
-  slider.min='3';slider.max='10';slider.step='0.5';
+  slider.min='3';slider.max='10';slider.step='0.25';
   slider.value=todayLog?todayLog.hours:selectedHours;
+  function fmtHours(h){
+    var hrs=Math.floor(h);
+    var mins=Math.round((h-hrs)*60);
+    return mins===0?hrs+'h':hrs+"'"+String(mins).padStart(2,'0');
+  }
+  hrsVal.textContent=fmtHours(todayLog?todayLog.hours:selectedHours);
   slider.addEventListener('input',function(){
     selectedHours=parseFloat(slider.value);
-    hrsVal.textContent=selectedHours.toFixed(1)+'h';
+    hrsVal.textContent=fmtHours(selectedHours);
   });
   hrsRow.appendChild(hrsLabel);hrsRow.appendChild(hrsVal);hrsRow.appendChild(slider);
   card.appendChild(hrsRow);
