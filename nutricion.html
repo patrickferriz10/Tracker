@@ -407,8 +407,8 @@ function renderPlan(){
     checkBtn.className='btn-check'+(mealData.done?' done':'');
     checkBtn.innerHTML='<svg viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5,10 11,3" stroke="#C0DD97" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     checkBtn.addEventListener('click',function(){
-      var cur=mealData.done;
-      saveMeal(dateStr,mealType,!cur,mealData.swapped_to).then(function(){loadMeals().then(function(){renderPlan();});});
+      var cur=(mealCache[dateStr]&&mealCache[dateStr][mealType])?mealCache[dateStr][mealType].done:false;
+      saveMeal(dateStr,mealType,!cur,(mealCache[dateStr]&&mealCache[dateStr][mealType])?mealCache[dateStr][mealType].swapped_to:null).then(function(){loadMeals().then(function(){renderPlan();});});
       showToast(cur?'Desmarcado':'Comida completada');
     });
 
