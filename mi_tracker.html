@@ -245,15 +245,31 @@ function saveHabit(dateStr,habitId,done){
     }).then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});
   } else {
     cache[dateStr][habitId]=done;
-    return fetch(SB_URL+'/rest/v1/habit_logs',{
-      method:'POST',
+    // Use PATCH to update if exists, POST to insert if not
+    var checkUrl=SB_URL+'/rest/v1/habit_logs?date=eq.'+dateStr+'&habit_id=eq.'+habitId;
+    return fetch(checkUrl,{
+      method:'PATCH',
       headers:{
         'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
         'Content-Type':'application/json',
-        'Prefer':'return=representation,resolution=merge-duplicates'
+        'Prefer':'return=representation'
       },
-      body:JSON.stringify({date:dateStr,habit_id:habitId,done:done})
+      body:JSON.stringify({done:done})
     }).then(function(r){return r.json();})
+    .then(function(res){
+      // If no rows were updated (empty array), insert new row
+      if(Array.isArray(res)&&res.length===0){
+        return fetch(SB_URL+'/rest/v1/habit_logs',{
+          method:'POST',
+          headers:{
+            'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
+            'Content-Type':'application/json',
+            'Prefer':'return=representation'
+          },
+          body:JSON.stringify({date:dateStr,habit_id:habitId,done:done})
+        }).then(function(r){return r.json();});
+      }
+    })
     .then(function(){setSyncStatus('ok');})
     .catch(function(){setSyncStatus('err');});
   }
@@ -281,8 +297,10 @@ function saveSleep(dateStr,hours,quality,note){
 function getDayScore(dateStr){
   var data=cache[dateStr]||{};
   var ids=allIds();
-  var done=ids.filter(function(id){return data[id]===true;}).length;
-  return ids.length?done/ids.length:0;
+  var marked=ids.filter(function(id){return data[id]===true||data[id]===false;});
+  if(!marked.length) return 0;
+  var done=marked.filter(function(id){return data[id]===true;}).length;
+  return done/marked.length;
 }
 
 // ── RENDER HABITOS ──────────────────────────────────────
