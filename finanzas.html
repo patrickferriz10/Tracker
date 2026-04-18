@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -263,7 +262,8 @@ function totalSaved(){
   Object.keys(monthCache).forEach(function(m){
     var rows = monthCache[m]||[];
     var inc = rows.filter(function(r){return r.type==='inc';}).reduce(function(s,r){return s+r.amount;},0);
-    total += inc*(SAVINGS_PCT/100);
+    var exp = rows.filter(function(r){return r.type==='exp';}).reduce(function(s,r){return s+r.amount;},0);
+    total += Math.max(0,inc-exp)*(SAVINGS_PCT/100);
   });
   return total;
 }
@@ -318,31 +318,21 @@ function makeEntry(icon,name,note,amtText,amtClass,isFixed,onDel){
 
 function renderRes(){
   var rows = getRows();
-  var incRows = rows.filter(function(r){return r.type==='inc';});
-  var inc = incRows.reduce(function(s,r){return s+r.amount;},0);
+  var inc = rows.filter(function(r){return r.type==='inc';}).reduce(function(s,r){return s+r.amount;},0);
   var exp = rows.filter(function(r){return r.type==='exp';}).reduce(function(s,r){return s+r.amount;},0);
-  var toSave = inc*(SAVINGS_PCT/100);
-  var toSpend = Math.max(0, inc - toSave - exp);
+  var free = Math.max(0,inc-exp);
+  var toSave = free*(SAVINGS_PCT/100);
+  var toSpend = free-toSave;
   var view = document.getElementById('view-res');
   view.innerHTML = '';
-
-  // Desglose por ingreso
-  var incBreakdown = '';
-  if(incRows.length > 1){
-    incRows.forEach(function(r){
-      var apartado = r.amount*(SAVINGS_PCT/100);
-      incBreakdown += '<div class="saving-row" style="font-size:11px;color:#555"><span>↳ '+r.label+' ('+fmt(r.amount)+')</span><span style="color:#63991b">→ '+fmt(apartado)+'</span></div>';
-    });
-  }
 
   var box = document.createElement('div');
   box.className = 'saving-box';
   box.innerHTML = '<div class="saving-title">Regla del '+SAVINGS_PCT+'% este mes</div>'+
     '<div class="saving-row"><span>Ingresos totales</span><span>'+fmt(inc)+'</span></div>'+
-    incBreakdown+
-    '<div class="saving-row"><span>Apartar para Erasmus ('+SAVINGS_PCT+'%)</span><span style="color:#C0DD97">'+fmt(toSave)+'</span></div>'+
     '<div class="saving-row"><span>Gastos totales</span><span style="color:#f09595">-'+fmt(exp)+'</span></div>'+
-    '<div class="saving-row"><span>Queda para gastar</span><span style="color:#85B7EB">'+fmt(toSpend)+'</span></div>'+
+    '<div class="saving-row"><span>Apartar para Erasmus</span><span>'+fmt(toSave)+'</span></div>'+
+    '<div class="saving-row"><span>Disponible para gastar</span><span style="color:#85B7EB">'+fmt(toSpend)+'</span></div>'+
     (toSave>0?'<div class="saving-tip">Transfiere '+fmt(toSave)+' a tu cuenta de ahorro.</div>':'');
   view.appendChild(box);
 
@@ -374,9 +364,11 @@ function renderInc(){
   view.innerHTML='';
   if(!rows.length){var emp=document.createElement('div');emp.className='empty';emp.textContent='Sin ingresos este mes';view.appendChild(emp);}
   rows.forEach(function(r){
-    var apartado = r.amount*(SAVINGS_PCT/100);
-    var noteText = (r.note ? r.note+' · ' : '') + '→ apartar '+fmt(apartado);
-    view.appendChild(makeEntry(catIcon(INC_CATS,r.cat),r.label,noteText,'+'+fmt(r.amount),'green',false,function(){deleteEntry(r.id);}));
+    (function(row){
+      var apartado = row.amount*(SAVINGS_PCT/100);
+      var noteText = (row.note ? row.note+' · ' : '') + '→ apartar '+fmt(apartado);
+      view.appendChild(makeEntry(catIcon(INC_CATS,row.cat),row.label,noteText,'+'+fmt(row.amount),'green',false,function(){deleteEntry(row.id);}));
+    })(r);
   });
   var btn=document.createElement('button');btn.className='add-btn add-inc';btn.textContent='+ Añadir ingreso';
   btn.addEventListener('click',function(){openSheet('sh-inc');});
@@ -389,7 +381,9 @@ function renderExp(){
   view.innerHTML='';
   if(!rows.length){var emp=document.createElement('div');emp.className='empty';emp.textContent='Sin gastos este mes';view.appendChild(emp);}
   rows.forEach(function(r){
-    view.appendChild(makeEntry(catIcon(EXP_CATS,r.cat),r.label,r.note,'-'+fmt(r.amount),'red',r.fixed,r.fixed?null:function(){deleteEntry(r.id);}));
+    (function(row){
+      view.appendChild(makeEntry(catIcon(EXP_CATS,row.cat),row.label,row.note,'-'+fmt(row.amount),'red',row.fixed,row.fixed?null:function(){deleteEntry(row.id);}));
+    })(r);
   });
   var btn=document.createElement('button');btn.className='add-btn add-exp';btn.textContent='+ Añadir gasto';
   btn.addEventListener('click',function(){openSheet('sh-exp');});
@@ -470,6 +464,5 @@ setSyncStatus('syncing');
 var m = mk(cur);
 loadMonth(m).then(function(){return ensureFixed(m);}).then(function(){goTab('res');});
 </script>
-
 </body>
 </html>
