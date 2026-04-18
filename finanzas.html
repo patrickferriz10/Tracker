@@ -262,8 +262,7 @@ function totalSaved(){
   Object.keys(monthCache).forEach(function(m){
     var rows = monthCache[m]||[];
     var inc = rows.filter(function(r){return r.type==='inc';}).reduce(function(s,r){return s+r.amount;},0);
-    var exp = rows.filter(function(r){return r.type==='exp';}).reduce(function(s,r){return s+r.amount;},0);
-    total += Math.max(0,inc-exp)*(SAVINGS_PCT/100);
+    total += inc*(SAVINGS_PCT/100);
   });
   return total;
 }
@@ -318,21 +317,30 @@ function makeEntry(icon,name,note,amtText,amtClass,isFixed,onDel){
 
 function renderRes(){
   var rows = getRows();
-  var inc = rows.filter(function(r){return r.type==='inc';}).reduce(function(s,r){return s+r.amount;},0);
+  var incRows = rows.filter(function(r){return r.type==='inc';});
+  var inc = incRows.reduce(function(s,r){return s+r.amount;},0);
   var exp = rows.filter(function(r){return r.type==='exp';}).reduce(function(s,r){return s+r.amount;},0);
-  var free = Math.max(0,inc-exp);
-  var toSave = free*(SAVINGS_PCT/100);
-  var toSpend = free-toSave;
+  var toSave = inc*(SAVINGS_PCT/100);
+  var toSpend = Math.max(0, inc - toSave - exp);
   var view = document.getElementById('view-res');
   view.innerHTML = '';
+
+  var incBreakdown = '';
+  if(incRows.length > 1){
+    incRows.forEach(function(r){
+      var apartado = r.amount*(SAVINGS_PCT/100);
+      incBreakdown += '<div class="saving-row" style="font-size:11px;color:#555"><span>↳ '+r.label+' ('+fmt(r.amount)+')</span><span style="color:#63991b">→ '+fmt(apartado)+'</span></div>';
+    });
+  }
 
   var box = document.createElement('div');
   box.className = 'saving-box';
   box.innerHTML = '<div class="saving-title">Regla del '+SAVINGS_PCT+'% este mes</div>'+
     '<div class="saving-row"><span>Ingresos totales</span><span>'+fmt(inc)+'</span></div>'+
+    incBreakdown+
+    '<div class="saving-row"><span>Apartar para Erasmus ('+SAVINGS_PCT+'%)</span><span style="color:#C0DD97">'+fmt(toSave)+'</span></div>'+
     '<div class="saving-row"><span>Gastos totales</span><span style="color:#f09595">-'+fmt(exp)+'</span></div>'+
-    '<div class="saving-row"><span>Apartar para Erasmus</span><span>'+fmt(toSave)+'</span></div>'+
-    '<div class="saving-row"><span>Disponible para gastar</span><span style="color:#85B7EB">'+fmt(toSpend)+'</span></div>'+
+    '<div class="saving-row"><span>Queda para gastar</span><span style="color:#85B7EB">'+fmt(toSpend)+'</span></div>'+
     (toSave>0?'<div class="saving-tip">Transfiere '+fmt(toSave)+' a tu cuenta de ahorro.</div>':'');
   view.appendChild(box);
 
