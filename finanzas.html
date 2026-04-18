@@ -85,6 +85,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-cancel{flex:1;padding:12px;background:#2c2c4a;border:none;border-radius:10px;color:#888;font-size:14px;font-weight:600;cursor:pointer}
 .btn-save-g{flex:2;padding:12px;background:#3B6D11;border:none;border-radius:10px;color:#C0DD97;font-size:14px;font-weight:600;cursor:pointer}
 .btn-save-r{flex:2;padding:12px;background:#A32D2D;border:none;border-radius:10px;color:#f09595;font-size:14px;font-weight:600;cursor:pointer}
+.close-month-btn{width:100%;padding:13px;background:#16132a;border:1px solid #534AB7;border-radius:12px;color:#7F77DD;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px}
+.closed-badge{width:100%;padding:13px;background:#0d1a0d;border:1px solid #27500A;border-radius:12px;color:#63991b;font-size:13px;font-weight:600;text-align:center;margin-top:10px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:999}
 .toast.show{opacity:1}
 </style>
@@ -165,7 +167,8 @@ var INC_CATS = [
   {id:'futbol',   icon:'⚽',label:'Futbol'},
   {id:'familia',  icon:'👨',label:'Familia'},
   {id:'workaway', icon:'🌍',label:'Workaway'},
-  {id:'extra',    icon:'✨',label:'Extra'}
+  {id:'extra',    icon:'✨',label:'Extra'},
+  {id:'sobrante',  icon:'💰',label:'Sobrante'}
 ];
 var EXP_CATS = [
   {id:'comida',   icon:'🛒',label:'Comida'},
@@ -179,7 +182,6 @@ var EXP_CATS = [
 ];
 var FIXED_EXP = [
   {cat:'piso',     label:'Gastos comunes piso', amount:50},
-  {cat:'gasolina', label:'Gasolina',             amount:45},
   {cat:'comida',   label:'Compra mensual',        amount:180},
   {cat:'barberia', label:'Barberia',              amount:15}
 ];
@@ -189,6 +191,7 @@ var currentTab = 'res';
 var selInc = 'practicas';
 var selExp = 'otro';
 var monthCache = {};
+var closedCache = {};
 
 function mk(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function fmt(n){ return n.toFixed(2).replace('.',',')+' €'; }
@@ -210,12 +213,14 @@ function sbReq(method, path, body){
 
 function loadMonth(month){
   setSyncStatus('syncing');
-  return sbReq('GET','finance_logs?month=eq.'+month+'&select=*')
-    .then(function(rows){
-      monthCache[month] = Array.isArray(rows)?rows:[];
-      setSyncStatus('ok');
-      return monthCache[month];
-    }).catch(function(){ setSyncStatus('err'); return monthCache[month]||[]; });
+  var p1 = sbReq('GET','finance_logs?month=eq.'+month+'&select=*');
+  var p2 = sbReq('GET','closed_months?month=eq.'+month+'&select=*');
+  return Promise.all([p1,p2]).then(function(res){
+    monthCache[month] = Array.isArray(res[0])?res[0]:[];
+    if(Array.isArray(res[1])&&res[1].length) closedCache[month]=res[1][0];
+    setSyncStatus('ok');
+    return monthCache[month];
+  }).catch(function(){ setSyncStatus('err'); return monthCache[month]||[]; });
 }
 
 function ensureFixed(month){
@@ -261,10 +266,58 @@ function totalSaved(){
   var total = SAVINGS_ALREADY;
   Object.keys(monthCache).forEach(function(m){
     var rows = monthCache[m]||[];
-    var inc = rows.filter(function(r){return r.type==='inc';}).reduce(function(s,r){return s+r.amount;},0);
+    // sobrante va integro a ahorros (ya contabilizado en closed_months del mes anterior)
+    var inc = rows.filter(function(r){return r.type==='inc'&&r.cat!=='sobrante';}).reduce(function(s,r){return s+r.amount;},0);
     total += inc*(SAVINGS_PCT/100);
+    if(closedCache[m]) total += closedCache[m].extra_saved;
   });
   return total;
+}
+
+function nextMonthKey(month){
+  var parts = month.split('-');
+  var y = parseInt(parts[0]); var mo = parseInt(parts[1]);
+  mo++; if(mo>12){mo=1;y++;}
+  return y+'-'+String(mo).padStart(2,'0');
+}
+
+function closeMonth(month){
+  var rows = monthCache[month]||[];
+  var inc = rows.filter(function(r){return r.type==='inc'&&r.cat!=='sobrante';}).reduce(function(s,r){return s+r.amount;},0);
+  var exp = rows.filter(function(r){return r.type==='exp';}).reduce(function(s,r){return s+r.amount;},0);
+  var extra = Math.max(0, inc - inc*(SAVINGS_PCT/100) - exp);
+  var nextMonth = nextMonthKey(month);
+  var monthLabel = MONTHS[parseInt(month.split('-')[1])-1];
+  setSyncStatus('syncing');
+  // 1. Guardar en closed_months
+  return fetch(SB_URL+'/rest/v1/closed_months',{
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation,resolution=merge-duplicates'},
+    body:JSON.stringify({month:month, extra_saved:extra})
+  }).then(function(r){return r.json();})
+  .then(function(res){
+    var r=Array.isArray(res)?res[0]:res;
+    if(r) closedCache[month]=r;
+    // 2. Insertar sobrante como ingreso en el mes siguiente
+    if(extra <= 0) return;
+    return fetch(SB_URL+'/rest/v1/finance_logs',{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify({month:nextMonth,type:'inc',cat:'sobrante',label:'Sobrante '+monthLabel,amount:extra,note:'',fixed:false})
+    }).then(function(r){return r.json();})
+    .then(function(res){
+      var nr=Array.isArray(res)?res[0]:res;
+      if(nr){
+        if(!monthCache[nextMonth]) monthCache[nextMonth]=[];
+        monthCache[nextMonth].push(nr);
+      }
+    });
+  })
+  .then(function(){
+    setSyncStatus('ok');
+    render();
+    showToast('Mes cerrado · +'+fmt(extra)+' al mes siguiente');
+  }).catch(function(){setSyncStatus('err');});
 }
 
 function renderErasmus(){
@@ -317,30 +370,21 @@ function makeEntry(icon,name,note,amtText,amtClass,isFixed,onDel){
 
 function renderRes(){
   var rows = getRows();
-  var incRows = rows.filter(function(r){return r.type==='inc';});
-  var inc = incRows.reduce(function(s,r){return s+r.amount;},0);
+  var inc = rows.filter(function(r){return r.type==='inc';}).reduce(function(s,r){return s+r.amount;},0);
   var exp = rows.filter(function(r){return r.type==='exp';}).reduce(function(s,r){return s+r.amount;},0);
-  var toSave = inc*(SAVINGS_PCT/100);
-  var toSpend = Math.max(0, inc - toSave - exp);
+  var free = Math.max(0,inc-exp);
+  var toSave = free*(SAVINGS_PCT/100);
+  var toSpend = free-toSave;
   var view = document.getElementById('view-res');
   view.innerHTML = '';
-
-  var incBreakdown = '';
-  if(incRows.length > 1){
-    incRows.forEach(function(r){
-      var apartado = r.amount*(SAVINGS_PCT/100);
-      incBreakdown += '<div class="saving-row" style="font-size:11px;color:#555"><span>↳ '+r.label+' ('+fmt(r.amount)+')</span><span style="color:#63991b">→ '+fmt(apartado)+'</span></div>';
-    });
-  }
 
   var box = document.createElement('div');
   box.className = 'saving-box';
   box.innerHTML = '<div class="saving-title">Regla del '+SAVINGS_PCT+'% este mes</div>'+
     '<div class="saving-row"><span>Ingresos totales</span><span>'+fmt(inc)+'</span></div>'+
-    incBreakdown+
-    '<div class="saving-row"><span>Apartar para Erasmus ('+SAVINGS_PCT+'%)</span><span style="color:#C0DD97">'+fmt(toSave)+'</span></div>'+
     '<div class="saving-row"><span>Gastos totales</span><span style="color:#f09595">-'+fmt(exp)+'</span></div>'+
-    '<div class="saving-row"><span>Queda para gastar</span><span style="color:#85B7EB">'+fmt(toSpend)+'</span></div>'+
+    '<div class="saving-row"><span>Apartar para Erasmus</span><span>'+fmt(toSave)+'</span></div>'+
+    '<div class="saving-row"><span>Disponible para gastar</span><span style="color:#85B7EB">'+fmt(toSpend)+'</span></div>'+
     (toSave>0?'<div class="saving-tip">Transfiere '+fmt(toSave)+' a tu cuenta de ahorro.</div>':'');
   view.appendChild(box);
 
@@ -373,8 +417,13 @@ function renderInc(){
   if(!rows.length){var emp=document.createElement('div');emp.className='empty';emp.textContent='Sin ingresos este mes';view.appendChild(emp);}
   rows.forEach(function(r){
     (function(row){
-      var apartado = row.amount*(SAVINGS_PCT/100);
-      var noteText = (row.note ? row.note+' · ' : '') + '→ apartar '+fmt(apartado);
+      var noteText = row.note || '';
+      if(row.cat !== 'sobrante'){
+        var ap = row.amount*(SAVINGS_PCT/100);
+        noteText = (noteText ? noteText+' · ' : '') + '→ apartar '+fmt(ap);
+      } else {
+        noteText = (noteText ? noteText+' · ' : '') + 'integro a ahorros';
+      }
       view.appendChild(makeEntry(catIcon(INC_CATS,row.cat),row.label,noteText,'+'+fmt(row.amount),'green',false,function(){deleteEntry(row.id);}));
     })(r);
   });
