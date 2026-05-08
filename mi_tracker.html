@@ -5,67 +5,135 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Mi Tracker">
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAFE0lEQVR4nO3dP4tcVRiA8XcG+3SCwmpn2lQ2IVXExipIsBVsLBLwoywkRRohbQiSykZMJTZWtrHTwAp28wXUQu8ysztz55y75/6Z531+TQKbnbnMPvvmzLl7965iAW7dev+fuY9BbWw2F6s5n3+WJzfgPKYOfLInM2JNEfeoT2DEOmSsuEd5UENWqdZhr1s+WIQxq07rXpp9dxiybqrFtG4yoY1ZLbTo6EbfEYassQyd1oMntDFrTEP7GhS0MWsKQzqrDtqYNaXa3qqCNmbNoaa74qCNWXMq7a8oaGPWEpR0eDRoY9aSHOux+alvaU69QTudtUR9XR4M2pi1ZIf6dMkhlL1BO511CvZ1ei1oY9YpudqrSw6h7ATtdNYp2u7WCS0UgxbKZdAuN3TKun6d0EIxaKGsIlxuiMMJLRSDFopBC2Xt+lkkTmihGLRQDFooBi0UgxaKQQvFoIVi0EIxaKEYtFAMWigGLRSDFopBC8WghWLQQnln7gMYy9nZnbkPYdHevv117kMYBXJCG/Nx1NdoRbsEq/tCUSdQK9TXCTWhqV+kMXSvEW1SY4I25nrEqDFBSxEGLRiDFgp2H7rEN1//dPn382f3jv6bJfju+8e9H8/+HiLthL4a6r5wlxZzRMTnnz3p/TjpDd4QaYMucWhqz8kJ3S/1kqPEEqPWYWkn9NVQDZch9YQ2Yp60E1pMBi0UgxaKQQvFoIVi0ELBbdtlP/WbHS7o7Kd+a9EGgEsOoRi0UAxaKAYtFIMWikELBbdtV6PkmsIPX38x+nH8/eWbZo+Vfdsy7YTejvnVw6d7rx+cIuaIiPXz280ei7avXCtt0J1XD5/u/Lnt9/svJjkGJ3Q7qZcc2xE/ePkozuN6wFNFrTbSTujzZ/fiwctHEfF/zF6OhYD5dbr+ssZhaK9b2gktJoMWikELxaCFYtBCMWih4E6sZD/1mx0uaMp+6lRoA8Alh1AMWigGLRSDFopBCwW3y9Habx9/Oujz7v/5V+MjKZN9lyd10MeuKRwac0TE6/fenSXqs7M7qaNOu+QouU/hR7/8MPjxndDzSD2hI/6bzH032LxJ1Jpe2gndWeLdYjVc2qC9TyFT6iWHEfOkndBiMmihGLRQDFooBi0U3C4H7QoM1cEFnf3Uby3aAHDJIRSDFopBC8WghWLQQjFooeC27WqU3Nbtk7vfTnU4O9788WTQ52Xftkw7oUsuwZor5oiI2x88HvR5tH3lWmmD7vT9TPSPP3814ZHsckIPk3rJEXH8Eqw5o1a9tBPaS7CYUk9oI+ZJO6HFZNBCMWihYILutquy78PWoN0WOQIUdIRR1yDGHAG6ef02gy5DizkCNqE7xC9Ua9TXCDmhlRdyQisvgxaKQQvFoIVi0EIxaKEYtFAMWigGLRSDFopBC8WghWLQQjFooRi0UAxaKAYtlPVmc7Ga+yCkVpzQQjFooRi0UNYREa6jRbDZXKyc0EIxaKFcBu2yQ6es69cJLRSDFspO0C47dIq2u3VCC+Va0E5pnZKrve6d0EatU7CvU5ccQjkYtFNaS3aoz94JbdRaor4uXXII5WjQTmktybEeiya0UWsJSjosXnIYteZU2l/VGtqoNYea7qrfFBq1plTb26BdDqPWFIZ0Nnjbzqg1pqF9NYnS2yurlZsOyiYnVpzWaqFFR81DdFqrVsuB2PzUt9NaNVr3Mmp8TmsdMtbgm2yaGrem+N97luWBcecx9RL0X4BXdnWjzIYAAAAAAElFTkSuQmCC">
+<meta name="apple-mobile-web-app-title" content="Tracker">
 <title>Mi Tracker</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f1a;color:#eee;min-height:100vh;padding-bottom:60px}
 .app{max-width:420px;margin:0 auto;padding:14px}
-.header{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-.header h1{font-size:18px;font-weight:600;color:#fff}
-.header p{font-size:12px;color:#888;margin-top:2px}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:#444;flex-shrink:0;margin-left:8px}
+
+/* ── Header ─────────────────────────────────────────────── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.topbar h1{font-size:17px;font-weight:600;color:#fff}
+.topbar .date{font-size:11px;color:#666;margin-top:1px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#444;flex-shrink:0}
 .sync-dot.ok{background:#63991b}.sync-dot.syncing{background:#BA7517;animation:pulse 1s infinite}.sync-dot.err{background:#A32D2D}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.score-ring{width:54px;height:54px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.score-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
-.score-ring span{font-size:13px;font-weight:600;color:#fff;position:relative;z-index:1}
 
-.tabs{display:flex;gap:6px;margin-bottom:12px}
+/* ── Score hero ─────────────────────────────────────────── */
+.hero{background:linear-gradient(180deg,#16132a 0%,#0f0f1a 100%);border:1px solid #2c2c4a;border-radius:18px;padding:18px 16px;margin-bottom:12px}
+.hero-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:10px}
+.score-now{flex:1}
+.score-label{font-size:10px;color:#7F77DD;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:2px}
+.score-num{font-size:46px;font-weight:700;color:#fff;line-height:1;letter-spacing:-1px}
+.score-num.neg{color:#f09595}
+.score-max{font-size:13px;color:#555;margin-left:4px;font-weight:500}
+.score-7d{text-align:right;flex-shrink:0}
+.score-7d-label{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.score-7d-num{font-size:22px;font-weight:600;color:#aaa}
+.compare{display:flex;gap:14px;font-size:11px;color:#666;padding-top:10px;border-top:1px solid #1f1f3a}
+.compare span{flex:1}
+.compare b{font-weight:600}
+.compare .up{color:#C0DD97}
+.compare .down{color:#f09595}
+.compare .eq{color:#888}
+
+/* ── Apuesta semanal ────────────────────────────────────── */
+.bet-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:14px;padding:13px 15px;margin-bottom:12px;cursor:pointer}
+.bet-card.empty{border-style:dashed;border-color:#3a3a5a;background:#111120}
+.bet-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.bet-label{font-size:10px;color:#FAC775;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.bet-progress-text{font-size:11px;color:#888;font-weight:500}
+.bet-text{font-size:13px;color:#eee;line-height:1.4;margin-bottom:8px}
+.bet-text.placeholder{color:#555;font-style:italic}
+.bet-bar{background:#0d0d1a;border-radius:4px;height:5px;overflow:hidden}
+.bet-bar-fg{height:5px;border-radius:4px;background:linear-gradient(90deg,#BA7517,#FAC775);transition:width .4s}
+
+/* ── Tabs ───────────────────────────────────────────────── */
+.tabs{display:flex;gap:6px;margin-bottom:10px}
 .tab{flex:1;padding:9px 4px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:#666}
-.tab.t-hab.active{background:#16132a;border-color:#534AB7;color:#7F77DD}
+.tab.t-hoy.active{background:#16132a;border-color:#534AB7;color:#7F77DD}
 .tab.t-sue.active{background:#0d1f3a;border-color:#185FA5;color:#85B7EB}
+.tab.t-his.active{background:#1a1a0d;border-color:#BA7517;color:#FAC775}
 
-.days-nav{display:flex;gap:6px;margin-bottom:12px}
-.day-btn{flex:1;padding:8px 2px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;cursor:pointer;text-align:center}
+/* ── Day nav ───────────────────────────────────────────── */
+.days-nav{display:flex;gap:5px;margin-bottom:12px}
+.day-btn{flex:1;padding:7px 2px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:9px;cursor:pointer;text-align:center}
 .day-btn.active{background:#534AB7;border-color:#534AB7}
-.day-btn .dn{font-size:10px;color:#888;display:block}
-.day-btn .dd{font-size:14px;font-weight:600;color:#fff;display:block}
-.day-btn.active .dn{color:rgba(255,255,255,0.7)}
-.dot{width:5px;height:5px;border-radius:50%;background:#2c2c4a;margin:4px auto 0;display:block}
-.day-btn.active .dot{background:rgba(255,255,255,0.4)}
-.day-btn.has-data .dot{background:#63991b}
-.day-btn.active.has-data .dot{background:#C0DD97}
+.day-btn .dn{font-size:9px;color:#888;display:block}
+.day-btn .dd{font-size:13px;font-weight:600;color:#fff;display:block}
+.day-btn.active .dn{color:rgba(255,255,255,.7)}
+.day-btn .ds{font-size:8px;color:#444;display:block;margin-top:1px;font-weight:600}
+.day-btn .ds.s-hi{color:#63991b}
+.day-btn .ds.s-mid{color:#BA7517}
+.day-btn .ds.s-lo{color:#A32D2D}
+.day-btn.active .ds{color:rgba(255,255,255,.6)}
 
-.section{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;margin-bottom:10px;overflow:hidden}
-.section-header{padding:12px 14px;display:flex;align-items:center;gap:10px}
-.sec-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.sec-title{font-size:14px;font-weight:600;color:#fff}
-.sec-score{margin-left:auto;font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px}
-.habit-item{padding:12px 14px;border-top:1px solid #2c2c4a;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
-.habit-item:active{background:#16213e}
-.habit-text{flex:1;font-size:13px;color:#ccc;line-height:1.35}
-.check-box{width:28px;height:28px;border-radius:50%;border:1.5px solid #444;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
-.check-box.done{background:#3B6D11;border-color:#3B6D11}
-.check-box.fail{background:#1a0808;border-color:#A32D2D}
-.check-icon,.x-icon{display:none;width:14px;height:14px}
-.check-box.done .check-icon{display:block}
-.check-box.fail .x-icon{display:block}
+/* ── Section ──────────────────────────────────────────── */
+.section-label{font-size:10px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.7px;margin:14px 0 6px;padding:0 2px}
 
-.streak-bar{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;padding:14px;margin-bottom:10px}
-.streak-title{font-size:12px;color:#888;margin-bottom:10px;font-weight:500}
-.streak-grid{display:flex;gap:5px;flex-wrap:wrap}
-.sday{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#555;background:#111}
-.sday.s-high{background:#27500A;color:#C0DD97}
-.sday.s-mid{background:#633806;color:#FAC775}
-.hint{text-align:center;font-size:11px;color:#444;margin-top:14px;line-height:1.6}
+/* ── Core item ────────────────────────────────────────── */
+.core-item{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:13px;padding:12px 14px;margin-bottom:7px}
+.core-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.core-name{font-size:13px;color:#ddd;font-weight:500}
+.core-points{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:#0d0d1a;color:#666}
+.core-points.has-pts{background:#1a3a08;color:#C0DD97}
+.core-points.neg-pts{background:#2a0808;color:#f09595}
+.scale-row{display:flex;gap:5px}
+.scale-btn{flex:1;padding:8px 2px;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:7px;cursor:pointer;text-align:center;font-size:10px;color:#666;transition:all .15s}
+.scale-btn .sv{font-size:14px;font-weight:700;display:block;line-height:1.1}
+.scale-btn .sl{font-size:9px;display:block;margin-top:1px;opacity:.7}
+.scale-btn.sel-0{background:#1a0d0d;border-color:#3a1a1a;color:#a06060}
+.scale-btn.sel-1{background:#1a1a0d;border-color:#3a2a0a;color:#FAC775}
+.scale-btn.sel-2{background:#0d1a0d;border-color:#27500A;color:#C0DD97}
+.scale-btn.sel-3{background:#16132a;border-color:#534AB7;color:#7F77DD}
+.scale-btn.sel-2x{background:#0d1a0d;border-color:#27500A;color:#C0DD97}
 
+/* ── Sueño ref ───────────────────────────────────────── */
+.sleep-ref{font-size:10px;color:#666;margin-top:6px;display:flex;align-items:center;gap:6px}
+.sleep-ref b{color:#85B7EB;font-weight:600}
+.sleep-ref a{color:#85B7EB;text-decoration:none;font-size:10px;margin-left:auto;font-weight:600}
+
+/* ── Móvil slider ────────────────────────────────────── */
+.movil-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.movil-val{font-size:18px;font-weight:700;color:#85B7EB;width:50px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
+.movil-val.warn{color:#FAC775}
+.movil-val.bad{color:#f09595}
+.movil-slider{flex:1;accent-color:#185FA5}
+.movil-info{font-size:10px;color:#555;margin-top:5px;display:flex;justify-content:space-between}
+
+/* ── Tabaco ──────────────────────────────────────────── */
+.tabaco-row{display:flex;align-items:center;gap:10px}
+.tab-toggle{flex:1;padding:9px;background:#0d0d1a;border:1px solid #27500A;border-radius:8px;text-align:center;font-size:11px;color:#63991b;cursor:pointer;font-weight:600}
+.tab-toggle.fumed{background:#1a0808;border-color:#A32D2D;color:#f09595}
+
+/* ── Mantenimiento ───────────────────────────────────── */
+.maint-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.maint-item{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;padding:10px 11px;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.maint-item.done{border-color:#27500A;background:#0d1a0d}
+.maint-text{font-size:12px;color:#bbb;flex:1;line-height:1.2}
+.maint-item.done .maint-text{color:#C0DD97}
+.maint-check{width:20px;height:20px;border-radius:50%;border:1.5px solid #444;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.maint-item.done .maint-check{background:#3B6D11;border-color:#3B6D11}
+.maint-check svg{display:none;width:11px;height:11px}
+.maint-item.done .maint-check svg{display:block}
+
+/* ── Identidad ───────────────────────────────────────── */
+.identity-card{background:#16132a;border:1px solid #534AB7;border-radius:14px;padding:14px;margin-top:12px;margin-bottom:10px}
+.identity-card.done{background:#1a1a2e;border-color:#3a3a5a}
+.identity-q{font-size:13px;color:#7F77DD;font-weight:600;margin-bottom:8px;line-height:1.3}
+.identity-card.done .identity-q{color:#888}
+.identity-input{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:10px 12px;font-size:13px;color:#eee;font-family:inherit;resize:none;outline:none;min-height:60px;line-height:1.4}
+.identity-input:focus{border-color:#7F77DD}
+.identity-meta{font-size:10px;color:#555;margin-top:5px;display:flex;justify-content:space-between}
+.identity-meta .ok{color:#7F77DD}
+
+/* ── Sueño tab ───────────────────────────────────────── */
 .sleep-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;padding:16px;margin-bottom:10px}
 .sleep-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:14px}
 .sleep-hours-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .sleep-hours-label{font-size:12px;color:#888;width:60px;flex-shrink:0}
-.sleep-hours-val{font-size:22px;font-weight:700;color:#85B7EB;width:48px;text-align:center;flex-shrink:0}
+.sleep-hours-val{font-size:22px;font-weight:700;color:#85B7EB;width:60px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
 .sleep-slider{flex:1;accent-color:#185FA5}
 .quality-row{display:flex;gap:8px;margin-bottom:14px}
 .q-btn{flex:1;padding:8px 4px;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;cursor:pointer;text-align:center;font-size:11px;color:#666;transition:all .15s}
@@ -75,471 +143,1185 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .q-btn.sel-4{background:#0d1f3a;border-color:#185FA5;color:#85B7EB}
 .q-icon{font-size:16px;display:block;margin-bottom:2px}
 .sleep-note{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:8px 10px;font-size:12px;color:#aaa;font-family:inherit;resize:none;outline:none;margin-bottom:12px}
-.sleep-note:focus{border-color:#185FA5}
 .sleep-save{width:100%;padding:12px;background:#0F3460;border:1px solid #185FA5;border-radius:10px;color:#85B7EB;font-size:14px;font-weight:600;cursor:pointer}
-
-.sleep-hist-item{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;gap:10px}
-.sleep-hist-date{font-size:11px;color:#888;width:60px;flex-shrink:0}
-.sleep-hist-bar-wrap{flex:1}
-.sleep-hist-bar-bg{background:#0d0d1a;border-radius:4px;height:6px;margin-bottom:3px}
-.sleep-hist-bar-fg{height:6px;border-radius:4px;background:#185FA5}
-.sleep-hist-label{font-size:10px;color:#888}
-.sleep-hist-right{text-align:right;flex-shrink:0}
-.sleep-hist-hrs{font-size:15px;font-weight:700;color:#85B7EB}
-.sleep-hist-q{font-size:11px;color:#555;margin-top:1px}
-
 .sleep-avg-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
 .sleep-avg-card{background:#0d0d1a;border-radius:10px;padding:10px;text-align:center}
 .sleep-avg-label{font-size:9px;color:#666;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
 .sleep-avg-val{font-size:16px;font-weight:700;color:#85B7EB}
+.sleep-hist-item{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:12px;padding:11px 13px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.sleep-hist-date{font-size:11px;color:#888;width:60px;flex-shrink:0}
+.sleep-hist-bar-wrap{flex:1}
+.sleep-hist-bar-bg{background:#0d0d1a;border-radius:4px;height:5px;margin-bottom:3px}
+.sleep-hist-bar-fg{height:5px;border-radius:4px;background:#185FA5}
+.sleep-hist-label{font-size:10px;color:#888}
+.sleep-hist-right{text-align:right;flex-shrink:0}
+.sleep-hist-hrs{font-size:14px;font-weight:700;color:#85B7EB;font-variant-numeric:tabular-nums}
+.sleep-hist-q{font-size:11px;color:#555;margin-top:1px}
 
+/* ── Histórico tab ──────────────────────────────────── */
+.history-week{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:13px;padding:13px 15px;margin-bottom:8px}
+.hw-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.hw-range{font-size:11px;color:#888;font-weight:500}
+.hw-avg{font-size:20px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.hw-days{display:flex;gap:3px;margin-bottom:8px}
+.hw-day{flex:1;height:22px;border-radius:4px;background:#0d0d1a;display:flex;align-items:center;justify-content:center;font-size:9px;color:#444;font-weight:600}
+.hw-day.s-hi{background:#27500A;color:#C0DD97}
+.hw-day.s-mid{background:#3a2a0a;color:#FAC775}
+.hw-day.s-lo{background:#2a0808;color:#f09595}
+.hw-bet{font-size:11px;color:#888;line-height:1.3;border-top:1px solid #2c2c4a;padding-top:7px;margin-top:7px}
+.hw-bet b{color:#FAC775;font-weight:600}
+.hw-bet .ok{color:#C0DD97}
+.hw-bet .ko{color:#f09595}
+
+.records-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.record-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:11px;padding:11px}
+.record-label{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;font-weight:600}
+.record-val{font-size:18px;font-weight:700;color:#7F77DD;font-variant-numeric:tabular-nums}
+.record-sub{font-size:10px;color:#555;margin-top:1px}
+
+/* ── Modal review ────────────────────────────────────── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.sheet{background:#1a1a2e;border-radius:20px 20px 0 0;border-top:1px solid #2c2c4a;padding:20px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto}
+.sheet h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:4px}
+.sheet .subtitle{font-size:11px;color:#888;margin-bottom:16px}
+.sheet-field{margin-bottom:14px}
+.sheet-field label{font-size:11px;color:#7F77DD;font-weight:600;display:block;margin-bottom:5px}
+.sheet-field textarea, .sheet-field input{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:10px 12px;font-size:13px;color:#eee;font-family:inherit;resize:none;outline:none;line-height:1.4}
+.sheet-field textarea{min-height:55px}
+.sheet-field textarea:focus, .sheet-field input:focus{border-color:#7F77DD}
+.sheet-field .help{font-size:10px;color:#555;margin-top:3px}
+.sheet-btns{display:flex;gap:8px;margin-top:14px}
+.btn-cancel{flex:1;padding:11px;background:#2c2c4a;border:none;border-radius:10px;color:#888;font-size:13px;font-weight:600;cursor:pointer}
+.btn-save{flex:2;padding:11px;background:#534AB7;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+
+/* ── Sunday banner ──────────────────────────────────── */
+.sunday-banner{background:#1a1a0d;border:1px solid #BA7517;border-radius:13px;padding:13px 15px;margin-bottom:12px;cursor:pointer}
+.sunday-banner-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.sunday-label{font-size:10px;color:#FAC775;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.sunday-arrow{color:#FAC775;font-size:14px;font-weight:700}
+.sunday-text{font-size:12px;color:#bbb;line-height:1.4}
+
+/* ── Botón abrir review ──────────────────────────────── */
+.review-btn{width:100%;padding:12px;background:#16132a;border:1px solid #534AB7;border-radius:11px;color:#7F77DD;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px}
+
+/* ── Toast ──────────────────────────────────────────── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:999}
 .toast.show{opacity:1}
+
+/* ── Empty ──────────────────────────────────────────── */
+.empty{text-align:center;padding:30px 20px;color:#444;font-size:12px;line-height:1.7}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="header">
+
+  <div class="topbar">
     <div>
       <h1>Mi Tracker</h1>
-      <p id="header-date"></p>
+      <div class="date" id="header-date"></div>
     </div>
-    <div style="display:flex;align-items:center">
-      <div class="sync-dot" id="sync-dot"></div>
-      <div style="width:12px"></div>
-      <div class="score-ring">
-        <svg width="54" height="54" viewBox="0 0 54 54">
-          <circle cx="27" cy="27" r="22" fill="none" stroke="#2c2c4a" stroke-width="4"/>
-          <circle cx="27" cy="27" r="22" fill="none" stroke="#7F77DD" stroke-width="4" stroke-linecap="round"
-            id="ring-circle" stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
-        </svg>
-        <span id="ring-pct">0%</span>
+    <div class="sync-dot" id="sync-dot"></div>
+  </div>
+
+  <!-- Hero score -->
+  <div class="hero">
+    <div class="hero-row">
+      <div class="score-now">
+        <div class="score-label">Hoy</div>
+        <div><span class="score-num" id="score-num">0</span><span class="score-max">/107</span></div>
+      </div>
+      <div class="score-7d">
+        <div class="score-7d-label">Media 7d</div>
+        <div class="score-7d-num" id="score-7d">—</div>
       </div>
     </div>
+    <div class="compare">
+      <span>vs sem. pasada: <b id="cmp-1w">—</b></span>
+      <span>vs hace 4 sem: <b id="cmp-4w">—</b></span>
+    </div>
   </div>
 
+  <!-- Apuesta semanal -->
+  <div class="bet-card" id="bet-card">
+    <div class="bet-top">
+      <span class="bet-label">Apuesta de la semana</span>
+      <span class="bet-progress-text" id="bet-progress-text"></span>
+    </div>
+    <div class="bet-text" id="bet-text"></div>
+    <div class="bet-bar"><div class="bet-bar-fg" id="bet-bar-fg" style="width:0%"></div></div>
+  </div>
+
+  <!-- Tabs -->
   <div class="tabs">
-    <div class="tab t-hab active" id="tab-hab">Habitos</div>
-    <div class="tab t-sue" id="tab-sue">Sueno</div>
+    <div class="tab t-hoy active" id="tab-hoy">Hoy</div>
+    <div class="tab t-sue" id="tab-sue">Sueño</div>
+    <div class="tab t-his" id="tab-his">Historial</div>
   </div>
 
-  <div id="view-hab"></div>
+  <!-- Vista HOY -->
+  <div id="view-hoy"></div>
+
+  <!-- Vista Sueño -->
   <div id="view-sue" style="display:none"></div>
+
+  <!-- Vista Historial -->
+  <div id="view-his" style="display:none"></div>
+
 </div>
+
+<!-- Modal review semanal -->
+<div class="overlay" id="ov-review">
+  <div class="sheet">
+    <h3>Review de la semana</h3>
+    <div class="subtitle" id="review-week-range"></div>
+    <div class="sheet-field">
+      <label>¿Dónde he estado sólido?</label>
+      <textarea id="rv-solido" placeholder="Lo que ha ido bien, donde he competido bien..."></textarea>
+    </div>
+    <div class="sheet-field">
+      <label>¿Dónde me he vendido barato?</label>
+      <textarea id="rv-vendido" placeholder="Donde me he relajado, evitado incomodidad..."></textarea>
+    </div>
+    <div class="sheet-field">
+      <label>¿Qué patrón me está frenando?</label>
+      <textarea id="rv-patron" placeholder="Qué se repite, qué tengo que romper..."></textarea>
+    </div>
+    <div class="sheet-field">
+      <label>Apuesta para la semana que viene</label>
+      <input type="text" id="rv-bet-text" placeholder="Ej: 5 sesiones de estudio profundo (cal ≥2)">
+      <div class="help">Concreta. Verificable. Difícil pero alcanzable.</div>
+    </div>
+    <div class="sheet-field">
+      <label>Meta numérica</label>
+      <input type="number" id="rv-bet-meta" min="1" max="20" value="5">
+      <div class="help">Cuántas veces tienes que cumplirla en la semana.</div>
+    </div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="rv-cancel">Más tarde</button>
+      <button class="btn-save" id="rv-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal apuesta nueva (sin review) -->
+<div class="overlay" id="ov-bet">
+  <div class="sheet">
+    <h3>Apuesta de la semana</h3>
+    <div class="subtitle">Algo concreto. Verificable. Que cueste.</div>
+    <div class="sheet-field">
+      <label>Texto</label>
+      <input type="text" id="bet-input-text" placeholder="Ej: 5 sesiones de estudio profundo (cal ≥2)">
+    </div>
+    <div class="sheet-field">
+      <label>Meta numérica</label>
+      <input type="number" id="bet-input-meta" min="1" max="20" value="5">
+    </div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="bet-cancel">Cancelar</button>
+      <button class="btn-save" id="bet-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
+// ════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════
 var SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
 var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 
-var SECTIONS = [
-  {id:'morning',label:'Rutina de manana',icon:'🌅',bg:'rgba(233,69,96,0.15)',
-   habits:[
-     {id:'water',       text:'Beber agua al levantarme'},
-     {id:'nomobile_am', text:'Sin movil los primeros 30 min'},
-     {id:'flexiones',   text:'Flexiones matutinas'},
-     {id:'breakfast',   text:'Desayunar bien'},
-     {id:'punctual',    text:'Ser puntual - salir a tiempo'},
-     {id:'order_am',    text:'Todo ordenado'},
-     {id:'teeth_am',    text:'Lavarme los dientes'},
-   ]},
-  {id:'study',label:'Plan de estudios',icon:'📚',bg:'rgba(55,138,221,0.15)',
-   habits:[
-     {id:'study_block',   text:'Cumplir el bloque de estudio del dia'},
-     {id:'nomobile_study',text:'Sin movil durante el estudio'},
-   ]},
-  {id:'night',label:'Rutina de noche',icon:'🌙',bg:'rgba(127,119,221,0.15)',
-   habits:[
-     {id:'nomobile_pm',text:'Sin movil 1h antes de dormir'},
-     {id:'teeth',      text:'Lavarme los dientes'},
-     {id:'order',      text:'Habitacion y zonas comunes ordenadas'},
-     {id:'read',       text:'Leer aunque sea 10 min'},
-     {id:'prep',       text:'Todo listo para manana'},
-     {id:'journaling', text:'Journaling'},
-   ]},
-  {id:'extras',label:'Extras del dia',icon:'💊',bg:'rgba(186,117,23,0.15)',
-   habits:[
-     {id:'creatina',    text:'Tomar creatina + omega3'},
-     {id:'movil_limit', text:'No superar el limite de movil'},
-     {id:'tabaco',      text:'Sin tabaco'},
-     {id:'modo_monje',  text:'Modo monje'},
-   ]},
+var BASE = 20;
+
+// Core systems con peso máximo
+var CORE = [
+  {id:'estudio',     name:'Estudio profundo',  max:28, scale:[0,1,2,3], labels:['Nada','Mediocre','Sólido','Élite']},
+  {id:'cuerpo',      name:'Cuerpo / entreno',  max:14, scale:[0,1,2,3], labels:['Nada','Mínimo','Completo','Duro']},
+  {id:'orden_prep',  name:'Orden + prep mañana', max:12, scale:[0,1,2,3], labels:['Nada','Algo','Sólido','Todo listo']},
+  {id:'puntualidad', name:'Puntualidad',       max:10, scale:[0,1,2],   labels:['Tarde','A tiempo','Con margen']}
 ];
 
-var DAYS=['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
-var today=new Date();
-var currentDay=0;
-var currentTab='hab';
-var cache={};
-var sleepCache={};
-var weekDays=[];
-var selectedHours=7.5;
-var selectedQuality=3;
+// Sueño se calcula desde sleep_logs (horas reales)
+// 0..18 puntos. Tabla: <5h=0, 6h=8, 7h=14, 7.5h=16, 8h+=18
+function scoreSueno(horas){
+  if(!horas || horas <= 0) return 0;
+  if(horas < 5) return 0;
+  if(horas < 6) return Math.round((horas-5)*8);   // 5→0, 6→8
+  if(horas < 7) return Math.round(8 + (horas-6)*6); // 6→8, 7→14
+  if(horas < 8) return Math.round(14 + (horas-7)*4); // 7→14, 8→18
+  return 18; // tope
+}
 
+// Móvil: hasta 1.5h = 0, escala lineal hasta 4h = -20
+function scoreMovil(horas){
+  if(!horas || horas <= 1.5) return 0;
+  if(horas >= 4) return -20;
+  return -Math.round((horas - 1.5) / 2.5 * 20);
+}
+
+// Tabaco: -25 si fumó
+function scoreTabaco(fumed){ return fumed ? -25 : 0; }
+
+// Mantenimiento: +1 cada uno, max 5
+var MAINT = [
+  {id:'m_suplementos', name:'Suplementos'},
+  {id:'m_dientes',     name:'Dientes'},
+  {id:'m_leer',        name:'Leer 10min'},
+  {id:'m_desayuno',    name:'Desayuno'},
+  {id:'m_italiano',    name:'Lezione Italiano'}
+];
+
+// Preguntas de identidad (rotación por día)
+var IDENT_QUESTIONS = [
+  '¿Dónde he estado sólido hoy?',
+  '¿Dónde me he vendido barato?',
+  '¿He actuado como alguien a quien respeto?'
+];
+
+// ════════════════════════════════════════════════════════════
+// ESTADO
+// ════════════════════════════════════════════════════════════
+var DAYS_LABEL = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
+var today = new Date();
+var currentDow = today.getDay();
+var currentTab = 'hoy';
+var dailyCache = {};   // {dateStr: row}
+var sleepCache = {};   // {dateStr: row}
+var betsCache = {};    // {weekStart: row}
+var reviewsCache = {}; // {weekStart: row}
+var historyDays = [];  // últimos 60+ días para histórico
+var weekDays = [];
+
+var selectedHours = 7.5;
+var selectedQuality = 3;
+
+// ════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════
+function setSync(s){ document.getElementById('sync-dot').className = 'sync-dot ' + s; }
+function dateKey(d){ return d.toISOString().slice(0,10); }
+function getDateForDow(dow){
+  var d = new Date(today);
+  d.setDate(today.getDate() - (today.getDay() - dow));
+  return d;
+}
+function weekStart(d){
+  // Lunes como inicio (ISO)
+  var x = new Date(d);
+  var dow = x.getDay();
+  var diff = (dow + 6) % 7;
+  x.setDate(x.getDate() - diff);
+  x.setHours(0,0,0,0);
+  return x;
+}
+function weekStartKey(d){ return dateKey(weekStart(d)); }
+function fmtHours(h){
+  var hrs = Math.floor(h);
+  var mins = Math.round((h - hrs) * 60);
+  return mins === 0 ? hrs + 'h' : hrs + "h" + String(mins).padStart(2,'0');
+}
 function getWeekDays(){
-  var dow=today.getDay();
-  var mon=new Date(today);
-  mon.setDate(today.getDate()-((dow+6)%7));
-  var days=[];
-  for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d);}
-  return days;
-}
-
-function dateKey(d){return d.toISOString().slice(0,10);}
-function allIds(){return SECTIONS.reduce(function(a,s){return a.concat(s.habits.map(function(h){return h.id;}));},[]);}
-function setSyncStatus(s){document.getElementById('sync-dot').className='sync-dot '+s;}
-
-function sbReq(method,path,body){
-  return fetch(SB_URL+'/rest/v1/'+path,{
-    method:method,
-    headers:{
-      'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
-      'Content-Type':'application/json',
-      'Prefer':'resolution=merge-duplicates'
-    },
-    body:body?JSON.stringify(body):undefined
-  }).then(function(r){return r.status===204?null:r.json();});
-}
-
-function loadDayFromCloud(dateStr){
-  setSyncStatus('syncing');
-  return sbReq('GET','habit_logs?date=eq.'+dateStr+'&select=habit_id,done')
-    .then(function(rows){
-      var data={};
-      if(Array.isArray(rows)) rows.forEach(function(r){data[r.habit_id]=r.done;});
-      cache[dateStr]=data;
-      setSyncStatus('ok');
-      return data;
-    }).catch(function(){setSyncStatus('err');return cache[dateStr]||{};});
-}
-
-function loadStreakFromCloud(){
-  var dates=[];
-  for(var i=20;i>=0;i--){var d=new Date(today);d.setDate(today.getDate()-i);dates.push(dateKey(d));}
-  return sbReq('GET','habit_logs?date=in.('+dates.join(',')+')'+'&select=date,habit_id,done')
-    .then(function(rows){
-      dates.forEach(function(dt){if(!cache[dt])cache[dt]={};});
-      if(Array.isArray(rows)) rows.forEach(function(r){
-        if(!cache[r.date])cache[r.date]={};
-        cache[r.date][r.habit_id]=r.done;
-      });
-    }).catch(function(){});
-}
-
-function loadSleepHistory(){
-  var dates=[];
-  for(var i=29;i>=0;i--){var d=new Date(today);d.setDate(today.getDate()-i);dates.push(dateKey(d));}
-  return sbReq('GET','sleep_logs?date=in.('+dates.join(',')+')'+'&select=*&order=date.desc')
-    .then(function(rows){
-      sleepCache={};
-      if(Array.isArray(rows)) rows.forEach(function(r){sleepCache[r.date]=r;});
-    }).catch(function(){});
-}
-
-function saveHabit(dateStr,habitId,done){
-  setSyncStatus('syncing');
-  if(!cache[dateStr])cache[dateStr]={};
-  if(done===null){
-    delete cache[dateStr][habitId];
-    return fetch(SB_URL+'/rest/v1/habit_logs?date=eq.'+dateStr+'&habit_id=eq.'+habitId,{
-      method:'DELETE',
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
-    }).then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});
-  } else {
-    cache[dateStr][habitId]=done;
-    // Use PATCH to update if exists, POST to insert if not
-    var checkUrl=SB_URL+'/rest/v1/habit_logs?date=eq.'+dateStr+'&habit_id=eq.'+habitId;
-    return fetch(checkUrl,{
-      method:'PATCH',
-      headers:{
-        'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
-        'Content-Type':'application/json',
-        'Prefer':'return=representation'
-      },
-      body:JSON.stringify({done:done})
-    }).then(function(r){return r.json();})
-    .then(function(res){
-      // If no rows were updated (empty array), insert new row
-      if(Array.isArray(res)&&res.length===0){
-        return fetch(SB_URL+'/rest/v1/habit_logs',{
-          method:'POST',
-          headers:{
-            'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
-            'Content-Type':'application/json',
-            'Prefer':'return=representation'
-          },
-          body:JSON.stringify({date:dateStr,habit_id:habitId,done:done})
-        }).then(function(r){return r.json();});
-      }
-    })
-    .then(function(){setSyncStatus('ok');})
-    .catch(function(){setSyncStatus('err');});
+  var monday = weekStart(today);
+  var arr = [];
+  for(var i=0;i<7;i++){
+    var d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    arr.push(d);
   }
+  return arr;
 }
+function dowFromMonday(jsDow){ return (jsDow + 6) % 7; } // 0=lun..6=dom
 
-function saveSleep(dateStr,hours,quality,note){
-  setSyncStatus('syncing');
-  var body={date:dateStr,hours:hours,quality:quality,note:note||''};
-  return fetch(SB_URL+'/rest/v1/sleep_logs',{
-    method:'POST',
-    headers:{
-      'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
+// ════════════════════════════════════════════════════════════
+// SUPABASE
+// ════════════════════════════════════════════════════════════
+function sb(method, path, body){
+  return fetch(SB_URL+'/rest/v1/'+path, {
+    method: method,
+    headers: {
+      'apikey': SB_KEY, 'Authorization':'Bearer '+SB_KEY,
       'Content-Type':'application/json',
-      'Prefer':'return=representation,resolution=merge-duplicates'
+      'Prefer': method==='POST' ? 'return=representation,resolution=merge-duplicates'
+              : method==='PATCH' ? 'return=representation' : ''
     },
-    body:JSON.stringify(body)
-  }).then(function(r){return r.json();})
-  .then(function(res){
-    var r=Array.isArray(res)?res[0]:res;
-    if(r) sleepCache[dateStr]=r;
-    setSyncStatus('ok');
-  }).catch(function(){setSyncStatus('err');});
+    body: body ? JSON.stringify(body) : undefined
+  }).then(function(r){ return r.status===204 ? null : r.json(); });
 }
 
-function getDayScore(dateStr){
-  var data=cache[dateStr]||{};
-  var ids=allIds();
-  var marked=ids.filter(function(id){return data[id]===true||data[id]===false;});
-  if(!marked.length) return 0;
-  var done=marked.filter(function(id){return data[id]===true;}).length;
-  return done/marked.length;
+function loadDaily(dates){
+  return sb('GET','daily_logs?date=in.('+dates.join(',')+')&select=*')
+    .then(function(rows){
+      if(Array.isArray(rows)) rows.forEach(function(r){ dailyCache[r.date] = r; });
+    }).catch(function(){});
 }
 
-// ── RENDER HABITOS ──────────────────────────────────────
-function renderNav(){
-  var nav=document.getElementById('days-nav');
-  if(!nav){nav=document.createElement('div');nav.className='days-nav';nav.id='days-nav';document.getElementById('view-hab').prepend(nav);}
-  nav.innerHTML='';
-  weekDays.forEach(function(d,i){
-    var score=getDayScore(dateKey(d));
-    var btn=document.createElement('div');
-    btn.className='day-btn'+(i===currentDay?' active':'')+(score>0?' has-data':'');
-    btn.innerHTML='<span class="dn">'+DAYS[d.getDay()]+'</span><span class="dd">'+d.getDate()+'</span><span class="dot"></span>';
-    btn.addEventListener('click',function(){
-      currentDay=i;
-      loadDayFromCloud(dateKey(weekDays[i])).then(function(){renderHabitos();});
+function loadSleep(dates){
+  return sb('GET','sleep_logs?date=in.('+dates.join(',')+')&select=*')
+    .then(function(rows){
+      if(Array.isArray(rows)) rows.forEach(function(r){ sleepCache[r.date] = r; });
+    }).catch(function(){});
+}
+
+function loadBets(){
+  // Cargamos las últimas 12 semanas
+  return sb('GET','weekly_bets?order=week_start.desc&limit=12&select=*')
+    .then(function(rows){
+      if(Array.isArray(rows)) rows.forEach(function(r){ betsCache[r.week_start] = r; });
+    }).catch(function(){});
+}
+
+function loadReviews(){
+  return sb('GET','weekly_reviews?order=week_start.desc&limit=12&select=*')
+    .then(function(rows){
+      if(Array.isArray(rows)) rows.forEach(function(r){ reviewsCache[r.week_start] = r; });
+    }).catch(function(){});
+}
+
+function saveDaily(dateStr, partial){
+  setSync('syncing');
+  var existing = dailyCache[dateStr] || { date: dateStr };
+  var merged = Object.assign({}, existing, partial, { date: dateStr });
+  // Recalcular score
+  merged.score_total = computeScore(merged, sleepCache[dateStr]);
+  return sb('POST','daily_logs', merged)
+    .then(function(res){
+      var r = Array.isArray(res) ? res[0] : res;
+      if(r) dailyCache[dateStr] = r;
+      else dailyCache[dateStr] = merged;
+      setSync('ok');
+    }).catch(function(){ setSync('err'); showToast('Error de conexión'); });
+}
+
+function saveSleep(dateStr, hours, quality, note){
+  setSync('syncing');
+  var body = { date: dateStr, hours: hours, quality: quality, note: note || '' };
+  return sb('POST','sleep_logs', body)
+    .then(function(res){
+      var r = Array.isArray(res) ? res[0] : res;
+      if(r) sleepCache[dateStr] = r;
+      // Si el sueño afecta el score del día siguiente, lo recalculamos
+      // (en realidad afecta el score del día del log, asumimos que las horas se reportan al día siguiente)
+      if(dailyCache[dateStr]){
+        dailyCache[dateStr].score_total = computeScore(dailyCache[dateStr], r);
+        sb('POST','daily_logs', dailyCache[dateStr]).catch(function(){});
+      }
+      setSync('ok');
+    }).catch(function(){ setSync('err'); });
+}
+
+function saveBet(weekKey, texto, meta){
+  setSync('syncing');
+  var body = { week_start: weekKey, texto: texto, meta_objetivo: meta, meta_progreso: 0 };
+  return sb('POST','weekly_bets', body)
+    .then(function(res){
+      var r = Array.isArray(res) ? res[0] : res;
+      if(r) betsCache[weekKey] = r;
+      setSync('ok');
+    }).catch(function(){ setSync('err'); });
+}
+
+function updateBetProgress(weekKey, delta){
+  var bet = betsCache[weekKey];
+  if(!bet) return Promise.resolve();
+  var newProgress = Math.max(0, Math.min(bet.meta_objetivo, bet.meta_progreso + delta));
+  bet.meta_progreso = newProgress;
+  return sb('PATCH','weekly_bets?week_start=eq.'+weekKey, { meta_progreso: newProgress })
+    .then(function(){ setSync('ok'); });
+}
+
+function saveReview(weekKey, solido, vendido, patron, mediaScore){
+  setSync('syncing');
+  var body = {
+    week_start: weekKey,
+    donde_solido: solido,
+    donde_vendido: vendido,
+    patron_que_frena: patron,
+    media_score: mediaScore
+  };
+  return sb('POST','weekly_reviews', body)
+    .then(function(res){
+      var r = Array.isArray(res) ? res[0] : res;
+      if(r) reviewsCache[weekKey] = r;
+      setSync('ok');
+    }).catch(function(){ setSync('err'); });
+}
+
+// ════════════════════════════════════════════════════════════
+// SCORING
+// ════════════════════════════════════════════════════════════
+function computeScore(daily, sleep){
+  if(!daily) return 0;
+  var s = BASE;
+  // Core
+  CORE.forEach(function(c){
+    var v = daily[c.id] || 0;
+    var maxScale = Math.max.apply(null, c.scale);
+    s += Math.round(v / maxScale * c.max);
+  });
+  // Sueño
+  if(sleep && sleep.hours) s += scoreSueno(sleep.hours);
+  // Móvil
+  s += scoreMovil(daily.movil_horas || 0);
+  // Tabaco
+  s += scoreTabaco(daily.tabaco);
+  // Mantenimiento
+  var mCount = MAINT.filter(function(m){ return daily[m.id]; }).length;
+  s += mCount;
+  return s;
+}
+
+function maxPossible(){
+  var max = BASE;
+  CORE.forEach(function(c){ max += c.max; });
+  max += 18; // sueño
+  max += MAINT.length; // mantenimiento
+  return max; // 20+28+14+12+10+18+5 = 107
+}
+
+function scoreClass(score){
+  if(score >= 70) return 's-hi';
+  if(score >= 40) return 's-mid';
+  return 's-lo';
+}
+
+// ════════════════════════════════════════════════════════════
+// MEDIAS / COMPARATIVAS
+// ════════════════════════════════════════════════════════════
+function avgLastNDays(n, endDate){
+  endDate = endDate || today;
+  var sum = 0, count = 0;
+  for(var i=0;i<n;i++){
+    var d = new Date(endDate);
+    d.setDate(endDate.getDate() - i);
+    var k = dateKey(d);
+    if(dailyCache[k]){
+      sum += dailyCache[k].score_total || 0;
+      count++;
+    }
+  }
+  return count > 0 ? sum / count : null;
+}
+
+function avgWeek(weeksAgo){
+  // weeksAgo=0 -> esta semana; 1 -> pasada; etc
+  var monday = weekStart(today);
+  monday.setDate(monday.getDate() - 7*weeksAgo);
+  var sum = 0, count = 0;
+  for(var i=0;i<7;i++){
+    var d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    if(d > today) break;
+    var k = dateKey(d);
+    if(dailyCache[k]){
+      sum += dailyCache[k].score_total || 0;
+      count++;
+    }
+  }
+  return count > 0 ? sum / count : null;
+}
+
+// ════════════════════════════════════════════════════════════
+// RENDER HOY
+// ════════════════════════════════════════════════════════════
+function renderHero(){
+  var todayKey = dateKey(today);
+  var todayDaily = dailyCache[todayKey];
+  var score = todayDaily ? todayDaily.score_total : 0;
+  var scoreEl = document.getElementById('score-num');
+  scoreEl.textContent = score;
+  scoreEl.className = 'score-num' + (score < 0 ? ' neg' : '');
+
+  // Media 7d
+  var avg7 = avgLastNDays(7);
+  document.getElementById('score-7d').textContent = avg7 !== null ? Math.round(avg7) : '—';
+
+  // vs semana pasada (esta sem media vs sem-1 media)
+  var thisWk = avgWeek(0);
+  var lastWk = avgWeek(1);
+  var fourWk = avgWeek(4);
+
+  function setCompare(elId, current, past){
+    var el = document.getElementById(elId);
+    if(current === null || past === null){
+      el.innerHTML = '<span class="eq">—</span>';
+      return;
+    }
+    var diff = Math.round(current - past);
+    if(diff > 0) el.innerHTML = '<span class="up">+'+diff+'</span>';
+    else if(diff < 0) el.innerHTML = '<span class="down">'+diff+'</span>';
+    else el.innerHTML = '<span class="eq">=</span>';
+  }
+  setCompare('cmp-1w', thisWk, lastWk);
+  setCompare('cmp-4w', thisWk, fourWk);
+}
+
+function renderBet(){
+  var wk = weekStartKey(today);
+  var bet = betsCache[wk];
+  var card = document.getElementById('bet-card');
+  if(!bet){
+    card.classList.add('empty');
+    document.getElementById('bet-progress-text').textContent = '';
+    document.getElementById('bet-text').className = 'bet-text placeholder';
+    document.getElementById('bet-text').textContent = 'Toca para definir tu apuesta de esta semana';
+    document.getElementById('bet-bar-fg').style.width = '0%';
+    card.onclick = function(){ openBetModal(); };
+    return;
+  }
+  card.classList.remove('empty');
+  document.getElementById('bet-progress-text').textContent = bet.meta_progreso + ' / ' + bet.meta_objetivo;
+  document.getElementById('bet-text').className = 'bet-text';
+  document.getElementById('bet-text').textContent = bet.texto;
+  var pct = Math.min(100, Math.round(bet.meta_progreso / bet.meta_objetivo * 100));
+  document.getElementById('bet-bar-fg').style.width = pct + '%';
+  card.onclick = function(){
+    // Toque incrementa progreso (long press para decrementar mejor en futuro)
+    if(bet.meta_progreso < bet.meta_objetivo){
+      updateBetProgress(wk, 1).then(function(){ renderBet(); });
+      showToast('+1 progreso');
+    } else {
+      // Si está completa, permite resetear o bajar
+      if(confirm('Apuesta completada. ¿Quitar 1 al progreso?')){
+        updateBetProgress(wk, -1).then(function(){ renderBet(); });
+      }
+    }
+  };
+}
+
+function renderDayNav(){
+  var nav = document.getElementById('days-nav');
+  if(!nav){
+    nav = document.createElement('div');
+    nav.className = 'days-nav';
+    nav.id = 'days-nav';
+    document.getElementById('view-hoy').prepend(nav);
+  }
+  nav.innerHTML = '';
+  weekDays.forEach(function(d){
+    var dow = d.getDay();
+    var k = dateKey(d);
+    var daily = dailyCache[k];
+    var btn = document.createElement('div');
+    btn.className = 'day-btn' + (dow === currentDow ? ' active' : '');
+    var sCls = '';
+    if(daily){
+      var sc = daily.score_total;
+      sCls = sc >= 70 ? 's-hi' : sc >= 40 ? 's-mid' : 's-lo';
+    }
+    btn.innerHTML =
+      '<span class="dn">' + DAYS_LABEL[dow] + '</span>' +
+      '<span class="dd">' + d.getDate() + '</span>' +
+      '<span class="ds ' + sCls + '">' + (daily ? daily.score_total : '·') + '</span>';
+    btn.addEventListener('click', function(){
+      currentDow = dow;
+      renderHoy();
     });
     nav.appendChild(btn);
   });
 }
 
-function renderSections(){
-  var dateStr=dateKey(weekDays[currentDay]);
-  var data=cache[dateStr]||{};
-  var container=document.getElementById('sections-container');
-  if(!container){container=document.createElement('div');container.id='sections-container';document.getElementById('view-hab').appendChild(container);}
-  container.innerHTML='';
+function renderCoreSystems(){
+  var dateStr = dateKey(getDateForDow(currentDow));
+  var daily = dailyCache[dateStr] || {};
+  var sleep = sleepCache[dateStr];
 
-  SECTIONS.forEach(function(sec){
-    var total=sec.habits.length;
-    var done=sec.habits.filter(function(h){return data[h.id]===true;}).length;
-    var pct=Math.round(done/total*100);
-    var sc=pct>=75?'#C0DD97':pct>=40?'#FAC775':'#f09595';
-    var sb=pct>=75?'#1a3a08':pct>=40?'#3a1f04':'#2a0808';
-    var div=document.createElement('div');div.className='section';
-    var hdr=document.createElement('div');hdr.className='section-header';
-    hdr.innerHTML='<div class="sec-icon" style="background:'+sec.bg+'">'+sec.icon+'</div><span class="sec-title">'+sec.label+'</span><span class="sec-score" style="background:'+sb+';color:'+sc+'">'+done+'/'+total+'</span>';
-    div.appendChild(hdr);
-    sec.habits.forEach(function(habit){
-      var state=data[habit.id];
-      var item=document.createElement('div');item.className='habit-item';
-      var cc=state===true?'done':state===false?'fail':'';
-      item.innerHTML='<div class="check-box '+cc+'"><svg class="check-icon" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,11 12,3" stroke="#C0DD97" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="x-icon" viewBox="0 0 14 14" fill="none"><line x1="3" y1="3" x2="11" y2="11" stroke="#f09595" stroke-width="2" stroke-linecap="round"/><line x1="11" y1="3" x2="3" y2="11" stroke="#f09595" stroke-width="2" stroke-linecap="round"/></svg></div><span class="habit-text">'+habit.text+'</span>';
-      item.addEventListener('click',function(){
-        var cur=cache[dateStr]!==undefined?cache[dateStr][habit.id]:undefined;
-        var next,msg;
-        if(cur===undefined){next=true;msg='Hecho!';}
-        else if(cur===true){next=false;msg='No hecho';}
-        else{next=null;msg='Desmarcado';}
-        saveHabit(dateStr,habit.id,next).then(function(){renderHabitos();});
-        showToast(msg);
+  var container = document.getElementById('core-container');
+  if(!container){
+    container = document.createElement('div');
+    container.id = 'core-container';
+    document.getElementById('view-hoy').appendChild(container);
+  }
+  container.innerHTML = '';
+
+  // Sección core
+  var lbl = document.createElement('div');
+  lbl.className = 'section-label';
+  lbl.textContent = 'Core systems';
+  container.appendChild(lbl);
+
+  CORE.forEach(function(c){
+    var v = daily[c.id] || 0;
+    var maxScale = Math.max.apply(null, c.scale);
+    var pts = Math.round(v / maxScale * c.max);
+    var div = document.createElement('div');
+    div.className = 'core-item';
+    var ptsCls = pts > 0 ? 'has-pts' : '';
+    div.innerHTML = '<div class="core-top"><span class="core-name">' + c.name + '</span>' +
+      '<span class="core-points ' + ptsCls + '">' + (pts > 0 ? '+' + pts : '0') + ' / ' + c.max + '</span></div>';
+    var row = document.createElement('div');
+    row.className = 'scale-row';
+    c.scale.forEach(function(sv, idx){
+      var b = document.createElement('div');
+      var clsName = v === sv ? (' sel-' + (c.scale.length === 3 ? sv + 'x' : sv)) : '';
+      // El '2x' es un hack para puntualidad (escala 0-2): sel-2 ya está ocupada por estudio nivel sólido
+      // Mejor: usar clases específicas
+      var selClass = '';
+      if(v === sv){
+        if(c.scale.length === 4){ selClass = ' sel-' + sv; }
+        else if(c.scale.length === 3){ selClass = sv === 0 ? ' sel-0' : sv === 1 ? ' sel-1' : ' sel-2x'; }
+      }
+      b.className = 'scale-btn' + selClass;
+      b.innerHTML = '<span class="sv">' + sv + '</span><span class="sl">' + c.labels[idx] + '</span>';
+      b.addEventListener('click', function(){
+        var partial = {};
+        partial[c.id] = sv;
+        saveDaily(dateStr, partial).then(function(){ renderHoy(); });
       });
-      div.appendChild(item);
+      row.appendChild(b);
     });
+    div.appendChild(row);
     container.appendChild(div);
   });
-}
 
-function renderRing(){
-  var s=getDayScore(dateKey(weekDays[currentDay]));
-  document.getElementById('ring-circle').style.strokeDashoffset=138.2*(1-s);
-  document.getElementById('ring-pct').textContent=Math.round(s*100)+'%';
-}
+  // Sueño (referencia, no editable aquí)
+  var sleepDiv = document.createElement('div');
+  sleepDiv.className = 'core-item';
+  var sleepPts = sleep && sleep.hours ? scoreSueno(sleep.hours) : 0;
+  var sptsCls = sleepPts > 0 ? 'has-pts' : '';
+  sleepDiv.innerHTML =
+    '<div class="core-top"><span class="core-name">Sueño</span>' +
+    '<span class="core-points ' + sptsCls + '">' + (sleepPts > 0 ? '+' + sleepPts : '0') + ' / 18</span></div>' +
+    '<div class="sleep-ref">' +
+      (sleep && sleep.hours ? 'Anoche: <b>' + fmtHours(sleep.hours) + '</b>' : 'Sin registrar') +
+      '<a href="#" id="sleep-link">Pestaña Sueño →</a>' +
+    '</div>';
+  container.appendChild(sleepDiv);
+  document.getElementById('sleep-link').addEventListener('click', function(e){
+    e.preventDefault();
+    goTab('sue');
+  });
 
-function renderStreak(){
-  var streakEl=document.getElementById('streak-el');
-  if(!streakEl){
-    var sb=document.createElement('div');sb.className='streak-bar';
-    sb.innerHTML='<div class="streak-title">Ultimas 3 semanas</div><div class="streak-grid" id="streak-grid"></div>';
-    streakEl=sb;streakEl.id='streak-el';
-    var hint=document.createElement('div');hint.className='hint';hint.textContent='Toca: sin marcar → hecho → no hecho → sin marcar';
-    document.getElementById('view-hab').appendChild(sb);
-    document.getElementById('view-hab').appendChild(hint);
+  // Penalizaciones
+  var pLbl = document.createElement('div');
+  pLbl.className = 'section-label';
+  pLbl.textContent = 'Penalizaciones';
+  container.appendChild(pLbl);
+
+  // Móvil
+  var movilDiv = document.createElement('div');
+  movilDiv.className = 'core-item';
+  var movilH = daily.movil_horas || 0;
+  var movilPts = scoreMovil(movilH);
+  var movilCls = movilPts < 0 ? 'neg-pts' : '';
+  var movilValCls = movilH <= 1.5 ? '' : movilH <= 3 ? 'warn' : 'bad';
+  movilDiv.innerHTML =
+    '<div class="core-top"><span class="core-name">Móvil hoy</span>' +
+    '<span class="core-points ' + movilCls + '">' + (movilPts < 0 ? movilPts : '0') + ' / -20</span></div>' +
+    '<div class="movil-row">' +
+      '<div class="movil-val ' + movilValCls + '" id="movil-val">' + fmtHours(movilH) + '</div>' +
+      '<input type="range" class="movil-slider" id="movil-slider" min="0" max="6" step="0.25" value="' + movilH + '">' +
+    '</div>' +
+    '<div class="movil-info"><span>Sin penalizar: ≤1h30</span><span>Tope -20: ≥4h</span></div>';
+  container.appendChild(movilDiv);
+  var slider = document.getElementById('movil-slider');
+  var valEl = document.getElementById('movil-val');
+  slider.addEventListener('input', function(){
+    var h = parseFloat(slider.value);
+    valEl.textContent = fmtHours(h);
+    valEl.className = 'movil-val ' + (h <= 1.5 ? '' : h <= 3 ? 'warn' : 'bad');
+  });
+  slider.addEventListener('change', function(){
+    var h = parseFloat(slider.value);
+    saveDaily(dateStr, { movil_horas: h }).then(function(){ renderHoy(); });
+  });
+
+  // Tabaco
+  var tabDiv = document.createElement('div');
+  tabDiv.className = 'core-item';
+  var fumed = !!daily.tabaco;
+  var tabPts = scoreTabaco(fumed);
+  var tabCls = tabPts < 0 ? 'neg-pts' : '';
+  tabDiv.innerHTML =
+    '<div class="core-top"><span class="core-name">Tabaco</span>' +
+    '<span class="core-points ' + tabCls + '">' + (tabPts < 0 ? tabPts : '0') + ' / -25</span></div>' +
+    '<div class="tabaco-row">' +
+      '<div class="tab-toggle ' + (fumed ? 'fumed' : '') + '" id="tab-toggle">' +
+        (fumed ? 'Hoy he fumado' : 'Sin tabaco') +
+      '</div>' +
+    '</div>';
+  container.appendChild(tabDiv);
+  document.getElementById('tab-toggle').addEventListener('click', function(){
+    var newVal = !fumed;
+    if(newVal && !confirm('¿Confirmar que has fumado hoy? -25 puntos.')) return;
+    saveDaily(dateStr, { tabaco: newVal }).then(function(){ renderHoy(); });
+  });
+
+  // Mantenimiento
+  var mLbl = document.createElement('div');
+  mLbl.className = 'section-label';
+  mLbl.textContent = 'Mantenimiento';
+  container.appendChild(mLbl);
+
+  var mGrid = document.createElement('div');
+  mGrid.className = 'maint-grid';
+  MAINT.forEach(function(m){
+    var done = !!daily[m.id];
+    var item = document.createElement('div');
+    item.className = 'maint-item' + (done ? ' done' : '');
+    item.innerHTML =
+      '<div class="maint-check"><svg viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,9 9.5,2.5" stroke="#C0DD97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+      '<span class="maint-text">' + m.name + '</span>';
+    item.addEventListener('click', function(){
+      var partial = {};
+      partial[m.id] = !done;
+      saveDaily(dateStr, partial).then(function(){ renderHoy(); });
+    });
+    mGrid.appendChild(item);
+  });
+  container.appendChild(mGrid);
+
+  // Identidad (solo para hoy)
+  var todayKey = dateKey(today);
+  if(dateStr === todayKey){
+    renderIdentity(container, daily, todayKey);
   }
-  var g=document.getElementById('streak-grid');g.innerHTML='';
-  for(var i=20;i>=0;i--){
-    var d=new Date(today);d.setDate(today.getDate()-i);
-    var s=getDayScore(dateKey(d));
-    var el=document.createElement('div');
-    el.className='sday '+(s>=0.75?'s-high':s>=0.35?'s-mid':'');
-    el.textContent=d.getDate();
-    g.appendChild(el);
+
+  // Botón review (solo si es domingo o si la semana pasada no tiene review)
+  renderReviewButton(container);
+}
+
+function renderIdentity(container, daily, dateStr){
+  var idx = (new Date(dateStr).getTime() / 86400000) % IDENT_QUESTIONS.length;
+  var question = daily.identidad_pregunta || IDENT_QUESTIONS[Math.floor(idx)];
+  var answered = daily.identidad_respuesta && daily.identidad_respuesta.length >= 20;
+
+  var card = document.createElement('div');
+  card.className = 'identity-card' + (answered ? ' done' : '');
+  card.innerHTML =
+    '<div class="identity-q">' + question + '</div>' +
+    '<textarea class="identity-input" id="ident-input" placeholder="Mínimo 20 caracteres. Honestidad, no relleno.">' + (daily.identidad_respuesta || '') + '</textarea>' +
+    '<div class="identity-meta"><span id="ident-count">' + (daily.identidad_respuesta || '').length + ' / 20</span><span id="ident-status">' + (answered ? 'Día cerrado ✓' : 'Pendiente') + '</span></div>';
+  container.appendChild(card);
+
+  var input = document.getElementById('ident-input');
+  var countEl = document.getElementById('ident-count');
+  var statusEl = document.getElementById('ident-status');
+  var saveTimer;
+  input.addEventListener('input', function(){
+    var len = input.value.length;
+    countEl.textContent = len + ' / 20';
+    var ok = len >= 20;
+    statusEl.textContent = ok ? 'Día cerrado ✓' : 'Pendiente';
+    if(ok) statusEl.className = 'ok';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      saveDaily(dateStr, {
+        identidad_pregunta: question,
+        identidad_respuesta: input.value,
+        cerrado: ok
+      });
+    }, 600);
+  });
+}
+
+function renderReviewButton(container){
+  // Mostrar botón si hoy es domingo, o si la semana pasada no tiene review
+  var isSunday = today.getDay() === 0;
+  var lastWk = new Date(today);
+  lastWk.setDate(today.getDate() - 7);
+  var lastWkKey = weekStartKey(lastWk);
+  var hasLastReview = !!reviewsCache[lastWkKey];
+
+  if(isSunday){
+    var thisWkKey = weekStartKey(today);
+    var hasThisReview = !!reviewsCache[thisWkKey];
+    if(!hasThisReview){
+      var banner = document.createElement('div');
+      banner.className = 'sunday-banner';
+      banner.innerHTML =
+        '<div class="sunday-banner-top"><span class="sunday-label">Domingo · Toca review</span><span class="sunday-arrow">→</span></div>' +
+        '<div class="sunday-text">Cierra la semana, revisa qué ha pasado y define la apuesta de la siguiente.</div>';
+      banner.addEventListener('click', function(){ openReviewModal(thisWkKey); });
+      container.appendChild(banner);
+      return;
+    }
+  }
+
+  if(!hasLastReview){
+    var btn = document.createElement('button');
+    btn.className = 'review-btn';
+    btn.textContent = 'Hacer review de la semana pasada';
+    btn.addEventListener('click', function(){ openReviewModal(lastWkKey); });
+    container.appendChild(btn);
   }
 }
 
-function renderHeader(){
-  var d=weekDays[currentDay];
-  var isToday=dateKey(d)===dateKey(today);
-  document.getElementById('header-date').textContent=isToday
-    ?'Hoy - '+d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
-    :d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+function renderHoy(){
+  // Header date
+  var d = getDateForDow(currentDow);
+  var isToday = dateKey(d) === dateKey(today);
+  document.getElementById('header-date').textContent = isToday
+    ? 'Hoy · ' + d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
+    : d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+
+  renderHero();
+  renderBet();
+  renderDayNav();
+  renderCoreSystems();
 }
 
-function renderHabitos(){
-  renderHeader();renderNav();renderSections();renderRing();renderStreak();
-}
-
-// ── RENDER SUENO ────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// RENDER SUEÑO (reutilizado de tu app actual)
+// ════════════════════════════════════════════════════════════
 function renderSueno(){
-  var view=document.getElementById('view-sue');
-  view.innerHTML='';
+  var view = document.getElementById('view-sue');
+  view.innerHTML = '';
 
-  // Stats row
-  var logs=Object.values(sleepCache);
-  var avgHrs=logs.length?logs.reduce(function(s,r){return s+r.hours;},0)/logs.length:0;
-  var avgQ=logs.length?logs.reduce(function(s,r){return s+r.quality;},0)/logs.length:0;
-  var over7=logs.filter(function(r){return r.hours>=7;}).length;
-  var pctOver7=logs.length?Math.round(over7/logs.length*100):0;
+  var logs = Object.values(sleepCache);
+  var avgHrs = logs.length ? logs.reduce(function(s,r){return s+r.hours;},0)/logs.length : 0;
+  var avgQ = logs.length ? logs.reduce(function(s,r){return s+r.quality;},0)/logs.length : 0;
+  var over7 = logs.filter(function(r){return r.hours>=7;}).length;
+  var pctOver7 = logs.length ? Math.round(over7/logs.length*100) : 0;
 
-  var avgRow=document.createElement('div');
-  avgRow.className='sleep-avg-row';
-  avgRow.innerHTML=
-    '<div class="sleep-avg-card"><div class="sleep-avg-label">Media horas</div><div class="sleep-avg-val">'+avgHrs.toFixed(1)+'h</div></div>'+
-    '<div class="sleep-avg-card"><div class="sleep-avg-label">Calidad media</div><div class="sleep-avg-val">'+avgQ.toFixed(1)+'/4</div></div>'+
-    '<div class="sleep-avg-card"><div class="sleep-avg-label">Dias +7h</div><div class="sleep-avg-val">'+pctOver7+'%</div></div>';
+  var avgRow = document.createElement('div');
+  avgRow.className = 'sleep-avg-row';
+  avgRow.innerHTML =
+    '<div class="sleep-avg-card"><div class="sleep-avg-label">Media h.</div><div class="sleep-avg-val">' + avgHrs.toFixed(1) + 'h</div></div>' +
+    '<div class="sleep-avg-card"><div class="sleep-avg-label">Calidad</div><div class="sleep-avg-val">' + avgQ.toFixed(1) + '/4</div></div>' +
+    '<div class="sleep-avg-card"><div class="sleep-avg-label">Días +7h</div><div class="sleep-avg-val">' + pctOver7 + '%</div></div>';
   view.appendChild(avgRow);
 
-  // Register today
-  var todayStr=dateKey(today);
-  var todayLog=sleepCache[todayStr];
+  var todayStr = dateKey(today);
+  var todayLog = sleepCache[todayStr];
 
-  var card=document.createElement('div');
-  card.className='sleep-card';
-  card.innerHTML='<div class="sleep-title">Registrar sueno de anoche</div>';
+  var card = document.createElement('div');
+  card.className = 'sleep-card';
+  card.innerHTML = '<div class="sleep-title">Registrar sueño de anoche</div>';
 
-  // Hours slider
-  var hrsRow=document.createElement('div');
-  hrsRow.className='sleep-hours-row';
-  var hrsLabel=document.createElement('div');hrsLabel.className='sleep-hours-label';hrsLabel.textContent='Horas';
-  var hrsVal=document.createElement('div');hrsVal.className='sleep-hours-val';
-  hrsVal.textContent=(todayLog?todayLog.hours:selectedHours).toFixed(1)+'h';
-  var slider=document.createElement('input');
-  slider.type='range';slider.className='sleep-slider';
-  slider.min='3';slider.max='10';slider.step='0.25';
-  slider.value=todayLog?todayLog.hours:selectedHours;
-  function fmtHours(h){
-    var hrs=Math.floor(h);
-    var mins=Math.round((h-hrs)*60);
-    return mins===0?hrs+'h':hrs+"'"+String(mins).padStart(2,'0');
-  }
-  hrsVal.textContent=fmtHours(todayLog?todayLog.hours:selectedHours);
-  slider.addEventListener('input',function(){
-    selectedHours=parseFloat(slider.value);
-    hrsVal.textContent=fmtHours(selectedHours);
+  var hrsRow = document.createElement('div');
+  hrsRow.className = 'sleep-hours-row';
+  var hrsLabel = document.createElement('div'); hrsLabel.className='sleep-hours-label'; hrsLabel.textContent='Horas';
+  var hrsVal = document.createElement('div'); hrsVal.className='sleep-hours-val';
+  hrsVal.textContent = fmtHours(todayLog ? todayLog.hours : selectedHours);
+  var slider = document.createElement('input');
+  slider.type = 'range'; slider.className='sleep-slider';
+  slider.min='3'; slider.max='10'; slider.step='0.25';
+  slider.value = todayLog ? todayLog.hours : selectedHours;
+  slider.addEventListener('input', function(){
+    selectedHours = parseFloat(slider.value);
+    hrsVal.textContent = fmtHours(selectedHours);
   });
-  hrsRow.appendChild(hrsLabel);hrsRow.appendChild(hrsVal);hrsRow.appendChild(slider);
+  hrsRow.appendChild(hrsLabel); hrsRow.appendChild(hrsVal); hrsRow.appendChild(slider);
   card.appendChild(hrsRow);
 
-  // Quality
-  var qLabel=document.createElement('div');
-  qLabel.style.cssText='font-size:11px;color:#888;margin-bottom:6px';qLabel.textContent='Calidad del sueno';
+  var qLabel = document.createElement('div');
+  qLabel.style.cssText = 'font-size:11px;color:#888;margin-bottom:6px';
+  qLabel.textContent = 'Calidad';
   card.appendChild(qLabel);
-  var qRow=document.createElement('div');qRow.className='quality-row';
-  var qualities=[{v:1,icon:'😩',label:'Malo'},{v:2,icon:'😐',label:'Regular'},{v:3,icon:'😊',label:'Bueno'},{v:4,icon:'😴',label:'Genial'}];
-  var initQ=todayLog?todayLog.quality:selectedQuality;
+  var qRow = document.createElement('div'); qRow.className='quality-row';
+  var qualities = [{v:1,icon:'😩',label:'Malo'},{v:2,icon:'😐',label:'Regular'},{v:3,icon:'😊',label:'Bueno'},{v:4,icon:'😴',label:'Genial'}];
+  var initQ = todayLog ? todayLog.quality : selectedQuality;
   qualities.forEach(function(q){
-    var btn=document.createElement('div');
-    btn.className='q-btn'+(initQ===q.v?' sel-'+q.v:'');
-    btn.innerHTML='<span class="q-icon">'+q.icon+'</span>'+q.label;
-    btn.addEventListener('click',function(){
-      selectedQuality=q.v;
-      qRow.querySelectorAll('.q-btn').forEach(function(b,i){b.className='q-btn'+(i+1===q.v?' sel-'+q.v:'');});
+    var btn = document.createElement('div');
+    btn.className = 'q-btn' + (initQ === q.v ? ' sel-' + q.v : '');
+    btn.innerHTML = '<span class="q-icon">'+q.icon+'</span>'+q.label;
+    btn.addEventListener('click', function(){
+      selectedQuality = q.v;
+      qRow.querySelectorAll('.q-btn').forEach(function(b,i){
+        b.className = 'q-btn' + (i+1 === q.v ? ' sel-' + q.v : '');
+      });
     });
     qRow.appendChild(btn);
   });
   card.appendChild(qRow);
 
-  // Note
-  var note=document.createElement('textarea');
-  note.className='sleep-note';note.placeholder='Nota opcional (me desperte, pesadillas...)';note.rows=2;
-  if(todayLog&&todayLog.note) note.value=todayLog.note;
+  var note = document.createElement('textarea');
+  note.className = 'sleep-note';
+  note.placeholder = 'Nota opcional';
+  note.rows = 2;
+  if(todayLog && todayLog.note) note.value = todayLog.note;
   card.appendChild(note);
 
-  // Save btn
-  var saveBtn=document.createElement('button');
-  saveBtn.className='sleep-save';
-  saveBtn.textContent=todayLog?'Actualizar registro':'Guardar registro de hoy';
-  saveBtn.addEventListener('click',function(){
-    saveSleep(todayStr,selectedHours,selectedQuality,note.value.trim())
-      .then(function(){renderSueno();showToast('Sueno registrado');});
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'sleep-save';
+  saveBtn.textContent = todayLog ? 'Actualizar registro' : 'Guardar';
+  saveBtn.addEventListener('click', function(){
+    saveSleep(todayStr, selectedHours, selectedQuality, note.value.trim())
+      .then(function(){ renderSueno(); renderHoy(); showToast('Sueño registrado'); });
   });
   card.appendChild(saveBtn);
   view.appendChild(card);
 
-  // History
   if(Object.keys(sleepCache).length){
-    var histLabel=document.createElement('div');
-    histLabel.className='streak-title';histLabel.style.margin='14px 0 8px';histLabel.textContent='Historial (30 dias)';
-    view.appendChild(histLabel);
+    var hl = document.createElement('div');
+    hl.className = 'section-label';
+    hl.style.margin = '14px 0 6px';
+    hl.textContent = 'Historial';
+    view.appendChild(hl);
 
-    var qIcons=['','😩','😐','😊','😴'];
-    var sorted=Object.values(sleepCache).sort(function(a,b){return b.date.localeCompare(a.date);});
+    var qIcons = ['','😩','😐','😊','😴'];
+    var sorted = Object.values(sleepCache).sort(function(a,b){return b.date.localeCompare(a.date);});
     sorted.forEach(function(r){
-      var pct=Math.min(100,Math.round((r.hours/9)*100));
-      var barColor=r.hours>=7?'#185FA5':r.hours>=6?'#BA7517':'#A32D2D';
-      var item=document.createElement('div');item.className='sleep-hist-item';
-      var d=new Date(r.date+'T12:00:00');
-      var dateLabel=d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
-      item.innerHTML=
-        '<div class="sleep-hist-date">'+dateLabel+'</div>'+
-        '<div class="sleep-hist-bar-wrap">'+
-          '<div class="sleep-hist-bar-bg"><div class="sleep-hist-bar-fg" style="width:'+pct+'%;background:'+barColor+'"></div></div>'+
-          '<div class="sleep-hist-label">'+(r.note||'')+'</div>'+
-        '</div>'+
-        '<div class="sleep-hist-right">'+
-          '<div class="sleep-hist-hrs">'+r.hours.toFixed(1)+'h</div>'+
-          '<div class="sleep-hist-q">'+(qIcons[r.quality]||'')+'</div>'+
+      var pct = Math.min(100, Math.round((r.hours/9)*100));
+      var barColor = r.hours>=7 ? '#185FA5' : r.hours>=6 ? '#BA7517' : '#A32D2D';
+      var item = document.createElement('div'); item.className='sleep-hist-item';
+      var d = new Date(r.date+'T12:00:00');
+      var dateLabel = d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+      item.innerHTML =
+        '<div class="sleep-hist-date">' + dateLabel + '</div>' +
+        '<div class="sleep-hist-bar-wrap">' +
+          '<div class="sleep-hist-bar-bg"><div class="sleep-hist-bar-fg" style="width:'+pct+'%;background:'+barColor+'"></div></div>' +
+          '<div class="sleep-hist-label">' + (r.note||'') + '</div>' +
+        '</div>' +
+        '<div class="sleep-hist-right">' +
+          '<div class="sleep-hist-hrs">' + r.hours.toFixed(1) + 'h</div>' +
+          '<div class="sleep-hist-q">' + (qIcons[r.quality]||'') + '</div>' +
         '</div>';
       view.appendChild(item);
     });
   }
 }
 
-// ── TABS ────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// RENDER HISTORIAL
+// ════════════════════════════════════════════════════════════
+function renderHistorial(){
+  var view = document.getElementById('view-his');
+  view.innerHTML = '';
+
+  // Récords
+  var allDays = Object.values(dailyCache);
+  var allBets = Object.values(betsCache);
+  var bestDay = allDays.length ? Math.max.apply(null, allDays.map(function(d){return d.score_total||0;})) : 0;
+
+  // Mejor semana (media)
+  var weeks = {};
+  allDays.forEach(function(d){
+    var wk = weekStartKey(new Date(d.date+'T12:00:00'));
+    if(!weeks[wk]) weeks[wk] = [];
+    weeks[wk].push(d.score_total || 0);
+  });
+  var bestWeekAvg = 0;
+  Object.values(weeks).forEach(function(arr){
+    var avg = arr.reduce(function(s,v){return s+v;},0) / arr.length;
+    if(avg > bestWeekAvg) bestWeekAvg = avg;
+  });
+
+  var betsCumplidas = allBets.filter(function(b){return b.cumplida===true;}).length;
+  var betsTotales = allBets.filter(function(b){return b.cumplida !== null;}).length;
+
+  var rec = document.createElement('div');
+  rec.className = 'records-grid';
+  rec.innerHTML =
+    '<div class="record-card"><div class="record-label">Mejor día</div><div class="record-val">' + bestDay + '</div></div>' +
+    '<div class="record-card"><div class="record-label">Mejor sem (media)</div><div class="record-val">' + Math.round(bestWeekAvg) + '</div></div>' +
+    '<div class="record-card"><div class="record-label">Apuestas cumplidas</div><div class="record-val">' + betsCumplidas + '<span class="record-sub"> / ' + betsTotales + '</span></div></div>' +
+    '<div class="record-card"><div class="record-label">Días registrados</div><div class="record-val">' + allDays.length + '</div></div>';
+  view.appendChild(rec);
+
+  // Lista de semanas
+  var lbl = document.createElement('div');
+  lbl.className = 'section-label';
+  lbl.textContent = 'Semanas';
+  view.appendChild(lbl);
+
+  // Generar últimas 8 semanas
+  var weekKeys = [];
+  for(var i=0;i<8;i++){
+    var d = new Date(today);
+    d.setDate(today.getDate() - 7*i);
+    weekKeys.push(weekStartKey(d));
+  }
+
+  weekKeys.forEach(function(wk){
+    var monday = new Date(wk + 'T00:00:00');
+    var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+    var rangeStr = monday.getDate() + ' ' + monday.toLocaleDateString('es-ES',{month:'short'}) + ' — ' + sunday.getDate() + ' ' + sunday.toLocaleDateString('es-ES',{month:'short'});
+
+    var scores = [];
+    for(var i=0;i<7;i++){
+      var d = new Date(monday);
+      d.setDate(monday.getDate()+i);
+      var k = dateKey(d);
+      if(d <= today) scores.push(dailyCache[k] ? dailyCache[k].score_total : null);
+      else scores.push(null);
+    }
+    var validScores = scores.filter(function(s){return s !== null;});
+    var avg = validScores.length ? validScores.reduce(function(s,v){return s+v;},0) / validScores.length : 0;
+
+    var bet = betsCache[wk];
+    var review = reviewsCache[wk];
+
+    var card = document.createElement('div');
+    card.className = 'history-week';
+
+    var top = '<div class="hw-top"><span class="hw-range">' + rangeStr + '</span>' +
+      '<span class="hw-avg">' + Math.round(avg) + '</span></div>';
+
+    var daysHtml = '<div class="hw-days">';
+    scores.forEach(function(s, idx){
+      var cls = s === null ? '' : s >= 70 ? 's-hi' : s >= 40 ? 's-mid' : 's-lo';
+      daysHtml += '<div class="hw-day ' + cls + '">' + (s !== null ? s : '·') + '</div>';
+    });
+    daysHtml += '</div>';
+
+    var betHtml = '';
+    if(bet){
+      var cmp = bet.cumplida === true ? '<span class="ok">✓ cumplida</span>'
+              : bet.cumplida === false ? '<span class="ko">✗ fallada</span>'
+              : '<span>en curso · ' + bet.meta_progreso + '/' + bet.meta_objetivo + '</span>';
+      betHtml = '<div class="hw-bet"><b>Apuesta:</b> ' + bet.texto + ' — ' + cmp + '</div>';
+    }
+
+    card.innerHTML = top + daysHtml + betHtml;
+    view.appendChild(card);
+  });
+
+  if(!allDays.length){
+    var emp = document.createElement('div');
+    emp.className = 'empty';
+    emp.textContent = 'Empieza a registrar tus días y aquí verás el histórico.';
+    view.appendChild(emp);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// MODALES
+// ════════════════════════════════════════════════════════════
+function openBetModal(){
+  document.getElementById('bet-input-text').value = '';
+  document.getElementById('bet-input-meta').value = 5;
+  document.getElementById('ov-bet').classList.add('open');
+}
+
+function openReviewModal(weekKey){
+  var monday = new Date(weekKey + 'T00:00:00');
+  var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+  document.getElementById('review-week-range').textContent =
+    'Semana del ' + monday.getDate() + ' ' + monday.toLocaleDateString('es-ES',{month:'short'}) +
+    ' al ' + sunday.getDate() + ' ' + sunday.toLocaleDateString('es-ES',{month:'short'});
+
+  // Cerrar apuesta de esa semana si existía
+  var bet = betsCache[weekKey];
+  if(bet && bet.cumplida === null){
+    var cumplida = bet.meta_progreso >= bet.meta_objetivo;
+    sb('PATCH','weekly_bets?week_start=eq.'+weekKey, { cumplida: cumplida }).catch(function(){});
+    bet.cumplida = cumplida;
+  }
+
+  document.getElementById('rv-solido').value = '';
+  document.getElementById('rv-vendido').value = '';
+  document.getElementById('rv-patron').value = '';
+  document.getElementById('rv-bet-text').value = '';
+  document.getElementById('rv-bet-meta').value = 5;
+
+  document.getElementById('ov-review').classList.add('open');
+  document.getElementById('ov-review').dataset.weekKey = weekKey;
+}
+
+document.getElementById('bet-cancel').addEventListener('click', function(){
+  document.getElementById('ov-bet').classList.remove('open');
+});
+document.getElementById('bet-save').addEventListener('click', function(){
+  var txt = document.getElementById('bet-input-text').value.trim();
+  var meta = parseInt(document.getElementById('bet-input-meta').value, 10);
+  if(!txt || !meta){ showToast('Completa los dos campos'); return; }
+  var wk = weekStartKey(today);
+  saveBet(wk, txt, meta).then(function(){
+    document.getElementById('ov-bet').classList.remove('open');
+    renderHoy();
+    showToast('Apuesta guardada');
+  });
+});
+document.getElementById('rv-cancel').addEventListener('click', function(){
+  document.getElementById('ov-review').classList.remove('open');
+});
+document.getElementById('rv-save').addEventListener('click', function(){
+  var weekKey = document.getElementById('ov-review').dataset.weekKey;
+  var solido = document.getElementById('rv-solido').value.trim();
+  var vendido = document.getElementById('rv-vendido').value.trim();
+  var patron = document.getElementById('rv-patron').value.trim();
+  var betText = document.getElementById('rv-bet-text').value.trim();
+  var betMeta = parseInt(document.getElementById('rv-bet-meta').value, 10);
+
+  if(!solido || !vendido){ showToast('Mínimo: sólido y vendido'); return; }
+
+  // Calcular media de la semana
+  var monday = new Date(weekKey + 'T00:00:00');
+  var sum = 0, count = 0;
+  for(var i=0;i<7;i++){
+    var d = new Date(monday); d.setDate(monday.getDate()+i);
+    var k = dateKey(d);
+    if(dailyCache[k]){ sum += dailyCache[k].score_total || 0; count++; }
+  }
+  var media = count > 0 ? sum/count : 0;
+
+  saveReview(weekKey, solido, vendido, patron, media).then(function(){
+    if(betText && betMeta){
+      // Apuesta para la semana SIGUIENTE a la del review
+      var next = new Date(weekKey + 'T00:00:00');
+      next.setDate(next.getDate() + 7);
+      var nextKey = dateKey(next);
+      return saveBet(nextKey, betText, betMeta);
+    }
+  }).then(function(){
+    document.getElementById('ov-review').classList.remove('open');
+    renderHoy();
+    showToast('Review guardada');
+  });
+});
+
+document.querySelectorAll('.overlay').forEach(function(el){
+  el.addEventListener('click', function(e){
+    if(e.target === el) el.classList.remove('open');
+  });
+});
+
+// ════════════════════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════════════════════
 function goTab(t){
-  currentTab=t;
-  ['hab','sue'].forEach(function(x){
-    document.getElementById('view-'+x).style.display=x===t?'block':'none';
+  currentTab = t;
+  ['hoy','sue','his'].forEach(function(x){
+    document.getElementById('view-'+x).style.display = x === t ? 'block' : 'none';
     document.getElementById('tab-'+x).classList.remove('active');
   });
   document.getElementById('tab-'+t).classList.add('active');
-  if(t==='hab') renderHabitos();
-  if(t==='sue') renderSueno();
+  if(t === 'hoy') renderHoy();
+  if(t === 'sue') renderSueno();
+  if(t === 'his') renderHistorial();
+}
+document.getElementById('tab-hoy').addEventListener('click', function(){ goTab('hoy'); });
+document.getElementById('tab-sue').addEventListener('click', function(){ goTab('sue'); });
+document.getElementById('tab-his').addEventListener('click', function(){ goTab('his'); });
+
+// ════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════
+var toastT;
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(function(){ t.classList.remove('show'); }, 1400);
 }
 
-document.getElementById('tab-hab').addEventListener('click',function(){goTab('hab');});
-document.getElementById('tab-sue').addEventListener('click',function(){goTab('sue');});
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+weekDays = getWeekDays();
+currentDow = today.getDay();
+setSync('syncing');
 
-var toastT;
-function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},1400);}
+// Cargar últimos 60 días
+var loadDates = [];
+for(var i=0;i<60;i++){
+  var d = new Date(today); d.setDate(today.getDate() - i);
+  loadDates.push(dateKey(d));
+}
 
-// Init
-weekDays=getWeekDays();
-currentDay=(today.getDay()+6)%7;
-setSyncStatus('syncing');
-Promise.all([loadStreakFromCloud(),loadSleepHistory()])
-  .then(function(){return loadDayFromCloud(dateKey(weekDays[currentDay]));})
-  .then(function(){goTab('hab');});
+Promise.all([
+  loadDaily(loadDates),
+  loadSleep(loadDates),
+  loadBets(),
+  loadReviews()
+]).then(function(){
+  setSync('ok');
+  goTab('hoy');
+});
 </script>
 </body>
 </html>
