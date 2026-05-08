@@ -111,7 +111,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-confirm{flex:2;padding:12px;background:#0F3460;border:1px solid #185FA5;border-radius:10px;color:#85B7EB;font-size:14px;font-weight:600;cursor:pointer}
 
 .week-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:14px;padding:14px;margin-bottom:10px}
-.week-card-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:10px}
+.week-card-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px}
+.week-card-sub{font-size:11px;color:#666;margin-bottom:10px}
 .subj-row{margin-bottom:11px}
 .subj-row:last-child{margin-bottom:0}
 .subj-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
@@ -126,6 +127,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .totals-label{font-size:9px;color:#666;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
 .totals-val{font-size:15px;font-weight:700;color:#85B7EB}
 .totals-val.green{color:#C0DD97}
+
+.history-row{display:flex;gap:6px;margin-top:14px}
+.hist-cell{flex:1;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:10px;padding:9px 6px;text-align:center;cursor:pointer;transition:border-color .15s}
+.hist-cell.active{border-color:#185FA5;background:#0d1f3a}
+.hist-cell.success{border-color:#27500A;background:#0d1a0d}
+.hist-label{font-size:9px;color:#666;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
+.hist-val{font-size:13px;font-weight:700;color:#ccc;margin-bottom:3px}
+.hist-cell.active .hist-val{color:#85B7EB}
+.hist-cell.success .hist-val{color:#C0DD97}
+.hist-mini{display:flex;gap:1.5px;justify-content:center;margin-top:2px}
+.hist-bar{width:4px;border-radius:1px;background:#2c2c4a}
+.section-label{font-size:10px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px}
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:999}
 .toast.show{opacity:1}
@@ -186,11 +199,11 @@ var SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
 var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 
 var SUBJECTS = [
-  {id:'ININ', label:'ININ', goal:600, color:'#A32D2D', bg:'rgba(163,45,45,0.15)'},
-  {id:'INEL', label:'INEL', goal:240, color:'#BA7517', bg:'rgba(186,117,23,0.15)'},
-  {id:'ENCO', label:'ENCO', goal:180, color:'#3B6D11', bg:'rgba(59,109,17,0.15)'},
-  {id:'ELPO', label:'ELPO', goal:120, color:'#185FA5', bg:'rgba(24,95,165,0.15)'},
-  {id:'SIRO', label:'SIRO', goal:60,  color:'#534AB7', bg:'rgba(83,74,183,0.15)'}
+  {id:'ININ', col:'inin_min', label:'ININ', goal:600, color:'#A32D2D', bg:'rgba(163,45,45,0.15)'},
+  {id:'INEL', col:'inel_min', label:'INEL', goal:240, color:'#BA7517', bg:'rgba(186,117,23,0.15)'},
+  {id:'ENCO', col:'enco_min', label:'ENCO', goal:180, color:'#3B6D11', bg:'rgba(59,109,17,0.15)'},
+  {id:'ELPO', col:'elpo_min', label:'ELPO', goal:120, color:'#185FA5', bg:'rgba(24,95,165,0.15)'},
+  {id:'SIRO', col:'siro_min', label:'SIRO', goal:60,  color:'#534AB7', bg:'rgba(83,74,183,0.15)'}
 ];
 
 function getSubject(id){ return SUBJECTS.find(function(s){return s.id===id;}); }
@@ -221,17 +234,44 @@ var currentDow = today.getDay();
 var currentTab = 'day';
 var editMode = false;
 var blocksCache = {};
-var logsCache = {};
+var logsCache = {};       // logs de la semana actual (para vista dia + barra semanal en vivo)
+var summariesCache = [];  // ultimas N semanas cerradas, ordenadas desc
 var pendingLog = null;
 
 function setSyncStatus(s){ document.getElementById('sync-dot').className='sync-dot '+s; }
 
-function dateKey(d){
-  var dt = new Date(today);
-  dt.setDate(today.getDate() - (today.getDay() - d));
-  return dt.toISOString().slice(0,10);
+// ── FECHAS ISO (lunes inicio de semana) ────────────────
+function isoMonday(d){
+  // Devuelve el lunes de la semana ISO de la fecha d
+  var dt = new Date(d);
+  var day = dt.getDay();
+  var diff = (day===0 ? -6 : 1-day); // domingo=0 -> retrocede 6, sino 1-day
+  dt.setDate(dt.getDate()+diff);
+  dt.setHours(0,0,0,0);
+  return dt;
+}
+function dateStr(d){
+  // YYYY-MM-DD en local time (no UTC, evita off-by-one)
+  var y=d.getFullYear(); var m=String(d.getMonth()+1).padStart(2,'0'); var dd=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+dd;
+}
+function dateKeyForDow(dow){
+  // Fecha del dia "dow" de la semana actual visible. Para mantener compat con codigo previo (dom=0..sab=6)
+  var monday = isoMonday(today);
+  var dt = new Date(monday);
+  // monday=1, mar=2, ... dom=0 -> dia 7
+  var offsetFromMonday = dow===0 ? 6 : dow-1;
+  dt.setDate(monday.getDate()+offsetFromMonday);
+  return dateStr(dt);
+}
+function weekDates(monday){
+  // Array de 7 strings YYYY-MM-DD desde monday
+  var arr=[];
+  for(var i=0;i<7;i++){var d=new Date(monday); d.setDate(monday.getDate()+i); arr.push(dateStr(d));}
+  return arr;
 }
 
+// ── SUPABASE ────────────────────────────────────────────
 function sbReq(method, path, body){
   return fetch(SB_URL+'/rest/v1/'+path,{
     method: method,
@@ -247,10 +287,11 @@ function sbReq(method, path, body){
 function loadAll(){
   setSyncStatus('syncing');
   var p1 = sbReq('GET','study_blocks?order=block_idx.asc&select=*');
-  var dates = [];
-  for(var i=0;i<7;i++) dates.push(dateKey(i));
+  var monday = isoMonday(today);
+  var dates = weekDates(monday);
   var p2 = sbReq('GET','study_logs?date=in.('+dates.join(',')+')'+'&select=*');
-  return Promise.all([p1,p2]).then(function(res){
+  var p3 = sbReq('GET','study_week_summaries?order=week_start.desc&limit=20&select=*');
+  return Promise.all([p1,p2,p3]).then(function(res){
     blocksCache = {};
     logsCache = {};
     if(Array.isArray(res[0])) res[0].forEach(function(b){
@@ -258,13 +299,91 @@ function loadAll(){
       blocksCache[b.day].push(b);
     });
     if(Array.isArray(res[1])) res[1].forEach(function(r){
-      var k = r.day+'_'+r.block_idx+'_'+r.date;
-      logsCache[k] = {done:r.done, note:r.note||'', minutes:r.minutes||0, id:r.id};
+      logsCache[r.date+'_'+r.day+'_'+r.block_idx] = {done:r.done, note:r.note||'', minutes:r.minutes||0, id:r.id};
     });
+    summariesCache = Array.isArray(res[2]) ? res[2] : [];
     setSyncStatus('ok');
   }).catch(function(){ setSyncStatus('err'); });
 }
 
+// ── CIERRE AUTOMATICO DE SEMANAS PASADAS ───────────────
+function getMissingMondays(){
+  // Lista de lunes (Date) que estan entre la ultima semana cerrada y la semana actual (sin incluirla)
+  var thisMonday = isoMonday(today);
+  var lastClosedStr = summariesCache.length ? summariesCache[0].week_start : null;
+  var startMonday;
+  if(lastClosedStr){
+    var parts = lastClosedStr.split('-');
+    startMonday = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    startMonday.setDate(startMonday.getDate()+7); // siguiente al ultimo cerrado
+  } else {
+    // Si nunca cerro nada, cerramos solo la semana inmediatamente anterior a la actual (no todo el historico vacio)
+    startMonday = new Date(thisMonday);
+    startMonday.setDate(startMonday.getDate()-7);
+  }
+  var missing = [];
+  while(startMonday < thisMonday){
+    missing.push(new Date(startMonday));
+    startMonday.setDate(startMonday.getDate()+7);
+  }
+  return missing;
+}
+
+function buildSummaryForWeek(monday){
+  // Pide los logs de esa semana, suma por asignatura, ignorando clases
+  var dates = weekDates(monday);
+  return sbReq('GET','study_logs?date=in.('+dates.join(',')+')'+'&select=*').then(function(rows){
+    if(!Array.isArray(rows)) rows = [];
+    // Mapa block_id => block para distinguir clases y subject
+    // Como blocksCache va por day, montamos un index por (day, block_idx)
+    function findBlock(day, idx){
+      var arr = blocksCache[day]||[];
+      for(var i=0;i<arr.length;i++) if(arr[i].block_idx===idx) return arr[i];
+      return null;
+    }
+    var totals = {inin_min:0, inel_min:0, enco_min:0, elpo_min:0, siro_min:0, total_min:0, goals_met:0};
+    rows.forEach(function(r){
+      if(!r.done) return;
+      var blk = findBlock(r.day, r.block_idx);
+      if(!blk) return;
+      var mins = r.minutes||0;
+      totals.total_min += mins;
+      if(blk.is_class) return; // las clases no cuentan
+      if(!blk.subject) return;
+      var subj = getSubject(blk.subject);
+      if(!subj) return;
+      totals[subj.col] += mins;
+    });
+    SUBJECTS.forEach(function(s){
+      if(totals[s.col] >= s.goal) totals.goals_met++;
+    });
+    return Object.assign({week_start: dateStr(monday)}, totals);
+  });
+}
+
+function autoCloseMissingWeeks(){
+  var missing = getMissingMondays();
+  if(!missing.length) return Promise.resolve();
+  // Procesamos en serie por simplicidad (suelen ser 1, raramente >3)
+  var chain = Promise.resolve();
+  missing.forEach(function(monday){
+    chain = chain.then(function(){
+      return buildSummaryForWeek(monday).then(function(summary){
+        return sbReq('POST','study_week_summaries',summary).then(function(res){
+          var r = Array.isArray(res)?res[0]:res;
+          if(r) summariesCache.unshift(r);
+        });
+      });
+    });
+  });
+  return chain.then(function(){
+    if(missing.length>0){
+      showToast('Cerradas '+missing.length+' semana(s) anterior(es)');
+    }
+  });
+}
+
+// ── BLOQUES Y LOGS (vista dia) ─────────────────────────
 function getDayBlocks(dow){
   var day = DAYS_KEY[dow];
   var blocks = (blocksCache[day]||[]).slice();
@@ -273,7 +392,7 @@ function getDayBlocks(dow){
 }
 
 function getLogKey(dow, blockIdx){
-  return DAYS_KEY[dow]+'_'+blockIdx+'_'+dateKey(dow);
+  return dateKeyForDow(dow)+'_'+DAYS_KEY[dow]+'_'+blockIdx;
 }
 
 function getDayDone(dow){
@@ -286,24 +405,25 @@ function getDayDone(dow){
   return {done:done, total:blocks.length};
 }
 
-function getWeekMinutesBySubject(){
+function getCurrentWeekTotals(){
   var totals = {};
-  SUBJECTS.forEach(function(s){ totals[s.id]={subjMin:0}; });
+  SUBJECTS.forEach(function(s){ totals[s.id]=0; });
   var allTotal = 0;
-
-  Object.keys(blocksCache).forEach(function(day){
-    blocksCache[day].forEach(function(b){
-      var dow = DAYS_KEY.indexOf(b.day);
-      if(dow<0) return;
-      var k = getLogKey(dow, b.block_idx);
-      var log = logsCache[k];
-      if(!log || !log.done) return;
-      var mins = log.minutes || 0;
-      allTotal += mins;
-      if(!b.is_class && b.subject && totals[b.subject]){
-        totals[b.subject].subjMin += mins;
-      }
-    });
+  Object.keys(logsCache).forEach(function(k){
+    var log = logsCache[k];
+    if(!log.done) return;
+    // k formato: YYYY-MM-DD_day_blockidx
+    var parts = k.split('_');
+    var day = parts[1]; var idx = parseInt(parts[2]);
+    var arr = blocksCache[day]||[];
+    var blk = null;
+    for(var i=0;i<arr.length;i++) if(arr[i].block_idx===idx){ blk=arr[i]; break; }
+    if(!blk) return;
+    var mins = log.minutes||0;
+    allTotal += mins;
+    if(blk.is_class) return;
+    if(!blk.subject) return;
+    if(totals[blk.subject]!==undefined) totals[blk.subject] += mins;
   });
   totals._total = allTotal;
   return totals;
@@ -312,8 +432,8 @@ function getWeekMinutesBySubject(){
 function saveLog(dow, blockIdx, done, note, minutes){
   setSyncStatus('syncing');
   var day = DAYS_KEY[dow];
-  var date = dateKey(dow);
-  var k = getLogKey(dow, blockIdx);
+  var date = dateKeyForDow(dow);
+  var k = date+'_'+day+'_'+blockIdx;
   var body = {day:day, block_idx:blockIdx, date:date, done:done, note:note||'', minutes:minutes||0};
   return sbReq('POST','study_logs',body).then(function(res){
     var r = Array.isArray(res)?res[0]:res;
@@ -364,6 +484,7 @@ function deleteBlock(id, dow){
   }).catch(function(){ setSyncStatus('err'); });
 }
 
+// ── OVERLAY MINUTOS ─────────────────────────────────────
 function openMinOverlay(dow, block){
   pendingLog = {dow:dow, block:block};
   var startMins = block.default_minutes || 60;
@@ -414,16 +535,20 @@ document.getElementById('sh-min').addEventListener('click', function(e){
   if(e.target===this) closeMinOverlay();
 });
 
+// ── RENDER VISTA DIA ───────────────────────────────────
 function renderNav(){
   var nav = document.getElementById('days-nav');
   nav.innerHTML = '';
-  DAYS_LABEL.forEach(function(label, dow){
+  // Orden visual: Lun Mar Mie Jue Vie Sab Dom (ISO)
+  var visualOrder = [1,2,3,4,5,6,0];
+  visualOrder.forEach(function(dow){
     var sc = getDayDone(dow);
     var blocks = getDayBlocks(dow);
     var b = document.createElement('div');
     b.className = 'day-btn'+(dow===currentDow?' active':'')+(sc.done>0?' has-data':'');
-    var d = new Date(today); d.setDate(today.getDate()-(today.getDay()-dow));
-    b.innerHTML = '<span class="dn">'+label+'</span><span class="dd">'+d.getDate()+'</span><span class="dot"></span>';
+    var d = new Date(isoMonday(today));
+    d.setDate(d.getDate() + (dow===0?6:dow-1));
+    b.innerHTML = '<span class="dn">'+DAYS_LABEL[dow]+'</span><span class="dd">'+d.getDate()+'</span><span class="dot"></span>';
     if(!blocks.length && !editMode) b.style.opacity='0.35';
     b.addEventListener('click', function(){ currentDow=dow; render(); });
     nav.appendChild(b);
@@ -639,26 +764,35 @@ function renderBlocks(){
 }
 
 function renderHeader(){
-  var d = new Date(today); d.setDate(today.getDate()-(today.getDay()-currentDow));
-  var isToday = currentDow===today.getDay();
+  var d = new Date(isoMonday(today));
+  d.setDate(d.getDate() + (currentDow===0?6:currentDow-1));
+  var todayStr = dateStr(today);
+  var isToday = dateStr(d)===todayStr;
   document.getElementById('header-date').textContent = isToday
     ? 'Hoy - '+d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
     : d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
 }
 
+// ── RENDER VISTA SEMANAL ────────────────────────────────
 function renderWeek(){
   var view = document.getElementById('view-week');
   view.innerHTML = '';
-  var totals = getWeekMinutesBySubject();
+  var totals = getCurrentWeekTotals();
   var totalGoal = SUBJECTS.reduce(function(s,sb){return s+sb.goal;},0);
-  var totalDone = SUBJECTS.reduce(function(s,sb){return s+(totals[sb.id].subjMin||0);},0);
+  var totalDone = SUBJECTS.reduce(function(s,sb){return s+(totals[sb.id]||0);},0);
+
+  // Cabecera con rango de fechas semana actual
+  var monday = isoMonday(today);
+  var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+  var rangeLabel = monday.toLocaleDateString('es-ES',{day:'numeric',month:'short'}) +
+                   ' - ' + sunday.toLocaleDateString('es-ES',{day:'numeric',month:'short'});
 
   var card = document.createElement('div');
   card.className = 'week-card';
-  card.innerHTML = '<div class="week-card-title">Esta semana - objetivos sin clases</div>';
+  card.innerHTML = '<div class="week-card-title">Esta semana</div><div class="week-card-sub">'+rangeLabel+' · sin contar clases</div>';
 
   SUBJECTS.forEach(function(sb){
-    var done = totals[sb.id].subjMin||0;
+    var done = totals[sb.id]||0;
     var pct = sb.goal>0 ? Math.min(100, Math.round(done/sb.goal*100)) : 0;
     var amtClass = done>=sb.goal ? 'done' : '';
     var okMark = done>=sb.goal ? '<span class="ok-mark">OK</span>' : '';
@@ -674,6 +808,7 @@ function renderWeek(){
   });
   view.appendChild(card);
 
+  // Totales
   var totalsCard = document.createElement('div');
   totalsCard.className = 'week-totals';
   totalsCard.innerHTML =
@@ -681,9 +816,52 @@ function renderWeek(){
     '<div class="totals-card"><div class="totals-label">Objetivo total</div><div class="totals-val">'+fmtHours(totalGoal)+'</div></div>';
   view.appendChild(totalsCard);
 
+  // Mini-fila ultimas 4 semanas cerradas
+  var lbl = document.createElement('div');
+  lbl.className = 'section-label';
+  lbl.textContent = 'Ultimas semanas';
+  view.appendChild(lbl);
+
+  var histRow = document.createElement('div');
+  histRow.className = 'history-row';
+  var last4 = summariesCache.slice(0,4);
+  if(!last4.length){
+    var emp = document.createElement('div');
+    emp.style.cssText = 'flex:1;text-align:center;font-size:11px;color:#444;padding:14px';
+    emp.textContent = 'Aun no hay semanas cerradas';
+    histRow.appendChild(emp);
+  } else {
+    last4.forEach(function(s){
+      var sd = new Date(s.week_start+'T12:00:00');
+      var label = sd.toLocaleDateString('es-ES',{day:'numeric',month:'short'});
+      var cell = document.createElement('div');
+      cell.className = 'hist-cell'+(s.goals_met===5?' success':'');
+      var miniBars = SUBJECTS.map(function(sb){
+        var v = s[sb.col]||0;
+        var pct = sb.goal>0 ? Math.min(100, v/sb.goal*100) : 0;
+        var height = Math.max(3, Math.round(pct/100*22));
+        return '<div class="hist-bar" style="height:'+height+'px;background:'+sb.color+(pct>=100?'':';opacity:0.55')+'"></div>';
+      }).join('');
+      cell.innerHTML =
+        '<div class="hist-label">'+label+'</div>'+
+        '<div class="hist-val">'+s.goals_met+'/5</div>'+
+        '<div class="hist-mini" style="align-items:flex-end;height:24px">'+miniBars+'</div>';
+      histRow.appendChild(cell);
+    });
+    // Rellenar huecos si hay menos de 4
+    for(var i=last4.length;i<4;i++){
+      var ph = document.createElement('div');
+      ph.className = 'hist-cell';
+      ph.style.opacity = '0.3';
+      ph.innerHTML = '<div class="hist-label">—</div><div class="hist-val">—</div><div class="hist-mini" style="height:24px"></div>';
+      histRow.appendChild(ph);
+    }
+  }
+  view.appendChild(histRow);
+
   var hint = document.createElement('div');
   hint.style.cssText = 'text-align:center;font-size:11px;color:#444;margin-top:14px;line-height:1.6';
-  hint.textContent = 'Solo cuentan bloques completados que NO sean clases. Las clases se ignoran.';
+  hint.textContent = 'Cada lunes la semana se cierra automaticamente. Los datos se guardan para siempre.';
   view.appendChild(hint);
 }
 
@@ -744,11 +922,10 @@ var toastT;
 function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove('show'); },1400); }
 
 setSyncStatus('syncing');
-loadAll().then(function(){
-  return seedDefaultsIfEmpty();
-}).then(function(){
-  goTab('day');
-});
+loadAll()
+  .then(function(){ return seedDefaultsIfEmpty(); })
+  .then(function(){ return autoCloseMissingWeeks(); })
+  .then(function(){ goTab('day'); });
 </script>
 </body>
 </html>
