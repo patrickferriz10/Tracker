@@ -118,15 +118,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .maint-check svg{display:none;width:11px;height:11px}
 .maint-item.done .maint-check svg{display:block}
 
-/* ── Identidad ───────────────────────────────────────── */
-.identity-card{background:#16132a;border:1px solid #534AB7;border-radius:14px;padding:14px;margin-top:12px;margin-bottom:10px}
-.identity-card.done{background:#1a1a2e;border-color:#3a3a5a}
-.identity-q{font-size:13px;color:#7F77DD;font-weight:600;margin-bottom:8px;line-height:1.3}
-.identity-card.done .identity-q{color:#888}
-.identity-input{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:10px 12px;font-size:13px;color:#eee;font-family:inherit;resize:none;outline:none;min-height:60px;line-height:1.4}
-.identity-input:focus{border-color:#7F77DD}
-.identity-meta{font-size:10px;color:#555;margin-top:5px;display:flex;justify-content:space-between}
-.identity-meta .ok{color:#7F77DD}
+/* ── Rachas troncales ───────────────────────────────── */
+.streaks-bar{display:flex;gap:8px;margin-bottom:12px}
+.streak-card{flex:1;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:12px;padding:11px 13px;position:relative;overflow:hidden}
+.streak-card.alive{border-color:#27500A;background:linear-gradient(135deg,#0d1a0d 0%,#1a1a2e 100%)}
+.streak-card.broken{border-color:#3a1a1a;background:linear-gradient(135deg,#1a0d0d 0%,#1a1a2e 100%)}
+.streak-card.zero{opacity:.7}
+.streak-name{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:3px}
+.streak-card.alive .streak-name{color:#63991b}
+.streak-card.broken .streak-name{color:#A32D2D}
+.streak-count{font-size:22px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums}
+.streak-card.alive .streak-count{color:#C0DD97}
+.streak-card.broken .streak-count{color:#f09595}
+.streak-unit{font-size:10px;color:#666;margin-left:3px}
+.streak-sub{font-size:10px;color:#555;margin-top:3px;font-weight:500}
+.streak-card.broken .streak-sub{color:#f09595;font-weight:600}
+
+/* ── Núcleo: stat frecuencia "X/7" dentro de core ── */
+.core-freq{font-size:10px;color:#666;margin-left:8px;font-weight:500;font-variant-numeric:tabular-nums}
+.core-freq.ok{color:#63991b}
+.core-freq.warn{color:#BA7517}
+
+/* ── Mantenimiento tri-estado ────────────────────── */
+.maint-item.fail{border-color:#3a1a1a;background:#1a0d0d}
+.maint-item.fail .maint-text{color:#f09595;text-decoration:line-through;text-decoration-color:#5a1a1a}
+.maint-item.fail .maint-check{background:#1a0808;border-color:#A32D2D}
+.maint-item.fail .maint-check svg{display:block}
+.maint-item.fail .maint-check svg polyline{stroke:#A32D2D}
 
 /* ── Sueño tab ───────────────────────────────────────── */
 .sleep-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;padding:16px;margin-bottom:10px}
@@ -229,7 +247,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="hero-row">
       <div class="score-now">
         <div class="score-label">Hoy</div>
-        <div><span class="score-num" id="score-num">0</span><span class="score-max">/107</span></div>
+        <div><span class="score-num" id="score-num">0</span><span class="score-max">/100</span></div>
       </div>
       <div class="score-7d">
         <div class="score-7d-label">Media 7d</div>
@@ -241,6 +259,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <span>vs hace 4 sem: <b id="cmp-4w">—</b></span>
     </div>
   </div>
+
+  <!-- Rachas troncales -->
+  <div class="streaks-bar" id="streaks-bar"></div>
 
   <!-- Apuesta semanal -->
   <div class="bet-card" id="bet-card">
@@ -335,12 +356,17 @@ var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 
 var BASE = 20;
 
-// Core systems con peso máximo
+// Core systems con peso máximo (nuevo sistema 0-100)
+// Mapeos manuales por escala para que la distribución de puntos no sea lineal:
+// estudio: 0/9/17/25 → diferencia clara entre niveles
+// cuerpo: 0/5/10/14
+// orden: 0/4/7/10
+// puntualidad: 0/4/8
 var CORE = [
-  {id:'estudio',     name:'Estudio profundo',  max:28, scale:[0,1,2,3], labels:['Nada','Mediocre','Sólido','Élite']},
-  {id:'cuerpo',      name:'Cuerpo / entreno',  max:14, scale:[0,1,2,3], labels:['Nada','Mínimo','Completo','Duro']},
-  {id:'orden_prep',  name:'Orden + prep mañana', max:12, scale:[0,1,2,3], labels:['Nada','Algo','Sólido','Todo listo']},
-  {id:'puntualidad', name:'Puntualidad',       max:10, scale:[0,1,2],   labels:['Tarde','A tiempo','Con margen']}
+  {id:'estudio',     name:'Estudio profundo',  max:25, scale:[0,1,2,3], labels:['Nada','Mediocre','Sólido','Élite'], pts:[0,9,17,25]},
+  {id:'cuerpo',      name:'Cuerpo / entreno',  max:14, scale:[0,1,2,3], labels:['Nada','Mínimo','Completo','Duro'],   pts:[0,5,10,14]},
+  {id:'orden_prep',  name:'Orden + prep mañana', max:10, scale:[0,1,2,3], labels:['Nada','Algo','Sólido','Todo listo'], pts:[0,4,7,10]},
+  {id:'puntualidad', name:'Puntualidad',       max:8,  scale:[0,1,2],   labels:['Tarde','A tiempo','Con margen'],     pts:[0,4,8]}
 ];
 
 // Sueño se calcula desde sleep_logs (horas reales)
@@ -361,10 +387,135 @@ function scoreMovil(horas){
   return -Math.round((horas - 1.5) / 2.5 * 20);
 }
 
-// Tabaco: -25 si fumó
-function scoreTabaco(fumed){ return fumed ? -25 : 0; }
+// ── RACHAS TRONCALES ────────────────────────────────────────
+// Reglas:
+// - Móvil controlado: día se considera "cumplido" si movil_horas > 0 (registrado) Y <= 1.5
+// - Estudio profundo: día se considera "cumplido" si estudio >= 2 (marcado al menos sólido)
+// - Día "registrado" para móvil: movil_horas > 0 (slider tocado)
+// - Día "registrado" para estudio: estudio > 0 (algún botón tocado, incluido 0 si está explícito).
+//   Para distinguir 0 explícito de "no marcado", usamos un trick: si daily existe y tiene fecha
+//   pero estudio===0, lo consideramos no registrado salvo que otra cosa en el daily esté marcada.
+// - Pausa: 1 día sin registro no rompe. 2 días consecutivos sin registro rompen.
+// - Si el día está registrado pero falla el hábito, rompe inmediatamente.
+//
+// Devuelve: {count: número de días en racha, broken: bool si la racha se rompió hoy/ayer}
 
-// Mantenimiento: +1 cada uno, max 5
+function dayHasAnyMark(daily){
+  if(!daily) return false;
+  if((daily.movil_horas||0) > 0) return true;
+  if((daily.estudio||0) > 0) return true;
+  if((daily.cuerpo||0) > 0) return true;
+  if((daily.orden_prep||0) > 0) return true;
+  if((daily.puntualidad||0) > 0) return true;
+  // Mantenimiento: si alguno tiene valor distinto de 0 (positivo o negativo) cuenta como marcado
+  for(var i=0;i<MAINT.length;i++){
+    if((daily[MAINT[i].id]||0) !== 0) return true;
+  }
+  return false;
+}
+
+function dayRegisteredForTrunk(daily, trunkId){
+  // Para móvil: solo cuenta como registrado si el slider se ha movido (>0)
+  // Para estudio: cuenta si estudio>0 O si hay marcas de otras cosas (asumimos que el usuario abrió la app)
+  if(!daily) return false;
+  if(trunkId === 'movil'){
+    return (daily.movil_horas || 0) > 0;
+  }
+  if(trunkId === 'estudio'){
+    // Si el usuario tocó algo del día pero no el estudio, consideramos que estudio=0 implícito
+    // y por tanto NO cumple. Para evitar trampa de "no marco estudio para no romper".
+    return dayHasAnyMark(daily);
+  }
+  return false;
+}
+
+function dayPassesTrunk(daily, sleep, trunkId){
+  if(!daily) return false;
+  if(trunkId === 'movil'){
+    var h = daily.movil_horas || 0;
+    return h > 0 && h <= 1.5;
+  }
+  if(trunkId === 'estudio'){
+    return (daily.estudio || 0) >= 2;
+  }
+  return false;
+}
+
+// Calcular racha actual de un hábito troncal
+// Recorre hacia atrás desde hoy. Permite 1 día de pausa. 2 consecutivos sin registro rompen.
+function computeTrunkStreak(trunkId){
+  var count = 0;
+  var consecutiveUnregistered = 0;
+  var broken = false;
+  // Recorrer desde hoy hacia atrás, hasta 60 días máximo
+  for(var i=0;i<60;i++){
+    var d = new Date(today);
+    d.setDate(today.getDate() - i);
+    var k = dateKey(d);
+    var daily = dailyCache[k];
+    var registered = dayRegisteredForTrunk(daily, trunkId);
+    if(!registered){
+      consecutiveUnregistered++;
+      if(consecutiveUnregistered >= 2){
+        // 2 días seguidos sin registro -> racha rota
+        break;
+      }
+      // 1 día sin registro -> pausa, no rompe, sigue contando atrás
+      continue;
+    }
+    // Día registrado
+    consecutiveUnregistered = 0;
+    if(dayPassesTrunk(daily, sleepCache[k], trunkId)){
+      count++;
+    } else {
+      // Día registrado y falla -> racha rota
+      break;
+    }
+  }
+  return { count: count, broken: false };
+}
+
+// Detectar si la racha se rompió "recientemente" (hoy o ayer) para mostrar
+// el mensaje "empieza de nuevo" durante 24h.
+// Devuelve true si:
+//   - hoy hay registro y falla
+//   - ayer hubo registro y falla, y hoy aún no se ha registrado nada
+function trunkBrokenRecently(trunkId){
+  var todayKey = dateKey(today);
+  var todayDaily = dailyCache[todayKey];
+  if(todayDaily && dayRegisteredForTrunk(todayDaily, trunkId) && !dayPassesTrunk(todayDaily, sleepCache[todayKey], trunkId)){
+    return true;
+  }
+  // Ayer
+  var y = new Date(today); y.setDate(today.getDate()-1);
+  var yKey = dateKey(y);
+  var yDaily = dailyCache[yKey];
+  if(yDaily && dayRegisteredForTrunk(yDaily, trunkId) && !dayPassesTrunk(yDaily, sleepCache[yKey], trunkId)){
+    // Sólo mostramos "empieza de nuevo" si hoy aún no hay registro positivo
+    if(!todayDaily || !dayPassesTrunk(todayDaily, sleepCache[todayKey], trunkId)){
+      return true;
+    }
+  }
+  return false;
+}
+
+// Calcular "X de los últimos 7 días" para mostrar en cada core card
+function lastNFrequency(coreId, threshold, n){
+  var ok = 0, registered = 0;
+  for(var i=0;i<n;i++){
+    var d = new Date(today);
+    d.setDate(today.getDate() - i);
+    var k = dateKey(d);
+    var daily = dailyCache[k];
+    if(!daily) continue;
+    var v = daily[coreId] || 0;
+    if(v > 0 || dayHasAnyMark(daily)){ registered++; }
+    if(v >= threshold) ok++;
+  }
+  return { ok: ok, total: n };
+}
+
+// Mantenimiento: tres estados (sin marcar=0, hecho=+1, no hecho=-1). Suma a la base.
 var MAINT = [
   {id:'m_suplementos', name:'Suplementos'},
   {id:'m_dientes',     name:'Dientes'},
@@ -373,11 +524,11 @@ var MAINT = [
   {id:'m_italiano',    name:'Lezione Italiano'}
 ];
 
-// Preguntas de identidad (rotación por día)
-var IDENT_QUESTIONS = [
-  '¿Dónde he estado sólido hoy?',
-  '¿Dónde me he vendido barato?',
-  '¿He actuado como alguien a quien respeto?'
+// Hábitos troncales — rachas de días consecutivos
+// Tabaco eliminado del sistema (superado).
+var TRUNK = [
+  {id:'movil', name:'Móvil controlado', desc:'≤1h30 al día'},
+  {id:'estudio', name:'Estudio profundo', desc:'calidad ≥2'}
 ];
 
 // ════════════════════════════════════════════════════════════
@@ -401,7 +552,22 @@ var selectedQuality = 3;
 // HELPERS
 // ════════════════════════════════════════════════════════════
 function setSync(s){ document.getElementById('sync-dot').className = 'sync-dot ' + s; }
-function dateKey(d){ return d.toISOString().slice(0,10); }
+// dateKey usa HORA LOCAL (no UTC) para evitar desfases de zona horaria.
+// toISOString convierte a UTC, lo que en España (UTC+1/+2) produce el día anterior
+// si la hora local está entre 00:00 y 01:00 o 02:00.
+function dateKey(d){
+  var y = d.getFullYear();
+  var m = String(d.getMonth() + 1).padStart(2, '0');
+  var dd = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + dd;
+}
+// Construye un Date a partir de un string 'YYYY-MM-DD' interpretándolo como hora LOCAL al mediodía.
+// Esto garantiza que getDate(), getMonth(), getDay() devuelvan el día correcto sin
+// ambigüedad por zona horaria.
+function parseLocalDate(str){
+  var parts = str.split('-');
+  return new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10), 12, 0, 0);
+}
 function getDateForDow(dow){
   var d = new Date(today);
   d.setDate(today.getDate() - (today.getDay() - dow));
@@ -553,32 +719,30 @@ function saveReview(weekKey, solido, vendido, patron, mediaScore){
 // ════════════════════════════════════════════════════════════
 function computeScore(daily, sleep){
   if(!daily) return 0;
-  var s = BASE;
-  // Core
+  // Base + mantenimiento (suma a la base, ±1 por hábito, max ±5)
+  var maintSum = 0;
+  MAINT.forEach(function(m){
+    var v = daily[m.id] || 0;
+    maintSum += (v > 0 ? 1 : v < 0 ? -1 : 0);
+  });
+  var s = BASE + maintSum; // rango 15..25
+  // Core systems con mapeo por puntos manual
   CORE.forEach(function(c){
     var v = daily[c.id] || 0;
-    var maxScale = Math.max.apply(null, c.scale);
-    s += Math.round(v / maxScale * c.max);
+    var idx = c.scale.indexOf(v);
+    if(idx >= 0) s += c.pts[idx];
   });
-  // Sueño
+  // Sueño (curva existente)
   if(sleep && sleep.hours) s += scoreSueno(sleep.hours);
-  // Móvil
+  // Móvil (penalización)
   s += scoreMovil(daily.movil_horas || 0);
-  // Tabaco
-  s += scoreTabaco(daily.tabaco);
-  // Mantenimiento
-  var mCount = MAINT.filter(function(m){ return daily[m.id]; }).length;
-  s += mCount;
+  // Clampear: mínimo 0, máximo 100
+  if(s < 0) s = 0;
+  if(s > 100) s = 100;
   return s;
 }
 
-function maxPossible(){
-  var max = BASE;
-  CORE.forEach(function(c){ max += c.max; });
-  max += 18; // sueño
-  max += MAINT.length; // mantenimiento
-  return max; // 20+28+14+12+10+18+5 = 107
-}
+function maxPossible(){ return 100; }
 
 function scoreClass(score){
   if(score >= 70) return 's-hi';
@@ -625,6 +789,36 @@ function avgWeek(weeksAgo){
 // ════════════════════════════════════════════════════════════
 // RENDER HOY
 // ════════════════════════════════════════════════════════════
+function renderStreaks(){
+  var bar = document.getElementById('streaks-bar');
+  if(!bar) return;
+  bar.innerHTML = '';
+  TRUNK.forEach(function(t){
+    var streak = computeTrunkStreak(t.id);
+    var brokenRecently = trunkBrokenRecently(t.id);
+    var alive = streak.count > 0;
+    var card = document.createElement('div');
+    var cls = 'streak-card';
+    if(alive) cls += ' alive';
+    else if(brokenRecently) cls += ' broken';
+    else cls += ' zero';
+    card.className = cls;
+
+    var subText = '';
+    if(brokenRecently && streak.count === 0){
+      subText = 'Empieza de nuevo';
+    } else {
+      subText = t.desc;
+    }
+
+    card.innerHTML =
+      '<div class="streak-name">' + t.name + '</div>' +
+      '<div><span class="streak-count">' + streak.count + '</span><span class="streak-unit">días</span></div>' +
+      '<div class="streak-sub">' + subText + '</div>';
+    bar.appendChild(card);
+  });
+}
+
 function renderHero(){
   var todayKey = dateKey(today);
   var todayDaily = dailyCache[todayKey];
@@ -743,27 +937,32 @@ function renderCoreSystems(){
 
   CORE.forEach(function(c){
     var v = daily[c.id] || 0;
-    var maxScale = Math.max.apply(null, c.scale);
-    var pts = Math.round(v / maxScale * c.max);
+    var idx = c.scale.indexOf(v);
+    var pts = idx >= 0 ? c.pts[idx] : 0;
     var div = document.createElement('div');
     div.className = 'core-item';
     var ptsCls = pts > 0 ? 'has-pts' : '';
-    div.innerHTML = '<div class="core-top"><span class="core-name">' + c.name + '</span>' +
+
+    // Frecuencia X/7 últimos días con umbral según core
+    var threshold = c.scale.length === 4 ? 2 : 1; // ≥2 para estudio/cuerpo/orden, ≥1 para puntualidad
+    var freq = lastNFrequency(c.id, threshold, 7);
+    var freqCls = freq.ok >= 5 ? 'ok' : freq.ok >= 3 ? 'warn' : '';
+    var freqLabel = '· ' + freq.ok + '/7';
+
+    div.innerHTML = '<div class="core-top"><span class="core-name">' + c.name +
+      '<span class="core-freq ' + freqCls + '">' + freqLabel + '</span></span>' +
       '<span class="core-points ' + ptsCls + '">' + (pts > 0 ? '+' + pts : '0') + ' / ' + c.max + '</span></div>';
     var row = document.createElement('div');
     row.className = 'scale-row';
-    c.scale.forEach(function(sv, idx){
+    c.scale.forEach(function(sv, sidx){
       var b = document.createElement('div');
-      var clsName = v === sv ? (' sel-' + (c.scale.length === 3 ? sv + 'x' : sv)) : '';
-      // El '2x' es un hack para puntualidad (escala 0-2): sel-2 ya está ocupada por estudio nivel sólido
-      // Mejor: usar clases específicas
       var selClass = '';
       if(v === sv){
         if(c.scale.length === 4){ selClass = ' sel-' + sv; }
         else if(c.scale.length === 3){ selClass = sv === 0 ? ' sel-0' : sv === 1 ? ' sel-1' : ' sel-2x'; }
       }
       b.className = 'scale-btn' + selClass;
-      b.innerHTML = '<span class="sv">' + sv + '</span><span class="sl">' + c.labels[idx] + '</span>';
+      b.innerHTML = '<span class="sv">' + sv + '</span><span class="sl">' + c.labels[sidx] + '</span>';
       b.addEventListener('click', function(){
         var partial = {};
         partial[c.id] = sv;
@@ -796,7 +995,7 @@ function renderCoreSystems(){
   // Penalizaciones
   var pLbl = document.createElement('div');
   pLbl.className = 'section-label';
-  pLbl.textContent = 'Penalizaciones';
+  pLbl.textContent = 'Penalización móvil';
   container.appendChild(pLbl);
 
   // Móvil
@@ -827,93 +1026,40 @@ function renderCoreSystems(){
     saveDaily(dateStr, { movil_horas: h }).then(function(){ renderHoy(); });
   });
 
-  // Tabaco
-  var tabDiv = document.createElement('div');
-  tabDiv.className = 'core-item';
-  var fumed = !!daily.tabaco;
-  var tabPts = scoreTabaco(fumed);
-  var tabCls = tabPts < 0 ? 'neg-pts' : '';
-  tabDiv.innerHTML =
-    '<div class="core-top"><span class="core-name">Tabaco</span>' +
-    '<span class="core-points ' + tabCls + '">' + (tabPts < 0 ? tabPts : '0') + ' / -25</span></div>' +
-    '<div class="tabaco-row">' +
-      '<div class="tab-toggle ' + (fumed ? 'fumed' : '') + '" id="tab-toggle">' +
-        (fumed ? 'Hoy he fumado' : 'Sin tabaco') +
-      '</div>' +
-    '</div>';
-  container.appendChild(tabDiv);
-  document.getElementById('tab-toggle').addEventListener('click', function(){
-    var newVal = !fumed;
-    if(newVal && !confirm('¿Confirmar que has fumado hoy? -25 puntos.')) return;
-    saveDaily(dateStr, { tabaco: newVal }).then(function(){ renderHoy(); });
-  });
-
-  // Mantenimiento
+  // Mantenimiento (tri-estado)
   var mLbl = document.createElement('div');
   mLbl.className = 'section-label';
-  mLbl.textContent = 'Mantenimiento';
+  mLbl.textContent = 'Mantenimiento · ±1 cada uno';
   container.appendChild(mLbl);
 
   var mGrid = document.createElement('div');
   mGrid.className = 'maint-grid';
   MAINT.forEach(function(m){
-    var done = !!daily[m.id];
+    var state = daily[m.id] || 0; // 0=sin marcar, 1=hecho, -1=no hecho
     var item = document.createElement('div');
-    item.className = 'maint-item' + (done ? ' done' : '');
+    var cls = 'maint-item';
+    if(state === 1) cls += ' done';
+    else if(state === -1) cls += ' fail';
+    item.className = cls;
     item.innerHTML =
       '<div class="maint-check"><svg viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,9 9.5,2.5" stroke="#C0DD97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
       '<span class="maint-text">' + m.name + '</span>';
     item.addEventListener('click', function(){
+      // Ciclo: 0 (sin marcar) → 1 (hecho) → -1 (no hecho) → 0
+      var next;
+      if(state === 0) next = 1;
+      else if(state === 1) next = -1;
+      else next = 0;
       var partial = {};
-      partial[m.id] = !done;
+      partial[m.id] = next;
       saveDaily(dateStr, partial).then(function(){ renderHoy(); });
     });
     mGrid.appendChild(item);
   });
   container.appendChild(mGrid);
 
-  // Identidad (solo para hoy)
-  var todayKey = dateKey(today);
-  if(dateStr === todayKey){
-    renderIdentity(container, daily, todayKey);
-  }
-
   // Botón review (solo si es domingo o si la semana pasada no tiene review)
   renderReviewButton(container);
-}
-
-function renderIdentity(container, daily, dateStr){
-  var idx = (new Date(dateStr).getTime() / 86400000) % IDENT_QUESTIONS.length;
-  var question = daily.identidad_pregunta || IDENT_QUESTIONS[Math.floor(idx)];
-  var answered = daily.identidad_respuesta && daily.identidad_respuesta.length >= 20;
-
-  var card = document.createElement('div');
-  card.className = 'identity-card' + (answered ? ' done' : '');
-  card.innerHTML =
-    '<div class="identity-q">' + question + '</div>' +
-    '<textarea class="identity-input" id="ident-input" placeholder="Mínimo 20 caracteres. Honestidad, no relleno.">' + (daily.identidad_respuesta || '') + '</textarea>' +
-    '<div class="identity-meta"><span id="ident-count">' + (daily.identidad_respuesta || '').length + ' / 20</span><span id="ident-status">' + (answered ? 'Día cerrado ✓' : 'Pendiente') + '</span></div>';
-  container.appendChild(card);
-
-  var input = document.getElementById('ident-input');
-  var countEl = document.getElementById('ident-count');
-  var statusEl = document.getElementById('ident-status');
-  var saveTimer;
-  input.addEventListener('input', function(){
-    var len = input.value.length;
-    countEl.textContent = len + ' / 20';
-    var ok = len >= 20;
-    statusEl.textContent = ok ? 'Día cerrado ✓' : 'Pendiente';
-    if(ok) statusEl.className = 'ok';
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(function(){
-      saveDaily(dateStr, {
-        identidad_pregunta: question,
-        identidad_respuesta: input.value,
-        cerrado: ok
-      });
-    }, 600);
-  });
 }
 
 function renderReviewButton(container){
@@ -957,6 +1103,7 @@ function renderHoy(){
     : d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
 
   renderHero();
+  renderStreaks();
   renderBet();
   renderDayNav();
   renderCoreSystems();
@@ -1057,7 +1204,7 @@ function renderSueno(){
       var pct = Math.min(100, Math.round((r.hours/9)*100));
       var barColor = r.hours>=7 ? '#185FA5' : r.hours>=6 ? '#BA7517' : '#A32D2D';
       var item = document.createElement('div'); item.className='sleep-hist-item';
-      var d = new Date(r.date+'T12:00:00');
+      var d = parseLocalDate(r.date);
       var dateLabel = d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
       item.innerHTML =
         '<div class="sleep-hist-date">' + dateLabel + '</div>' +
@@ -1089,7 +1236,7 @@ function renderHistorial(){
   // Mejor semana (media)
   var weeks = {};
   allDays.forEach(function(d){
-    var wk = weekStartKey(new Date(d.date+'T12:00:00'));
+    var wk = weekStartKey(parseLocalDate(d.date));
     if(!weeks[wk]) weeks[wk] = [];
     weeks[wk].push(d.score_total || 0);
   });
@@ -1126,7 +1273,7 @@ function renderHistorial(){
   }
 
   weekKeys.forEach(function(wk){
-    var monday = new Date(wk + 'T00:00:00');
+    var monday = parseLocalDate(wk);
     var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
     var rangeStr = monday.getDate() + ' ' + monday.toLocaleDateString('es-ES',{month:'short'}) + ' — ' + sunday.getDate() + ' ' + sunday.toLocaleDateString('es-ES',{month:'short'});
 
@@ -1187,7 +1334,7 @@ function openBetModal(){
 }
 
 function openReviewModal(weekKey){
-  var monday = new Date(weekKey + 'T00:00:00');
+  var monday = parseLocalDate(weekKey);
   var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
   document.getElementById('review-week-range').textContent =
     'Semana del ' + monday.getDate() + ' ' + monday.toLocaleDateString('es-ES',{month:'short'}) +
@@ -1239,7 +1386,7 @@ document.getElementById('rv-save').addEventListener('click', function(){
   if(!solido || !vendido){ showToast('Mínimo: sólido y vendido'); return; }
 
   // Calcular media de la semana
-  var monday = new Date(weekKey + 'T00:00:00');
+  var monday = parseLocalDate(weekKey);
   var sum = 0, count = 0;
   for(var i=0;i<7;i++){
     var d = new Date(monday); d.setDate(monday.getDate()+i);
@@ -1251,7 +1398,7 @@ document.getElementById('rv-save').addEventListener('click', function(){
   saveReview(weekKey, solido, vendido, patron, media).then(function(){
     if(betText && betMeta){
       // Apuesta para la semana SIGUIENTE a la del review
-      var next = new Date(weekKey + 'T00:00:00');
+      var next = parseLocalDate(weekKey);
       next.setDate(next.getDate() + 7);
       var nextKey = dateKey(next);
       return saveBet(nextKey, betText, betMeta);
