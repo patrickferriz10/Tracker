@@ -5,189 +5,342 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Estudios">
-<title>Plan de Estudios</title>
+<meta name="apple-mobile-web-app-title" content="Tracker">
+<title>Mi Tracker</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f1a;color:#eee;min-height:100vh;padding-bottom:40px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f1a;color:#eee;min-height:100vh;padding-bottom:60px}
 .app{max-width:420px;margin:0 auto;padding:14px}
-.header{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-.header-left h1{font-size:18px;font-weight:600;color:#fff}
-.header-left p{font-size:12px;color:#888;margin-top:2px}
-.header-right{display:flex;align-items:center;gap:10px}
+
+/* ── Header ─────────────────────────────────────────────── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.topbar h1{font-size:17px;font-weight:600;color:#fff}
+.topbar .date{font-size:11px;color:#666;margin-top:1px}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#444;flex-shrink:0}
 .sync-dot.ok{background:#63991b}.sync-dot.syncing{background:#BA7517;animation:pulse 1s infinite}.sync-dot.err{background:#A32D2D}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.score-pill{background:#0F3460;border:1px solid #185FA5;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:#85B7EB;white-space:nowrap}
-.edit-toggle{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;color:#888;cursor:pointer}
-.edit-toggle.active{border-color:#534AB7;color:#7F77DD;background:#16132a}
 
-.tabs{display:flex;gap:6px;margin-bottom:12px}
+/* ── Score hero ─────────────────────────────────────────── */
+.hero{background:linear-gradient(180deg,#16132a 0%,#0f0f1a 100%);border:1px solid #2c2c4a;border-radius:18px;padding:18px 16px;margin-bottom:12px}
+.hero-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:10px}
+.score-now{flex:1}
+.score-label{font-size:10px;color:#7F77DD;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:2px}
+.score-num{font-size:46px;font-weight:700;color:#fff;line-height:1;letter-spacing:-1px}
+.score-num.neg{color:#f09595}
+.score-max{font-size:13px;color:#555;margin-left:4px;font-weight:500}
+.score-7d{text-align:right;flex-shrink:0}
+.score-7d-label{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.score-7d-num{font-size:22px;font-weight:600;color:#aaa}
+.compare{display:flex;gap:14px;font-size:11px;color:#666;padding-top:10px;border-top:1px solid #1f1f3a}
+.compare span{flex:1}
+.compare b{font-weight:600}
+.compare .up{color:#C0DD97}
+.compare .down{color:#f09595}
+.compare .eq{color:#888}
+
+/* ── Apuesta semanal ────────────────────────────────────── */
+.bet-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:14px;padding:13px 15px;margin-bottom:12px;cursor:pointer}
+.bet-card.empty{border-style:dashed;border-color:#3a3a5a;background:#111120}
+.bet-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.bet-label{font-size:10px;color:#FAC775;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.bet-progress-text{font-size:11px;color:#888;font-weight:500}
+.bet-text{font-size:13px;color:#eee;line-height:1.4;margin-bottom:8px}
+.bet-text.placeholder{color:#555;font-style:italic}
+.bet-bar{background:#0d0d1a;border-radius:4px;height:5px;overflow:hidden}
+.bet-bar-fg{height:5px;border-radius:4px;background:linear-gradient(90deg,#BA7517,#FAC775);transition:width .4s}
+
+/* ── Tabs ───────────────────────────────────────────────── */
+.tabs{display:flex;gap:6px;margin-bottom:10px}
 .tab{flex:1;padding:9px 4px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:#666}
-.tab.t-day.active{background:#0d1f3a;border-color:#185FA5;color:#85B7EB}
-.tab.t-week.active{background:#16132a;border-color:#534AB7;color:#7F77DD}
+.tab.t-hoy.active{background:#16132a;border-color:#534AB7;color:#7F77DD}
+.tab.t-sue.active{background:#0d1f3a;border-color:#185FA5;color:#85B7EB}
+.tab.t-his.active{background:#1a1a0d;border-color:#BA7517;color:#FAC775}
 
-.days-nav{display:flex;gap:6px;margin-bottom:12px}
-.day-btn{flex:1;padding:8px 2px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;cursor:pointer;text-align:center}
-.day-btn.active{background:#0F3460;border-color:#185FA5}
-.day-btn .dn{font-size:10px;color:#888;display:block}
-.day-btn .dd{font-size:14px;font-weight:600;color:#fff;display:block}
-.day-btn.active .dn{color:rgba(133,183,235,0.8)}
-.day-btn.active .dd{color:#85B7EB}
-.dot{width:5px;height:5px;border-radius:50%;background:#2c2c4a;margin:4px auto 0;display:block}
-.day-btn.has-data .dot{background:#378ADD}
-.day-btn.active .dot{background:rgba(133,183,235,0.4)}
+/* ── Day nav ───────────────────────────────────────────── */
+.days-nav{display:flex;gap:5px;margin-bottom:12px}
+.day-btn{flex:1;padding:7px 2px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:9px;cursor:pointer;text-align:center}
+.day-btn.active{background:#534AB7;border-color:#534AB7}
+.day-btn .dn{font-size:9px;color:#888;display:block}
+.day-btn .dd{font-size:13px;font-weight:600;color:#fff;display:block}
+.day-btn.active .dn{color:rgba(255,255,255,.7)}
+.day-btn .ds{font-size:8px;color:#444;display:block;margin-top:1px;font-weight:600}
+.day-btn .ds.s-hi{color:#63991b}
+.day-btn .ds.s-mid{color:#BA7517}
+.day-btn .ds.s-lo{color:#A32D2D}
+.day-btn.active .ds{color:rgba(255,255,255,.6)}
 
-.day-header{padding:10px 0 8px;display:flex;align-items:center;justify-content:space-between}
-.day-title{font-size:15px;font-weight:600;color:#fff}
-.day-progress{font-size:12px;color:#888}
+/* ── Section ──────────────────────────────────────────── */
+.section-label{font-size:10px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.7px;margin:14px 0 6px;padding:0 2px}
 
-.block-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:14px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
-.block-card.done{border-color:#0F3460}
-.block-card.is-class{border-left:3px solid #534AB7}
-.block-card.editing{border-color:#534AB7}
+/* ── Core item ────────────────────────────────────────── */
+.core-item{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:13px;padding:12px 14px;margin-bottom:7px}
+.core-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.core-name{font-size:13px;color:#ddd;font-weight:500}
+.core-points{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:#0d0d1a;color:#666}
+.core-points.has-pts{background:#1a3a08;color:#C0DD97}
+.core-points.neg-pts{background:#2a0808;color:#f09595}
+.scale-row{display:flex;gap:5px}
+.scale-btn{flex:1;padding:8px 2px;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:7px;cursor:pointer;text-align:center;font-size:10px;color:#666;transition:all .15s}
+.scale-btn .sv{font-size:14px;font-weight:700;display:block;line-height:1.1}
+.scale-btn .sl{font-size:9px;display:block;margin-top:1px;opacity:.7}
+.scale-btn.sel-0{background:#1a0d0d;border-color:#3a1a1a;color:#a06060}
+.scale-btn.sel-1{background:#1a1a0d;border-color:#3a2a0a;color:#FAC775}
+.scale-btn.sel-2{background:#0d1a0d;border-color:#27500A;color:#C0DD97}
+.scale-btn.sel-3{background:#16132a;border-color:#534AB7;color:#7F77DD}
+.scale-btn.sel-2x{background:#0d1a0d;border-color:#27500A;color:#C0DD97}
 
-.block-main{padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer}
-.block-main:active{background:#16213e}
-.block-info{flex:1;min-width:0}
-.block-time{font-size:11px;color:#888;margin-bottom:3px;font-weight:500}
-.block-task{font-size:13px;color:#ccc;line-height:1.35}
-.block-card.done .block-task{color:#888;text-decoration:line-through;text-decoration-color:#444}
-.class-badge{display:inline-block;font-size:9px;background:#16132a;color:#7F77DD;border-radius:4px;padding:1px 5px;margin-left:5px;font-weight:600;vertical-align:middle}
-.subj-badge{display:inline-block;font-size:9px;border-radius:4px;padding:1px 5px;margin-left:5px;font-weight:600;vertical-align:middle}
-.minutes-badge{display:inline-block;font-size:10px;color:#85B7EB;background:#0d1f3a;border-radius:4px;padding:1px 6px;margin-left:5px;font-weight:600;vertical-align:middle}
+/* ── Sueño ref ───────────────────────────────────────── */
+.sleep-ref{font-size:10px;color:#666;margin-top:6px;display:flex;align-items:center;gap:6px}
+.sleep-ref b{color:#85B7EB;font-weight:600}
+.sleep-ref a{color:#85B7EB;text-decoration:none;font-size:10px;margin-left:auto;font-weight:600}
 
-.check-box{width:26px;height:26px;border-radius:50%;border:1.5px solid #444;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
-.check-box.done{background:#0F3460;border-color:#185FA5}
-.check-icon{display:none;width:13px;height:13px}
-.check-box.done .check-icon{display:block}
+/* ── Móvil slider ────────────────────────────────────── */
+.movil-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.movil-val{font-size:18px;font-weight:700;color:#85B7EB;width:50px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
+.movil-val.warn{color:#FAC775}
+.movil-val.bad{color:#f09595}
+.movil-slider{flex:1;accent-color:#185FA5}
+.movil-info{font-size:10px;color:#555;margin-top:5px;display:flex;justify-content:space-between}
 
-.block-actions{display:flex;gap:6px;flex-shrink:0}
-.btn-edit{background:none;border:1px solid #2c2c4a;border-radius:6px;color:#666;font-size:12px;padding:4px 8px;cursor:pointer}
-.btn-edit:active{color:#7F77DD;border-color:#534AB7}
-.btn-del{background:none;border:1px solid #2c2c4a;border-radius:6px;color:#666;font-size:14px;padding:4px 8px;cursor:pointer}
-.btn-del:active{color:#f09595;border-color:#A32D2D}
+/* ── Tabaco ──────────────────────────────────────────── */
+.tabaco-row{display:flex;align-items:center;gap:10px}
+.tab-toggle{flex:1;padding:9px;background:#0d0d1a;border:1px solid #27500A;border-radius:8px;text-align:center;font-size:11px;color:#63991b;cursor:pointer;font-weight:600}
+.tab-toggle.fumed{background:#1a0808;border-color:#A32D2D;color:#f09595}
 
-.edit-area{padding:0 14px 14px;display:none}
-.block-card.open .edit-area{display:block}
-.edit-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
-.edit-input{flex:1;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:8px 10px;font-size:13px;color:#eee;font-family:inherit;outline:none}
-.edit-input:focus{border-color:#185FA5}
-.edit-input.time-input{max-width:130px;flex:none}
-.edit-input.min-input{max-width:90px;flex:none}
-.edit-select{background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:8px 10px;font-size:13px;color:#eee;font-family:inherit;outline:none;flex:1}
-.edit-save{padding:8px 16px;background:#0F3460;border:1px solid #185FA5;border-radius:8px;color:#85B7EB;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
-.class-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:#888;margin-bottom:8px}
-.class-toggle input{accent-color:#534AB7;width:16px;height:16px}
-.edit-label{font-size:10px;color:#555;margin-right:4px;text-transform:uppercase;letter-spacing:.3px}
+/* ── Mantenimiento ───────────────────────────────────── */
+.maint-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.maint-item{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;padding:10px 11px;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.maint-item.done{border-color:#27500A;background:#0d1a0d}
+.maint-text{font-size:12px;color:#bbb;flex:1;line-height:1.2}
+.maint-item.done .maint-text{color:#C0DD97}
+.maint-check{width:20px;height:20px;border-radius:50%;border:1.5px solid #444;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.maint-item.done .maint-check{background:#3B6D11;border-color:#3B6D11}
+.maint-check svg{display:none;width:11px;height:11px}
+.maint-item.done .maint-check svg{display:block}
 
-.note-area{padding:0 14px 12px;display:none}
-.block-card.note-open .note-area{display:block}
-.note-input{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:8px 10px;font-size:12px;color:#aaa;font-family:inherit;resize:none;outline:none;min-height:52px}
-.note-input:focus{border-color:#185FA5}
-.note-label{font-size:10px;color:#555;margin-bottom:5px;display:flex;justify-content:space-between}
-.note-saved{font-size:10px;color:#378ADD;opacity:0;transition:opacity .3s}
-.note-saved.show{opacity:1}
+/* ── Rachas troncales ───────────────────────────────── */
+.streaks-bar{display:flex;gap:8px;margin-bottom:12px}
+.streak-card{flex:1;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:12px;padding:11px 13px;position:relative;overflow:hidden}
+.streak-card.alive{border-color:#27500A;background:linear-gradient(135deg,#0d1a0d 0%,#1a1a2e 100%)}
+.streak-card.broken{border-color:#3a1a1a;background:linear-gradient(135deg,#1a0d0d 0%,#1a1a2e 100%)}
+.streak-card.zero{opacity:.7}
+.streak-name{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:3px}
+.streak-card.alive .streak-name{color:#63991b}
+.streak-card.broken .streak-name{color:#A32D2D}
+.streak-count{font-size:22px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums}
+.streak-card.alive .streak-count{color:#C0DD97}
+.streak-card.broken .streak-count{color:#f09595}
+.streak-unit{font-size:10px;color:#666;margin-left:3px}
+.streak-sub{font-size:10px;color:#555;margin-top:3px;font-weight:500}
+.streak-card.broken .streak-sub{color:#f09595;font-weight:600}
 
-.add-block-btn{width:100%;padding:13px;background:#16132a;border:1px dashed #534AB7;border-radius:12px;color:#7F77DD;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;display:none}
-.add-block-btn.visible{display:block}
-.empty-day{text-align:center;padding:40px 20px;color:#444;font-size:13px;line-height:1.8}
+/* ── Núcleo: stat frecuencia "X/7" dentro de core ── */
+.core-freq{font-size:10px;color:#666;margin-left:8px;font-weight:500;font-variant-numeric:tabular-nums}
+.core-freq.ok{color:#63991b}
+.core-freq.warn{color:#BA7517}
 
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:flex-end;justify-content:center}
+/* ── Mantenimiento tri-estado ────────────────────── */
+.maint-item.fail{border-color:#3a1a1a;background:#1a0d0d}
+.maint-item.fail .maint-text{color:#f09595;text-decoration:line-through;text-decoration-color:#5a1a1a}
+.maint-item.fail .maint-check{background:#1a0808;border-color:#A32D2D}
+.maint-item.fail .maint-check svg{display:block}
+.maint-item.fail .maint-check svg polyline{stroke:#A32D2D}
+
+/* ── Sueño tab ───────────────────────────────────────── */
+.sleep-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;padding:16px;margin-bottom:10px}
+.sleep-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:14px}
+.sleep-hours-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sleep-hours-label{font-size:12px;color:#888;width:60px;flex-shrink:0}
+.sleep-hours-val{font-size:22px;font-weight:700;color:#85B7EB;width:60px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
+.sleep-slider{flex:1;accent-color:#185FA5}
+.quality-row{display:flex;gap:8px;margin-bottom:14px}
+.q-btn{flex:1;padding:8px 4px;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;cursor:pointer;text-align:center;font-size:11px;color:#666;transition:all .15s}
+.q-btn.sel-1{background:#2a0808;border-color:#A32D2D;color:#f09595}
+.q-btn.sel-2{background:#2a1f0a;border-color:#BA7517;color:#FAC775}
+.q-btn.sel-3{background:#0d1a0d;border-color:#3B6D11;color:#C0DD97}
+.q-btn.sel-4{background:#0d1f3a;border-color:#185FA5;color:#85B7EB}
+.q-icon{font-size:16px;display:block;margin-bottom:2px}
+.sleep-note{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:8px 10px;font-size:12px;color:#aaa;font-family:inherit;resize:none;outline:none;margin-bottom:12px}
+.sleep-save{width:100%;padding:12px;background:#0F3460;border:1px solid #185FA5;border-radius:10px;color:#85B7EB;font-size:14px;font-weight:600;cursor:pointer}
+.sleep-avg-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.sleep-avg-card{background:#0d0d1a;border-radius:10px;padding:10px;text-align:center}
+.sleep-avg-label{font-size:9px;color:#666;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
+.sleep-avg-val{font-size:16px;font-weight:700;color:#85B7EB}
+.sleep-hist-item{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:12px;padding:11px 13px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.sleep-hist-date{font-size:11px;color:#888;width:60px;flex-shrink:0}
+.sleep-hist-bar-wrap{flex:1}
+.sleep-hist-bar-bg{background:#0d0d1a;border-radius:4px;height:5px;margin-bottom:3px}
+.sleep-hist-bar-fg{height:5px;border-radius:4px;background:#185FA5}
+.sleep-hist-label{font-size:10px;color:#888}
+.sleep-hist-right{text-align:right;flex-shrink:0}
+.sleep-hist-hrs{font-size:14px;font-weight:700;color:#85B7EB;font-variant-numeric:tabular-nums}
+.sleep-hist-q{font-size:11px;color:#555;margin-top:1px}
+
+/* ── Histórico tab ──────────────────────────────────── */
+.history-week{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:13px;padding:13px 15px;margin-bottom:8px}
+.hw-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.hw-range{font-size:11px;color:#888;font-weight:500}
+.hw-avg{font-size:20px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.hw-days{display:flex;gap:3px;margin-bottom:8px}
+.hw-day{flex:1;height:22px;border-radius:4px;background:#0d0d1a;display:flex;align-items:center;justify-content:center;font-size:9px;color:#444;font-weight:600}
+.hw-day.s-hi{background:#27500A;color:#C0DD97}
+.hw-day.s-mid{background:#3a2a0a;color:#FAC775}
+.hw-day.s-lo{background:#2a0808;color:#f09595}
+.hw-bet{font-size:11px;color:#888;line-height:1.3;border-top:1px solid #2c2c4a;padding-top:7px;margin-top:7px}
+.hw-bet b{color:#FAC775;font-weight:600}
+.hw-bet .ok{color:#C0DD97}
+.hw-bet .ko{color:#f09595}
+
+.records-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.record-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:11px;padding:11px}
+.record-label{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;font-weight:600}
+.record-val{font-size:18px;font-weight:700;color:#7F77DD;font-variant-numeric:tabular-nums}
+.record-sub{font-size:10px;color:#555;margin-top:1px}
+
+/* ── Modal review ────────────────────────────────────── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
-.sheet{background:#1a1a2e;border-radius:20px 20px 0 0;border-top:1px solid #2c2c4a;padding:20px;width:100%;max-width:420px}
-.sheet h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:6px}
-.sheet p{font-size:12px;color:#888;margin-bottom:14px}
-.min-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
-.min-chip{padding:10px 4px;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:#888}
-.min-chip:active{border-color:#185FA5;color:#85B7EB;background:#0d1f3a}
-.min-chip.sel{border-color:#185FA5;color:#85B7EB;background:#0d1f3a}
-.min-input-wrap{margin-bottom:14px}
-.min-input-wrap label{font-size:11px;color:#666;display:block;margin-bottom:5px}
-.min-input-wrap input{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:11px 12px;font-size:16px;color:#eee;font-family:inherit;outline:none}
-.min-input-wrap input:focus{border-color:#185FA5}
-.sheet-btns{display:flex;gap:8px}
-.btn-cancel{flex:1;padding:12px;background:#2c2c4a;border:none;border-radius:10px;color:#888;font-size:14px;font-weight:600;cursor:pointer}
-.btn-confirm{flex:2;padding:12px;background:#0F3460;border:1px solid #185FA5;border-radius:10px;color:#85B7EB;font-size:14px;font-weight:600;cursor:pointer}
+.sheet{background:#1a1a2e;border-radius:20px 20px 0 0;border-top:1px solid #2c2c4a;padding:20px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto}
+.sheet h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:4px}
+.sheet .subtitle{font-size:11px;color:#888;margin-bottom:16px}
+.sheet-field{margin-bottom:14px}
+.sheet-field label{font-size:11px;color:#7F77DD;font-weight:600;display:block;margin-bottom:5px}
+.sheet-field textarea, .sheet-field input{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:10px 12px;font-size:13px;color:#eee;font-family:inherit;resize:none;outline:none;line-height:1.4}
+.sheet-field textarea{min-height:55px}
+.sheet-field textarea:focus, .sheet-field input:focus{border-color:#7F77DD}
+.sheet-field .help{font-size:10px;color:#555;margin-top:3px}
+.sheet-btns{display:flex;gap:8px;margin-top:14px}
+.btn-cancel{flex:1;padding:11px;background:#2c2c4a;border:none;border-radius:10px;color:#888;font-size:13px;font-weight:600;cursor:pointer}
+.btn-save{flex:2;padding:11px;background:#534AB7;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer}
 
-.week-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:14px;padding:14px;margin-bottom:10px}
-.week-card-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px}
-.week-card-sub{font-size:11px;color:#666;margin-bottom:10px}
-.subj-row{margin-bottom:11px}
-.subj-row:last-child{margin-bottom:0}
-.subj-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
-.subj-name{font-size:13px;font-weight:600}
-.subj-name .ok-mark{color:#63991b;margin-left:4px;font-size:11px}
-.subj-amount{font-size:11px;color:#888}
-.subj-amount.done{color:#C0DD97}
-.subj-bar-bg{background:#0d0d1a;border-radius:4px;height:7px;overflow:hidden}
-.subj-bar-fg{height:7px;border-radius:4px;transition:width .4s}
-.week-totals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
-.totals-card{background:#0d0d1a;border-radius:10px;padding:10px;text-align:center}
-.totals-label{font-size:9px;color:#666;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
-.totals-val{font-size:15px;font-weight:700;color:#85B7EB}
-.totals-val.green{color:#C0DD97}
+/* ── Sunday banner ──────────────────────────────────── */
+.sunday-banner{background:#1a1a0d;border:1px solid #BA7517;border-radius:13px;padding:13px 15px;margin-bottom:12px;cursor:pointer}
+.sunday-banner-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.sunday-label{font-size:10px;color:#FAC775;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.sunday-arrow{color:#FAC775;font-size:14px;font-weight:700}
+.sunday-text{font-size:12px;color:#bbb;line-height:1.4}
 
-.history-row{display:flex;gap:6px;margin-top:14px}
-.hist-cell{flex:1;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:10px;padding:9px 6px;text-align:center;cursor:pointer;transition:border-color .15s}
-.hist-cell.active{border-color:#185FA5;background:#0d1f3a}
-.hist-cell.success{border-color:#27500A;background:#0d1a0d}
-.hist-label{font-size:9px;color:#666;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
-.hist-val{font-size:13px;font-weight:700;color:#ccc;margin-bottom:3px}
-.hist-cell.active .hist-val{color:#85B7EB}
-.hist-cell.success .hist-val{color:#C0DD97}
-.hist-mini{display:flex;gap:1.5px;justify-content:center;margin-top:2px}
-.hist-bar{width:4px;border-radius:1px;background:#2c2c4a}
-.section-label{font-size:10px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px}
+/* ── Botón abrir review ──────────────────────────────── */
+.review-btn{width:100%;padding:12px;background:#16132a;border:1px solid #534AB7;border-radius:11px;color:#7F77DD;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px}
 
+/* ── Toast ──────────────────────────────────────────── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:999}
 .toast.show{opacity:1}
+
+/* ── Empty ──────────────────────────────────────────── */
+.empty{text-align:center;padding:30px 20px;color:#444;font-size:12px;line-height:1.7}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="header">
-    <div class="header-left">
-      <h1>Plan de estudios</h1>
-      <p id="header-date"></p>
+
+  <div class="topbar">
+    <div>
+      <h1>Mi Tracker</h1>
+      <div class="date" id="header-date"></div>
     </div>
-    <div class="header-right">
-      <div class="sync-dot" id="sync-dot"></div>
-      <button class="edit-toggle" id="edit-toggle">Editar</button>
-      <div class="score-pill" id="score-pill">0 / 0</div>
+    <div class="sync-dot" id="sync-dot"></div>
+  </div>
+
+  <!-- Hero score -->
+  <div class="hero">
+    <div class="hero-row">
+      <div class="score-now">
+        <div class="score-label">Hoy</div>
+        <div><span class="score-num" id="score-num">0</span><span class="score-max">/100</span></div>
+      </div>
+      <div class="score-7d">
+        <div class="score-7d-label">Media 7d</div>
+        <div class="score-7d-num" id="score-7d">—</div>
+      </div>
+    </div>
+    <div class="compare">
+      <span>vs sem. pasada: <b id="cmp-1w">—</b></span>
+      <span>vs hace 4 sem: <b id="cmp-4w">—</b></span>
     </div>
   </div>
 
+  <!-- Rachas troncales -->
+  <div class="streaks-bar" id="streaks-bar"></div>
+
+  <!-- Apuesta semanal -->
+  <div class="bet-card" id="bet-card">
+    <div class="bet-top">
+      <span class="bet-label">Apuesta de la semana</span>
+      <span class="bet-progress-text" id="bet-progress-text"></span>
+    </div>
+    <div class="bet-text" id="bet-text"></div>
+    <div class="bet-bar"><div class="bet-bar-fg" id="bet-bar-fg" style="width:0%"></div></div>
+  </div>
+
+  <!-- Tabs -->
   <div class="tabs">
-    <div class="tab t-day active" id="tab-day">Dia</div>
-    <div class="tab t-week" id="tab-week">Semana</div>
+    <div class="tab t-hoy active" id="tab-hoy">Hoy</div>
+    <div class="tab t-sue" id="tab-sue">Sueño</div>
+    <div class="tab t-his" id="tab-his">Historial</div>
   </div>
 
-  <div id="view-day">
-    <div class="days-nav" id="days-nav"></div>
-    <div class="day-header">
-      <span class="day-title" id="day-title"></span>
-      <span class="day-progress" id="day-progress"></span>
-    </div>
-    <div id="blocks-container"></div>
-    <button class="add-block-btn" id="add-block-btn">+ Añadir bloque</button>
-  </div>
+  <!-- Vista HOY -->
+  <div id="view-hoy"></div>
 
-  <div id="view-week" style="display:none"></div>
+  <!-- Vista Sueño -->
+  <div id="view-sue" style="display:none"></div>
+
+  <!-- Vista Historial -->
+  <div id="view-his" style="display:none"></div>
+
 </div>
 
-<div class="overlay" id="sh-min">
+<!-- Modal review semanal -->
+<div class="overlay" id="ov-review">
   <div class="sheet">
-    <h3>¿Cuanto has estudiado?</h3>
-    <p id="min-task-label"></p>
-    <div class="min-quick" id="min-quick"></div>
-    <div class="min-input-wrap">
-      <label>O introducelo manualmente (minutos)</label>
-      <input type="number" inputmode="numeric" id="min-input" placeholder="0">
+    <h3>Review de la semana</h3>
+    <div class="subtitle" id="review-week-range"></div>
+    <div class="sheet-field">
+      <label>¿Dónde he estado sólido?</label>
+      <textarea id="rv-solido" placeholder="Lo que ha ido bien, donde he competido bien..."></textarea>
+    </div>
+    <div class="sheet-field">
+      <label>¿Dónde me he vendido barato?</label>
+      <textarea id="rv-vendido" placeholder="Donde me he relajado, evitado incomodidad..."></textarea>
+    </div>
+    <div class="sheet-field">
+      <label>¿Qué patrón me está frenando?</label>
+      <textarea id="rv-patron" placeholder="Qué se repite, qué tengo que romper..."></textarea>
+    </div>
+    <div class="sheet-field">
+      <label>Apuesta para la semana que viene</label>
+      <input type="text" id="rv-bet-text" placeholder="Ej: 5 sesiones de estudio profundo (cal ≥2)">
+      <div class="help">Concreta. Verificable. Difícil pero alcanzable.</div>
+    </div>
+    <div class="sheet-field">
+      <label>Meta numérica</label>
+      <input type="number" id="rv-bet-meta" min="1" max="20" value="5">
+      <div class="help">Cuántas veces tienes que cumplirla en la semana.</div>
     </div>
     <div class="sheet-btns">
-      <button class="btn-cancel" id="min-cancel">Cancelar</button>
-      <button class="btn-confirm" id="min-confirm">Guardar</button>
+      <button class="btn-cancel" id="rv-cancel">Más tarde</button>
+      <button class="btn-save" id="rv-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal apuesta nueva (sin review) -->
+<div class="overlay" id="ov-bet">
+  <div class="sheet">
+    <h3>Apuesta de la semana</h3>
+    <div class="subtitle">Algo concreto. Verificable. Que cueste.</div>
+    <div class="sheet-field">
+      <label>Texto</label>
+      <input type="text" id="bet-input-text" placeholder="Ej: 5 sesiones de estudio profundo (cal ≥2)">
+    </div>
+    <div class="sheet-field">
+      <label>Meta numérica</label>
+      <input type="number" id="bet-input-meta" min="1" max="20" value="5">
+    </div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="bet-cancel">Cancelar</button>
+      <button class="btn-save" id="bet-save">Guardar</button>
     </div>
   </div>
 </div>
@@ -195,737 +348,1127 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="toast" id="toast"></div>
 
 <script>
+// ════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════
 var SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
 var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 
-var SUBJECTS = [
-  {id:'ININ', col:'inin_min', label:'ININ', goal:600, color:'#A32D2D', bg:'rgba(163,45,45,0.15)'},
-  {id:'INEL', col:'inel_min', label:'INEL', goal:240, color:'#BA7517', bg:'rgba(186,117,23,0.15)'},
-  {id:'ENCO', col:'enco_min', label:'ENCO', goal:180, color:'#3B6D11', bg:'rgba(59,109,17,0.15)'},
-  {id:'ELPO', col:'elpo_min', label:'ELPO', goal:120, color:'#185FA5', bg:'rgba(24,95,165,0.15)'},
-  {id:'SIRO', col:'siro_min', label:'SIRO', goal:60,  color:'#534AB7', bg:'rgba(83,74,183,0.15)'}
+var BASE = 20;
+
+// Core systems con peso máximo (nuevo sistema 0-100)
+// Mapeos manuales por escala para que la distribución de puntos no sea lineal:
+// estudio: 0/9/17/25 → diferencia clara entre niveles
+// cuerpo: 0/5/10/14
+// orden: 0/4/7/10
+// puntualidad: 0/4/8
+var CORE = [
+  {id:'estudio',     name:'Estudio profundo',  max:25, scale:[0,1,2,3], labels:['Nada','Mediocre','Sólido','Élite'], pts:[0,9,17,25]},
+  {id:'cuerpo',      name:'Cuerpo / entreno',  max:14, scale:[0,1,2,3], labels:['Nada','Mínimo','Completo','Duro'],   pts:[0,5,10,14]},
+  {id:'orden_prep',  name:'Orden + prep mañana', max:10, scale:[0,1,2,3], labels:['Nada','Algo','Sólido','Todo listo'], pts:[0,4,7,10]},
+  {id:'puntualidad', name:'Puntualidad',       max:8,  scale:[0,1,2],   labels:['Tarde','A tiempo','Con margen'],     pts:[0,4,8]}
 ];
 
-function getSubject(id){ return SUBJECTS.find(function(s){return s.id===id;}); }
-function fmtHours(mins){
-  if(!mins) return '0h';
-  var h = Math.floor(mins/60); var m = mins%60;
-  if(h===0) return m+'min';
-  if(m===0) return h+'h';
-  return h+'h'+(m<10?'0':'')+m;
+// Sueño se calcula desde sleep_logs (horas reales)
+// 0..18 puntos. Tabla: <5h=0, 6h=8, 7h=14, 7.5h=16, 8h+=18
+function scoreSueno(horas){
+  if(!horas || horas <= 0) return 0;
+  if(horas < 5) return 0;
+  if(horas < 6) return Math.round((horas-5)*8);   // 5→0, 6→8
+  if(horas < 7) return Math.round(8 + (horas-6)*6); // 6→8, 7→14
+  if(horas < 8) return Math.round(14 + (horas-7)*4); // 7→14, 8→18
+  return 18; // tope
 }
 
-var DEFAULT_BLOCKS = [
-  {day:'mar', block_idx:10, time:'17:00 - 19:00', task:'ENCO - Clase Teoria',   is_class:true, subject:'ENCO'},
-  {day:'mar', block_idx:11, time:'19:00 - 21:00', task:'ENCO - Clase Practica', is_class:true, subject:'ENCO'},
-  {day:'mie', block_idx:10, time:'15:00 - 17:00', task:'SIRO - Clase Teoria',   is_class:true, subject:'SIRO'},
-  {day:'mie', block_idx:11, time:'17:00 - 19:00', task:'ININ - Clase Practica', is_class:true, subject:'ININ'},
-  {day:'jue', block_idx:10, time:'15:00 - 17:00', task:'INEL - Clase Teoria',   is_class:true, subject:'INEL'},
-  {day:'jue', block_idx:11, time:'17:00 - 19:00', task:'INEL - Clase Practica', is_class:true, subject:'INEL'},
-  {day:'jue', block_idx:12, time:'19:00 - 21:00', task:'SIRO - Clase Practica', is_class:true, subject:'SIRO'},
-  {day:'vie', block_idx:10, time:'15:00 - 17:00', task:'ININ - Clase Teoria',   is_class:true, subject:'ININ'}
+// Móvil: hasta 1.5h = 0, escala lineal hasta 4h = -20
+function scoreMovil(horas){
+  if(!horas || horas <= 1.5) return 0;
+  if(horas >= 4) return -20;
+  return -Math.round((horas - 1.5) / 2.5 * 20);
+}
+
+// ── RACHAS TRONCALES ────────────────────────────────────────
+// Reglas:
+// - Móvil controlado: día se considera "cumplido" si movil_horas > 0 (registrado) Y <= 1.5
+// - Estudio profundo: día se considera "cumplido" si estudio >= 2 (marcado al menos sólido)
+// - Día "registrado" para móvil: movil_horas > 0 (slider tocado)
+// - Día "registrado" para estudio: estudio > 0 (algún botón tocado, incluido 0 si está explícito).
+//   Para distinguir 0 explícito de "no marcado", usamos un trick: si daily existe y tiene fecha
+//   pero estudio===0, lo consideramos no registrado salvo que otra cosa en el daily esté marcada.
+// - Pausa: 1 día sin registro no rompe. 2 días consecutivos sin registro rompen.
+// - Si el día está registrado pero falla el hábito, rompe inmediatamente.
+//
+// Devuelve: {count: número de días en racha, broken: bool si la racha se rompió hoy/ayer}
+
+function dayHasAnyMark(daily){
+  if(!daily) return false;
+  if((daily.movil_horas||0) > 0) return true;
+  if((daily.estudio||0) > 0) return true;
+  if((daily.cuerpo||0) > 0) return true;
+  if((daily.orden_prep||0) > 0) return true;
+  if((daily.puntualidad||0) > 0) return true;
+  // Mantenimiento: si alguno tiene valor distinto de 0 (positivo o negativo) cuenta como marcado
+  for(var i=0;i<MAINT.length;i++){
+    if((daily[MAINT[i].id]||0) !== 0) return true;
+  }
+  return false;
+}
+
+function dayRegisteredForTrunk(daily, trunkId){
+  // Para móvil: solo cuenta como registrado si el slider se ha movido (>0)
+  // Para estudio: cuenta si estudio>0 O si hay marcas de otras cosas (asumimos que el usuario abrió la app)
+  if(!daily) return false;
+  if(trunkId === 'movil'){
+    return (daily.movil_horas || 0) > 0;
+  }
+  if(trunkId === 'estudio'){
+    // Si el usuario tocó algo del día pero no el estudio, consideramos que estudio=0 implícito
+    // y por tanto NO cumple. Para evitar trampa de "no marco estudio para no romper".
+    return dayHasAnyMark(daily);
+  }
+  return false;
+}
+
+function dayPassesTrunk(daily, sleep, trunkId){
+  if(!daily) return false;
+  if(trunkId === 'movil'){
+    var h = daily.movil_horas || 0;
+    return h > 0 && h <= 1.5;
+  }
+  if(trunkId === 'estudio'){
+    return (daily.estudio || 0) >= 2;
+  }
+  return false;
+}
+
+// Calcular racha actual de un hábito troncal
+// Recorre hacia atrás desde hoy. Permite 1 día de pausa. 2 consecutivos sin registro rompen.
+function computeTrunkStreak(trunkId){
+  var count = 0;
+  var consecutiveUnregistered = 0;
+  var broken = false;
+  // Recorrer desde hoy hacia atrás, hasta 60 días máximo
+  for(var i=0;i<60;i++){
+    var d = new Date(today);
+    d.setDate(today.getDate() - i);
+    var k = dateKey(d);
+    var daily = dailyCache[k];
+    var registered = dayRegisteredForTrunk(daily, trunkId);
+    if(!registered){
+      consecutiveUnregistered++;
+      if(consecutiveUnregistered >= 2){
+        // 2 días seguidos sin registro -> racha rota
+        break;
+      }
+      // 1 día sin registro -> pausa, no rompe, sigue contando atrás
+      continue;
+    }
+    // Día registrado
+    consecutiveUnregistered = 0;
+    if(dayPassesTrunk(daily, sleepCache[k], trunkId)){
+      count++;
+    } else {
+      // Día registrado y falla -> racha rota
+      break;
+    }
+  }
+  return { count: count, broken: false };
+}
+
+// Detectar si la racha se rompió "recientemente" (hoy o ayer) para mostrar
+// el mensaje "empieza de nuevo" durante 24h.
+// Devuelve true si:
+//   - hoy hay registro y falla
+//   - ayer hubo registro y falla, y hoy aún no se ha registrado nada
+function trunkBrokenRecently(trunkId){
+  var todayKey = dateKey(today);
+  var todayDaily = dailyCache[todayKey];
+  if(todayDaily && dayRegisteredForTrunk(todayDaily, trunkId) && !dayPassesTrunk(todayDaily, sleepCache[todayKey], trunkId)){
+    return true;
+  }
+  // Ayer
+  var y = new Date(today); y.setDate(today.getDate()-1);
+  var yKey = dateKey(y);
+  var yDaily = dailyCache[yKey];
+  if(yDaily && dayRegisteredForTrunk(yDaily, trunkId) && !dayPassesTrunk(yDaily, sleepCache[yKey], trunkId)){
+    // Sólo mostramos "empieza de nuevo" si hoy aún no hay registro positivo
+    if(!todayDaily || !dayPassesTrunk(todayDaily, sleepCache[todayKey], trunkId)){
+      return true;
+    }
+  }
+  return false;
+}
+
+// Calcular "X de los últimos 7 días" para mostrar en cada core card
+function lastNFrequency(coreId, threshold, n){
+  var ok = 0, registered = 0;
+  for(var i=0;i<n;i++){
+    var d = new Date(today);
+    d.setDate(today.getDate() - i);
+    var k = dateKey(d);
+    var daily = dailyCache[k];
+    if(!daily) continue;
+    var v = daily[coreId] || 0;
+    if(v > 0 || dayHasAnyMark(daily)){ registered++; }
+    if(v >= threshold) ok++;
+  }
+  return { ok: ok, total: n };
+}
+
+// Mantenimiento: tres estados (sin marcar=0, hecho=+1, no hecho=-1). Suma a la base.
+var MAINT = [
+  {id:'m_suplementos', name:'Suplementos'},
+  {id:'m_dientes',     name:'Dientes'},
+  {id:'m_leer',        name:'Leer 10min'},
+  {id:'m_desayuno',    name:'Desayuno'},
+  {id:'m_italiano',    name:'Lezione Italiano'}
 ];
 
+// Hábitos troncales — rachas de días consecutivos
+// Tabaco eliminado del sistema (superado).
+var TRUNK = [
+  {id:'movil', name:'Móvil controlado', desc:'≤1h30 al día'},
+  {id:'estudio', name:'Estudio profundo', desc:'calidad ≥2'}
+];
+
+// ════════════════════════════════════════════════════════════
+// ESTADO
+// ════════════════════════════════════════════════════════════
 var DAYS_LABEL = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
-var DAYS_KEY   = ['dom','lun','mar','mie','jue','vie','sab'];
-var DAYS_FULL  = ['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
 var today = new Date();
 var currentDow = today.getDay();
-var currentTab = 'day';
-var editMode = false;
-var blocksCache = {};
-var logsCache = {};       // logs de la semana actual (para vista dia + barra semanal en vivo)
-var summariesCache = [];  // ultimas N semanas cerradas, ordenadas desc
-var pendingLog = null;
+var currentTab = 'hoy';
+var dailyCache = {};   // {dateStr: row}
+var sleepCache = {};   // {dateStr: row}
+var betsCache = {};    // {weekStart: row}
+var reviewsCache = {}; // {weekStart: row}
+var historyDays = [];  // últimos 60+ días para histórico
+var weekDays = [];
 
-function setSyncStatus(s){ document.getElementById('sync-dot').className='sync-dot '+s; }
+var selectedHours = 7.5;
+var selectedQuality = 3;
 
-// ── FECHAS ISO (lunes inicio de semana) ────────────────
-function isoMonday(d){
-  // Devuelve el lunes de la semana ISO de la fecha d
-  var dt = new Date(d);
-  var day = dt.getDay();
-  var diff = (day===0 ? -6 : 1-day); // domingo=0 -> retrocede 6, sino 1-day
-  dt.setDate(dt.getDate()+diff);
-  dt.setHours(0,0,0,0);
-  return dt;
+// ════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════
+function setSync(s){ document.getElementById('sync-dot').className = 'sync-dot ' + s; }
+// dateKey usa HORA LOCAL (no UTC) para evitar desfases de zona horaria.
+// toISOString convierte a UTC, lo que en España (UTC+1/+2) produce el día anterior
+// si la hora local está entre 00:00 y 01:00 o 02:00.
+function dateKey(d){
+  var y = d.getFullYear();
+  var m = String(d.getMonth() + 1).padStart(2, '0');
+  var dd = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + dd;
 }
-function dateStr(d){
-  // YYYY-MM-DD en local time (no UTC, evita off-by-one)
-  var y=d.getFullYear(); var m=String(d.getMonth()+1).padStart(2,'0'); var dd=String(d.getDate()).padStart(2,'0');
-  return y+'-'+m+'-'+dd;
+// Construye un Date a partir de un string 'YYYY-MM-DD' interpretándolo como hora LOCAL al mediodía.
+// Esto garantiza que getDate(), getMonth(), getDay() devuelvan el día correcto sin
+// ambigüedad por zona horaria.
+function parseLocalDate(str){
+  var parts = str.split('-');
+  return new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10), 12, 0, 0);
 }
-function dateKeyForDow(dow){
-  // Fecha del dia "dow" de la semana actual visible. Para mantener compat con codigo previo (dom=0..sab=6)
-  var monday = isoMonday(today);
-  var dt = new Date(monday);
-  // monday=1, mar=2, ... dom=0 -> dia 7
-  var offsetFromMonday = dow===0 ? 6 : dow-1;
-  dt.setDate(monday.getDate()+offsetFromMonday);
-  return dateStr(dt);
+function getDateForDow(dow){
+  var d = new Date(today);
+  d.setDate(today.getDate() - (today.getDay() - dow));
+  return d;
 }
-function weekDates(monday){
-  // Array de 7 strings YYYY-MM-DD desde monday
-  var arr=[];
-  for(var i=0;i<7;i++){var d=new Date(monday); d.setDate(monday.getDate()+i); arr.push(dateStr(d));}
+function weekStart(d){
+  // Lunes como inicio (ISO)
+  var x = new Date(d);
+  var dow = x.getDay();
+  var diff = (dow + 6) % 7;
+  x.setDate(x.getDate() - diff);
+  x.setHours(0,0,0,0);
+  return x;
+}
+function weekStartKey(d){ return dateKey(weekStart(d)); }
+function fmtHours(h){
+  var hrs = Math.floor(h);
+  var mins = Math.round((h - hrs) * 60);
+  return mins === 0 ? hrs + 'h' : hrs + "h" + String(mins).padStart(2,'0');
+}
+function getWeekDays(){
+  var monday = weekStart(today);
+  var arr = [];
+  for(var i=0;i<7;i++){
+    var d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    arr.push(d);
+  }
   return arr;
 }
+function dowFromMonday(jsDow){ return (jsDow + 6) % 7; } // 0=lun..6=dom
 
-// ── SUPABASE ────────────────────────────────────────────
-function sbReq(method, path, body){
-  return fetch(SB_URL+'/rest/v1/'+path,{
+// ════════════════════════════════════════════════════════════
+// SUPABASE
+// ════════════════════════════════════════════════════════════
+function sb(method, path, body){
+  return fetch(SB_URL+'/rest/v1/'+path, {
     method: method,
-    headers:{
-      'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': method==='POST' ? 'return=representation,resolution=merge-duplicates' : method==='PATCH' ? 'return=representation' : ''
+    headers: {
+      'apikey': SB_KEY, 'Authorization':'Bearer '+SB_KEY,
+      'Content-Type':'application/json',
+      'Prefer': method==='POST' ? 'return=representation,resolution=merge-duplicates'
+              : method==='PATCH' ? 'return=representation' : ''
     },
     body: body ? JSON.stringify(body) : undefined
   }).then(function(r){ return r.status===204 ? null : r.json(); });
 }
 
-function loadAll(){
-  setSyncStatus('syncing');
-  var p1 = sbReq('GET','study_blocks?order=block_idx.asc&select=*');
-  var monday = isoMonday(today);
-  var dates = weekDates(monday);
-  var p2 = sbReq('GET','study_logs?date=in.('+dates.join(',')+')'+'&select=*');
-  var p3 = sbReq('GET','study_week_summaries?order=week_start.desc&limit=20&select=*');
-  return Promise.all([p1,p2,p3]).then(function(res){
-    blocksCache = {};
-    logsCache = {};
-    if(Array.isArray(res[0])) res[0].forEach(function(b){
-      if(!blocksCache[b.day]) blocksCache[b.day]=[];
-      blocksCache[b.day].push(b);
-    });
-    if(Array.isArray(res[1])) res[1].forEach(function(r){
-      logsCache[r.date+'_'+r.day+'_'+r.block_idx] = {done:r.done, note:r.note||'', minutes:r.minutes||0, id:r.id};
-    });
-    summariesCache = Array.isArray(res[2]) ? res[2] : [];
-    setSyncStatus('ok');
-  }).catch(function(){ setSyncStatus('err'); });
+function loadDaily(dates){
+  return sb('GET','daily_logs?date=in.('+dates.join(',')+')&select=*')
+    .then(function(rows){
+      if(Array.isArray(rows)) rows.forEach(function(r){ dailyCache[r.date] = r; });
+    }).catch(function(){});
 }
 
-// ── CIERRE AUTOMATICO DE SEMANAS PASADAS ───────────────
-function getMissingMondays(){
-  // Lista de lunes (Date) que estan entre la ultima semana cerrada y la semana actual (sin incluirla)
-  var thisMonday = isoMonday(today);
-  var lastClosedStr = summariesCache.length ? summariesCache[0].week_start : null;
-  var startMonday;
-  if(lastClosedStr){
-    var parts = lastClosedStr.split('-');
-    startMonday = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
-    startMonday.setDate(startMonday.getDate()+7); // siguiente al ultimo cerrado
-  } else {
-    // Si nunca cerro nada, cerramos solo la semana inmediatamente anterior a la actual (no todo el historico vacio)
-    startMonday = new Date(thisMonday);
-    startMonday.setDate(startMonday.getDate()-7);
-  }
-  var missing = [];
-  while(startMonday < thisMonday){
-    missing.push(new Date(startMonday));
-    startMonday.setDate(startMonday.getDate()+7);
-  }
-  return missing;
+function loadSleep(dates){
+  return sb('GET','sleep_logs?date=in.('+dates.join(',')+')&select=*')
+    .then(function(rows){
+      if(Array.isArray(rows)) rows.forEach(function(r){ sleepCache[r.date] = r; });
+    }).catch(function(){});
 }
 
-function buildSummaryForWeek(monday){
-  // Pide los logs de esa semana, suma por asignatura, ignorando clases
-  var dates = weekDates(monday);
-  return sbReq('GET','study_logs?date=in.('+dates.join(',')+')'+'&select=*').then(function(rows){
-    if(!Array.isArray(rows)) rows = [];
-    // Mapa block_id => block para distinguir clases y subject
-    // Como blocksCache va por day, montamos un index por (day, block_idx)
-    function findBlock(day, idx){
-      var arr = blocksCache[day]||[];
-      for(var i=0;i<arr.length;i++) if(arr[i].block_idx===idx) return arr[i];
-      return null;
+function loadBets(){
+  // Cargamos las últimas 12 semanas
+  return sb('GET','weekly_bets?order=week_start.desc&limit=12&select=*')
+    .then(function(rows){
+      if(Array.isArray(rows)) rows.forEach(function(r){ betsCache[r.week_start] = r; });
+    }).catch(function(){});
+}
+
+function loadReviews(){
+  return sb('GET','weekly_reviews?order=week_start.desc&limit=12&select=*')
+    .then(function(rows){
+      if(Array.isArray(rows)) rows.forEach(function(r){ reviewsCache[r.week_start] = r; });
+    }).catch(function(){});
+}
+
+function saveDaily(dateStr, partial){
+  setSync('syncing');
+  var existing = dailyCache[dateStr] || { date: dateStr };
+  var merged = Object.assign({}, existing, partial, { date: dateStr });
+  // Recalcular score
+  merged.score_total = computeScore(merged, sleepCache[dateStr]);
+  return sb('POST','daily_logs', merged)
+    .then(function(res){
+      var r = Array.isArray(res) ? res[0] : res;
+      if(r) dailyCache[dateStr] = r;
+      else dailyCache[dateStr] = merged;
+      setSync('ok');
+    }).catch(function(){ setSync('err'); showToast('Error de conexión'); });
+}
+
+function saveSleep(dateStr, hours, quality, note){
+  setSync('syncing');
+  var body = { date: dateStr, hours: hours, quality: quality, note: note || '' };
+  return sb('POST','sleep_logs', body)
+    .then(function(res){
+      var r = Array.isArray(res) ? res[0] : res;
+      if(r) sleepCache[dateStr] = r;
+      // Si el sueño afecta el score del día siguiente, lo recalculamos
+      // (en realidad afecta el score del día del log, asumimos que las horas se reportan al día siguiente)
+      if(dailyCache[dateStr]){
+        dailyCache[dateStr].score_total = computeScore(dailyCache[dateStr], r);
+        sb('POST','daily_logs', dailyCache[dateStr]).catch(function(){});
+      }
+      setSync('ok');
+    }).catch(function(){ setSync('err'); });
+}
+
+function saveBet(weekKey, texto, meta){
+  setSync('syncing');
+  var body = { week_start: weekKey, texto: texto, meta_objetivo: meta, meta_progreso: 0 };
+  return sb('POST','weekly_bets', body)
+    .then(function(res){
+      var r = Array.isArray(res) ? res[0] : res;
+      if(r) betsCache[weekKey] = r;
+      setSync('ok');
+    }).catch(function(){ setSync('err'); });
+}
+
+function updateBetProgress(weekKey, delta){
+  var bet = betsCache[weekKey];
+  if(!bet) return Promise.resolve();
+  var newProgress = Math.max(0, Math.min(bet.meta_objetivo, bet.meta_progreso + delta));
+  bet.meta_progreso = newProgress;
+  return sb('PATCH','weekly_bets?week_start=eq.'+weekKey, { meta_progreso: newProgress })
+    .then(function(){ setSync('ok'); });
+}
+
+function saveReview(weekKey, solido, vendido, patron, mediaScore){
+  setSync('syncing');
+  var body = {
+    week_start: weekKey,
+    donde_solido: solido,
+    donde_vendido: vendido,
+    patron_que_frena: patron,
+    media_score: mediaScore
+  };
+  return sb('POST','weekly_reviews', body)
+    .then(function(res){
+      var r = Array.isArray(res) ? res[0] : res;
+      if(r) reviewsCache[weekKey] = r;
+      setSync('ok');
+    }).catch(function(){ setSync('err'); });
+}
+
+// ════════════════════════════════════════════════════════════
+// SCORING
+// ════════════════════════════════════════════════════════════
+function computeScore(daily, sleep){
+  if(!daily) return 0;
+  // Base + mantenimiento (suma a la base, ±1 por hábito, max ±5)
+  var maintSum = 0;
+  MAINT.forEach(function(m){
+    var v = daily[m.id] || 0;
+    maintSum += (v > 0 ? 1 : v < 0 ? -1 : 0);
+  });
+  var s = BASE + maintSum; // rango 15..25
+  // Core systems con mapeo por puntos manual
+  CORE.forEach(function(c){
+    var v = daily[c.id] || 0;
+    var idx = c.scale.indexOf(v);
+    if(idx >= 0) s += c.pts[idx];
+  });
+  // Sueño (curva existente)
+  if(sleep && sleep.hours) s += scoreSueno(sleep.hours);
+  // Móvil (penalización)
+  s += scoreMovil(daily.movil_horas || 0);
+  // Clampear: mínimo 0, máximo 100
+  if(s < 0) s = 0;
+  if(s > 100) s = 100;
+  return s;
+}
+
+function maxPossible(){ return 100; }
+
+function scoreClass(score){
+  if(score >= 70) return 's-hi';
+  if(score >= 40) return 's-mid';
+  return 's-lo';
+}
+
+// ════════════════════════════════════════════════════════════
+// MEDIAS / COMPARATIVAS
+// ════════════════════════════════════════════════════════════
+function avgLastNDays(n, endDate){
+  endDate = endDate || today;
+  var sum = 0, count = 0;
+  for(var i=0;i<n;i++){
+    var d = new Date(endDate);
+    d.setDate(endDate.getDate() - i);
+    var k = dateKey(d);
+    if(dailyCache[k]){
+      sum += dailyCache[k].score_total || 0;
+      count++;
     }
-    var totals = {inin_min:0, inel_min:0, enco_min:0, elpo_min:0, siro_min:0, total_min:0, goals_met:0};
-    rows.forEach(function(r){
-      if(!r.done) return;
-      var blk = findBlock(r.day, r.block_idx);
-      if(!blk) return;
-      var mins = r.minutes||0;
-      totals.total_min += mins;
-      if(blk.is_class) return; // las clases no cuentan
-      if(!blk.subject) return;
-      var subj = getSubject(blk.subject);
-      if(!subj) return;
-      totals[subj.col] += mins;
-    });
-    SUBJECTS.forEach(function(s){
-      if(totals[s.col] >= s.goal) totals.goals_met++;
-    });
-    return Object.assign({week_start: dateStr(monday)}, totals);
-  });
+  }
+  return count > 0 ? sum / count : null;
 }
 
-function autoCloseMissingWeeks(){
-  var missing = getMissingMondays();
-  if(!missing.length) return Promise.resolve();
-  // Procesamos en serie por simplicidad (suelen ser 1, raramente >3)
-  var chain = Promise.resolve();
-  missing.forEach(function(monday){
-    chain = chain.then(function(){
-      return buildSummaryForWeek(monday).then(function(summary){
-        return sbReq('POST','study_week_summaries',summary).then(function(res){
-          var r = Array.isArray(res)?res[0]:res;
-          if(r) summariesCache.unshift(r);
-        });
-      });
-    });
-  });
-  return chain.then(function(){
-    if(missing.length>0){
-      showToast('Cerradas '+missing.length+' semana(s) anterior(es)');
+function avgWeek(weeksAgo){
+  // weeksAgo=0 -> esta semana; 1 -> pasada; etc
+  var monday = weekStart(today);
+  monday.setDate(monday.getDate() - 7*weeksAgo);
+  var sum = 0, count = 0;
+  for(var i=0;i<7;i++){
+    var d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    if(d > today) break;
+    var k = dateKey(d);
+    if(dailyCache[k]){
+      sum += dailyCache[k].score_total || 0;
+      count++;
     }
+  }
+  return count > 0 ? sum / count : null;
+}
+
+// ════════════════════════════════════════════════════════════
+// RENDER HOY
+// ════════════════════════════════════════════════════════════
+function renderStreaks(){
+  var bar = document.getElementById('streaks-bar');
+  if(!bar) return;
+  bar.innerHTML = '';
+  TRUNK.forEach(function(t){
+    var streak = computeTrunkStreak(t.id);
+    var brokenRecently = trunkBrokenRecently(t.id);
+    var alive = streak.count > 0;
+    var card = document.createElement('div');
+    var cls = 'streak-card';
+    if(alive) cls += ' alive';
+    else if(brokenRecently) cls += ' broken';
+    else cls += ' zero';
+    card.className = cls;
+
+    var subText = '';
+    if(brokenRecently && streak.count === 0){
+      subText = 'Empieza de nuevo';
+    } else {
+      subText = t.desc;
+    }
+
+    card.innerHTML =
+      '<div class="streak-name">' + t.name + '</div>' +
+      '<div><span class="streak-count">' + streak.count + '</span><span class="streak-unit">días</span></div>' +
+      '<div class="streak-sub">' + subText + '</div>';
+    bar.appendChild(card);
   });
 }
 
-// ── BLOQUES Y LOGS (vista dia) ─────────────────────────
-function getDayBlocks(dow){
-  var day = DAYS_KEY[dow];
-  var blocks = (blocksCache[day]||[]).slice();
-  blocks.sort(function(a,b){ return a.block_idx - b.block_idx; });
-  return blocks;
+function renderHero(){
+  var todayKey = dateKey(today);
+  var todayDaily = dailyCache[todayKey];
+  var score = todayDaily ? todayDaily.score_total : 0;
+  var scoreEl = document.getElementById('score-num');
+  scoreEl.textContent = score;
+  scoreEl.className = 'score-num' + (score < 0 ? ' neg' : '');
+
+  // Media 7d
+  var avg7 = avgLastNDays(7);
+  document.getElementById('score-7d').textContent = avg7 !== null ? Math.round(avg7) : '—';
+
+  // vs semana pasada (esta sem media vs sem-1 media)
+  var thisWk = avgWeek(0);
+  var lastWk = avgWeek(1);
+  var fourWk = avgWeek(4);
+
+  function setCompare(elId, current, past){
+    var el = document.getElementById(elId);
+    if(current === null || past === null){
+      el.innerHTML = '<span class="eq">—</span>';
+      return;
+    }
+    var diff = Math.round(current - past);
+    if(diff > 0) el.innerHTML = '<span class="up">+'+diff+'</span>';
+    else if(diff < 0) el.innerHTML = '<span class="down">'+diff+'</span>';
+    else el.innerHTML = '<span class="eq">=</span>';
+  }
+  setCompare('cmp-1w', thisWk, lastWk);
+  setCompare('cmp-4w', thisWk, fourWk);
 }
 
-function getLogKey(dow, blockIdx){
-  return dateKeyForDow(dow)+'_'+DAYS_KEY[dow]+'_'+blockIdx;
-}
-
-function getDayDone(dow){
-  var blocks = getDayBlocks(dow);
-  var done = 0;
-  blocks.forEach(function(b){
-    var k = getLogKey(dow, b.block_idx);
-    if(logsCache[k] && logsCache[k].done) done++;
-  });
-  return {done:done, total:blocks.length};
-}
-
-function getCurrentWeekTotals(){
-  var totals = {};
-  SUBJECTS.forEach(function(s){ totals[s.id]=0; });
-  var allTotal = 0;
-  Object.keys(logsCache).forEach(function(k){
-    var log = logsCache[k];
-    if(!log.done) return;
-    // k formato: YYYY-MM-DD_day_blockidx
-    var parts = k.split('_');
-    var day = parts[1]; var idx = parseInt(parts[2]);
-    var arr = blocksCache[day]||[];
-    var blk = null;
-    for(var i=0;i<arr.length;i++) if(arr[i].block_idx===idx){ blk=arr[i]; break; }
-    if(!blk) return;
-    var mins = log.minutes||0;
-    allTotal += mins;
-    if(blk.is_class) return;
-    if(!blk.subject) return;
-    if(totals[blk.subject]!==undefined) totals[blk.subject] += mins;
-  });
-  totals._total = allTotal;
-  return totals;
-}
-
-function saveLog(dow, blockIdx, done, note, minutes){
-  setSyncStatus('syncing');
-  var day = DAYS_KEY[dow];
-  var date = dateKeyForDow(dow);
-  var k = date+'_'+day+'_'+blockIdx;
-  var body = {day:day, block_idx:blockIdx, date:date, done:done, note:note||'', minutes:minutes||0};
-  return sbReq('POST','study_logs',body).then(function(res){
-    var r = Array.isArray(res)?res[0]:res;
-    if(r) logsCache[k] = {done:r.done, note:r.note||'', minutes:r.minutes||0, id:r.id};
-    else logsCache[k] = {done:done, note:note||'', minutes:minutes||0};
-    setSyncStatus('ok');
-  }).catch(function(){ setSyncStatus('err'); showToast('Error de conexion'); });
-}
-
-function addBlock(dow){
-  setSyncStatus('syncing');
-  var day = DAYS_KEY[dow];
-  var blocks = getDayBlocks(dow);
-  var maxIdx = blocks.length>0 ? Math.max.apply(null, blocks.map(function(b){return b.block_idx;})) : -1;
-  var nextIdx = maxIdx + 1;
-  var body = {day:day, block_idx:nextIdx, time:'', task:'', is_class:false, subject:null, default_minutes:60};
-  return sbReq('POST','study_blocks',body).then(function(res){
-    var nb = Array.isArray(res)?res[0]:res;
-    if(nb){ if(!blocksCache[day]) blocksCache[day]=[]; blocksCache[day].push(nb); }
-    setSyncStatus('ok');
-    render();
-    showToast('Bloque añadido');
-  }).catch(function(){ setSyncStatus('err'); });
-}
-
-function updateBlock(id, fields){
-  setSyncStatus('syncing');
-  return sbReq('PATCH','study_blocks?id=eq.'+id, fields).then(function(){
-    Object.keys(blocksCache).forEach(function(day){
-      blocksCache[day] = blocksCache[day].map(function(b){
-        return b.id===id ? Object.assign({},b,fields) : b;
-      });
-    });
-    setSyncStatus('ok');
-    render();
-    showToast('Guardado');
-  }).catch(function(){ setSyncStatus('err'); });
-}
-
-function deleteBlock(id, dow){
-  setSyncStatus('syncing');
-  var day = DAYS_KEY[dow];
-  return sbReq('DELETE','study_blocks?id=eq.'+id).then(function(){
-    blocksCache[day] = (blocksCache[day]||[]).filter(function(b){return b.id!==id;});
-    setSyncStatus('ok');
-    render();
-    showToast('Bloque eliminado');
-  }).catch(function(){ setSyncStatus('err'); });
-}
-
-// ── OVERLAY MINUTOS ─────────────────────────────────────
-function openMinOverlay(dow, block){
-  pendingLog = {dow:dow, block:block};
-  var startMins = block.default_minutes || 60;
-  document.getElementById('min-task-label').textContent =
-    (block.subject ? block.subject+' - ' : '') + (block.task || 'Bloque sin titulo');
-  document.getElementById('min-input').value = startMins;
-  buildMinQuick(startMins);
-  document.getElementById('sh-min').classList.add('open');
-}
-
-function buildMinQuick(selected){
-  var wrap = document.getElementById('min-quick');
-  wrap.innerHTML = '';
-  [30,45,60,90,120,150,180,240].forEach(function(mins){
-    var chip = document.createElement('div');
-    chip.className = 'min-chip'+(selected===mins?' sel':'');
-    chip.textContent = fmtHours(mins);
-    chip.addEventListener('click', function(){
-      document.getElementById('min-input').value = mins;
-      buildMinQuick(mins);
-    });
-    wrap.appendChild(chip);
-  });
-}
-
-function closeMinOverlay(){ document.getElementById('sh-min').classList.remove('open'); pendingLog=null; }
-
-document.getElementById('min-cancel').addEventListener('click', closeMinOverlay);
-document.getElementById('min-input').addEventListener('input', function(){
-  var v = parseInt(this.value)||0;
-  buildMinQuick(v);
-});
-document.getElementById('min-confirm').addEventListener('click', function(){
-  if(!pendingLog) return;
-  var mins = parseInt(document.getElementById('min-input').value)||0;
-  if(mins<0) mins = 0;
-  var blk = pendingLog.block;
-  var dow = pendingLog.dow;
-  var k = getLogKey(dow, blk.block_idx);
-  var existingNote = (logsCache[k]||{}).note || '';
-  saveLog(dow, blk.block_idx, true, existingNote, mins).then(function(){
-    closeMinOverlay();
-    render();
-    showToast('Completado · '+fmtHours(mins));
-  });
-});
-document.getElementById('sh-min').addEventListener('click', function(e){
-  if(e.target===this) closeMinOverlay();
-});
-
-// ── RENDER VISTA DIA ───────────────────────────────────
-function renderNav(){
-  var nav = document.getElementById('days-nav');
-  nav.innerHTML = '';
-  // Orden visual: Lun Mar Mie Jue Vie Sab Dom (ISO)
-  var visualOrder = [1,2,3,4,5,6,0];
-  visualOrder.forEach(function(dow){
-    var sc = getDayDone(dow);
-    var blocks = getDayBlocks(dow);
-    var b = document.createElement('div');
-    b.className = 'day-btn'+(dow===currentDow?' active':'')+(sc.done>0?' has-data':'');
-    var d = new Date(isoMonday(today));
-    d.setDate(d.getDate() + (dow===0?6:dow-1));
-    b.innerHTML = '<span class="dn">'+DAYS_LABEL[dow]+'</span><span class="dd">'+d.getDate()+'</span><span class="dot"></span>';
-    if(!blocks.length && !editMode) b.style.opacity='0.35';
-    b.addEventListener('click', function(){ currentDow=dow; render(); });
-    nav.appendChild(b);
-  });
-}
-
-function renderBlocks(){
-  var dow = currentDow;
-  var blocks = getDayBlocks(dow);
-  var container = document.getElementById('blocks-container');
-  container.innerHTML = '';
-
-  document.getElementById('day-title').textContent = DAYS_FULL[dow];
-  document.getElementById('add-block-btn').className = 'add-block-btn'+(editMode?' visible':'');
-
-  if(!blocks.length){
-    var emp = document.createElement('div');
-    emp.className = 'empty-day';
-    emp.textContent = editMode ? 'Sin bloques. Pulsa + Añadir bloque.' : 'Sin bloques para este dia';
-    container.appendChild(emp);
-    document.getElementById('day-progress').textContent = '';
-    document.getElementById('score-pill').textContent = '— / —';
+function renderBet(){
+  var wk = weekStartKey(today);
+  var bet = betsCache[wk];
+  var card = document.getElementById('bet-card');
+  if(!bet){
+    card.classList.add('empty');
+    document.getElementById('bet-progress-text').textContent = '';
+    document.getElementById('bet-text').className = 'bet-text placeholder';
+    document.getElementById('bet-text').textContent = 'Toca para definir tu apuesta de esta semana';
+    document.getElementById('bet-bar-fg').style.width = '0%';
+    card.onclick = function(){ openBetModal(); };
     return;
   }
-
-  var sc = getDayDone(dow);
-  document.getElementById('day-progress').textContent = sc.done+' de '+sc.total+' completados';
-  document.getElementById('score-pill').textContent = sc.done+' / '+sc.total;
-
-  blocks.forEach(function(block){
-    var logKey = getLogKey(dow, block.block_idx);
-    var data = logsCache[logKey]||{done:false, note:'', minutes:0};
-    var isClass = block.is_class;
-    var subj = block.subject ? getSubject(block.subject) : null;
-
-    var card = document.createElement('div');
-    card.className = 'block-card'+(data.done?' done':'')+(isClass?' is-class':'');
-
-    var main = document.createElement('div');
-    main.className = 'block-main';
-
-    var checkBox = document.createElement('div');
-    checkBox.className = 'check-box'+(data.done?' done':'');
-    checkBox.innerHTML = '<svg class="check-icon" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5,10 11,3" stroke="#85B7EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-
-    var info = document.createElement('div');
-    info.className = 'block-info';
-    var taskHtml = (block.task||'<span style="color:#555;font-style:italic">Sin tarea</span>');
-    if(subj && !isClass){
-      taskHtml += '<span class="subj-badge" style="background:'+subj.bg+';color:'+subj.color+'">'+subj.label+'</span>';
-    }
-    if(isClass) taskHtml += '<span class="class-badge">Clase</span>';
-    if(data.done && data.minutes>0) taskHtml += '<span class="minutes-badge">'+fmtHours(data.minutes)+'</span>';
-    info.innerHTML = '<div class="block-time">'+(block.time||'Sin hora')+'</div><div class="block-task">'+taskHtml+'</div>';
-
-    main.appendChild(checkBox);
-    main.appendChild(info);
-
-    if(editMode){
-      var actions = document.createElement('div');
-      actions.className = 'block-actions';
-      var btnEdit = document.createElement('button');
-      btnEdit.className = 'btn-edit'; btnEdit.textContent = 'Editar';
-      var btnDel = document.createElement('button');
-      btnDel.className = 'btn-del'; btnDel.textContent = '×';
-      actions.appendChild(btnEdit);
-      actions.appendChild(btnDel);
-      main.appendChild(actions);
-
-      var editArea = document.createElement('div');
-      editArea.className = 'edit-area';
-
-      var classToggle = document.createElement('label');
-      classToggle.className = 'class-toggle';
-      var chk = document.createElement('input');
-      chk.type = 'checkbox';
-      chk.checked = !!isClass;
-      classToggle.appendChild(chk);
-      classToggle.appendChild(document.createTextNode('Clase fija (no cuenta para el objetivo)'));
-
-      var timeRow = document.createElement('div');
-      timeRow.className = 'edit-row';
-      var timeInput = document.createElement('input');
-      timeInput.className = 'edit-input time-input';
-      timeInput.placeholder = 'Ej: 10:00 - 14:00';
-      timeInput.value = block.time||'';
-      timeRow.appendChild(timeInput);
-
-      var taskRow = document.createElement('div');
-      taskRow.className = 'edit-row';
-      var taskInput = document.createElement('input');
-      taskInput.className = 'edit-input';
-      taskInput.placeholder = 'Tarea o asunto...';
-      taskInput.value = block.task||'';
-      taskRow.appendChild(taskInput);
-
-      var subjRow = document.createElement('div');
-      subjRow.className = 'edit-row';
-      var subjLbl = document.createElement('span');
-      subjLbl.className = 'edit-label'; subjLbl.textContent='Asig';
-      var subjSelect = document.createElement('select');
-      subjSelect.className = 'edit-select';
-      var optNone = document.createElement('option');
-      optNone.value=''; optNone.textContent='— ninguna —';
-      if(!block.subject) optNone.selected=true;
-      subjSelect.appendChild(optNone);
-      SUBJECTS.forEach(function(s){
-        var opt=document.createElement('option');
-        opt.value=s.id; opt.textContent=s.label;
-        if(block.subject===s.id) opt.selected=true;
-        subjSelect.appendChild(opt);
-      });
-      var minLbl = document.createElement('span');
-      minLbl.className = 'edit-label'; minLbl.textContent='Min';
-      var minInput = document.createElement('input');
-      minInput.className='edit-input min-input';
-      minInput.type='number';
-      minInput.placeholder='60';
-      minInput.value = block.default_minutes || '';
-      subjRow.appendChild(subjLbl);
-      subjRow.appendChild(subjSelect);
-      subjRow.appendChild(minLbl);
-      subjRow.appendChild(minInput);
-
-      var saveRow = document.createElement('div');
-      saveRow.className = 'edit-row';
-      saveRow.style.justifyContent='flex-end';
-      var saveBtn = document.createElement('button');
-      saveBtn.className = 'edit-save';
-      saveBtn.textContent = 'Guardar';
-      saveRow.appendChild(saveBtn);
-
-      editArea.appendChild(classToggle);
-      editArea.appendChild(timeRow);
-      editArea.appendChild(taskRow);
-      editArea.appendChild(subjRow);
-      editArea.appendChild(saveRow);
-
-      btnEdit.addEventListener('click', function(e){
-        e.stopPropagation();
-        card.classList.toggle('open');
-        card.classList.remove('note-open');
-      });
-      btnDel.addEventListener('click', function(e){
-        e.stopPropagation();
-        if(btnDel.dataset.confirm==='1'){
-          deleteBlock(block.id, dow);
-        } else {
-          btnDel.dataset.confirm='1';
-          btnDel.textContent='Seguro?';
-          btnDel.style.color='#f09595';
-          btnDel.style.borderColor='#A32D2D';
-          setTimeout(function(){
-            btnDel.dataset.confirm='';
-            btnDel.textContent='x';
-            btnDel.style.color='';
-            btnDel.style.borderColor='';
-          }, 2500);
-        }
-      });
-      saveBtn.addEventListener('click', function(){
-        var fields = {
-          time: timeInput.value.trim(),
-          task: taskInput.value.trim(),
-          is_class: chk.checked,
-          subject: subjSelect.value || null,
-          default_minutes: parseInt(minInput.value)||0
-        };
-        updateBlock(block.id, fields);
-      });
-
-      card.appendChild(main);
-      card.appendChild(editArea);
+  card.classList.remove('empty');
+  document.getElementById('bet-progress-text').textContent = bet.meta_progreso + ' / ' + bet.meta_objetivo;
+  document.getElementById('bet-text').className = 'bet-text';
+  document.getElementById('bet-text').textContent = bet.texto;
+  var pct = Math.min(100, Math.round(bet.meta_progreso / bet.meta_objetivo * 100));
+  document.getElementById('bet-bar-fg').style.width = pct + '%';
+  card.onclick = function(){
+    // Toque incrementa progreso (long press para decrementar mejor en futuro)
+    if(bet.meta_progreso < bet.meta_objetivo){
+      updateBetProgress(wk, 1).then(function(){ renderBet(); });
+      showToast('+1 progreso');
     } else {
-      checkBox.addEventListener('click', function(e){
-        e.stopPropagation();
-        if(!data.done){
-          openMinOverlay(dow, block);
-        } else {
-          var curNote = card.querySelector('.note-input') ? card.querySelector('.note-input').value : data.note;
-          saveLog(dow, block.block_idx, false, curNote, 0).then(function(){ render(); });
-          showToast('Desmarcado');
-        }
-      });
-      main.addEventListener('click', function(){ card.classList.toggle('note-open'); });
-
-      var noteArea = document.createElement('div');
-      noteArea.className = 'note-area';
-      var savedId = 'saved_'+dow+'_'+block.block_idx;
-      noteArea.innerHTML =
-        '<div class="note-label"><span>Nota</span><span class="note-saved" id="'+savedId+'">Guardado</span></div>'+
-        '<textarea class="note-input" placeholder="Añade una nota...">'+data.note+'</textarea>';
-
-      card.appendChild(main);
-      card.appendChild(noteArea);
-
-      var textarea = noteArea.querySelector('textarea');
-      var saveTimer;
-      textarea.addEventListener('input', function(){
-        clearTimeout(saveTimer);
-        saveTimer = setTimeout(function(){
-          var savedEl = document.getElementById(savedId);
-          saveLog(dow, block.block_idx, data.done, textarea.value, data.minutes||0).then(function(){
-            if(savedEl){ savedEl.classList.add('show'); setTimeout(function(){ savedEl.classList.remove('show'); }, 1500); }
-          });
-        }, 800);
-      });
-      textarea.addEventListener('click', function(e){ e.stopPropagation(); });
+      // Si está completa, permite resetear o bajar
+      if(confirm('Apuesta completada. ¿Quitar 1 al progreso?')){
+        updateBetProgress(wk, -1).then(function(){ renderBet(); });
+      }
     }
+  };
+}
 
-    container.appendChild(card);
+function renderDayNav(){
+  var nav = document.getElementById('days-nav');
+  if(!nav){
+    nav = document.createElement('div');
+    nav.className = 'days-nav';
+    nav.id = 'days-nav';
+    document.getElementById('view-hoy').prepend(nav);
+  }
+  nav.innerHTML = '';
+  weekDays.forEach(function(d){
+    var dow = d.getDay();
+    var k = dateKey(d);
+    var daily = dailyCache[k];
+    var btn = document.createElement('div');
+    btn.className = 'day-btn' + (dow === currentDow ? ' active' : '');
+    var sCls = '';
+    if(daily){
+      var sc = daily.score_total;
+      sCls = sc >= 70 ? 's-hi' : sc >= 40 ? 's-mid' : 's-lo';
+    }
+    btn.innerHTML =
+      '<span class="dn">' + DAYS_LABEL[dow] + '</span>' +
+      '<span class="dd">' + d.getDate() + '</span>' +
+      '<span class="ds ' + sCls + '">' + (daily ? daily.score_total : '·') + '</span>';
+    btn.addEventListener('click', function(){
+      currentDow = dow;
+      renderHoy();
+    });
+    nav.appendChild(btn);
   });
 }
 
-function renderHeader(){
-  var d = new Date(isoMonday(today));
-  d.setDate(d.getDate() + (currentDow===0?6:currentDow-1));
-  var todayStr = dateStr(today);
-  var isToday = dateStr(d)===todayStr;
-  document.getElementById('header-date').textContent = isToday
-    ? 'Hoy - '+d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
-    : d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
-}
+function renderCoreSystems(){
+  var dateStr = dateKey(getDateForDow(currentDow));
+  var daily = dailyCache[dateStr] || {};
+  var sleep = sleepCache[dateStr];
 
-// ── RENDER VISTA SEMANAL ────────────────────────────────
-function renderWeek(){
-  var view = document.getElementById('view-week');
-  view.innerHTML = '';
-  var totals = getCurrentWeekTotals();
-  var totalGoal = SUBJECTS.reduce(function(s,sb){return s+sb.goal;},0);
-  var totalDone = SUBJECTS.reduce(function(s,sb){return s+(totals[sb.id]||0);},0);
+  var container = document.getElementById('core-container');
+  if(!container){
+    container = document.createElement('div');
+    container.id = 'core-container';
+    document.getElementById('view-hoy').appendChild(container);
+  }
+  container.innerHTML = '';
 
-  // Cabecera con rango de fechas semana actual
-  var monday = isoMonday(today);
-  var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
-  var rangeLabel = monday.toLocaleDateString('es-ES',{day:'numeric',month:'short'}) +
-                   ' - ' + sunday.toLocaleDateString('es-ES',{day:'numeric',month:'short'});
-
-  var card = document.createElement('div');
-  card.className = 'week-card';
-  card.innerHTML = '<div class="week-card-title">Esta semana</div><div class="week-card-sub">'+rangeLabel+' · sin contar clases</div>';
-
-  SUBJECTS.forEach(function(sb){
-    var done = totals[sb.id]||0;
-    var pct = sb.goal>0 ? Math.min(100, Math.round(done/sb.goal*100)) : 0;
-    var amtClass = done>=sb.goal ? 'done' : '';
-    var okMark = done>=sb.goal ? '<span class="ok-mark">OK</span>' : '';
-    var row = document.createElement('div');
-    row.className = 'subj-row';
-    row.innerHTML =
-      '<div class="subj-top">'+
-        '<span class="subj-name" style="color:'+sb.color+'">'+sb.label+okMark+'</span>'+
-        '<span class="subj-amount '+amtClass+'">'+fmtHours(done)+' / '+fmtHours(sb.goal)+'</span>'+
-      '</div>'+
-      '<div class="subj-bar-bg"><div class="subj-bar-fg" style="width:'+pct+'%;background:'+sb.color+'"></div></div>';
-    card.appendChild(row);
-  });
-  view.appendChild(card);
-
-  // Totales
-  var totalsCard = document.createElement('div');
-  totalsCard.className = 'week-totals';
-  totalsCard.innerHTML =
-    '<div class="totals-card"><div class="totals-label">Estudiado</div><div class="totals-val '+(totalDone>=totalGoal?'green':'')+'">'+fmtHours(totalDone)+'</div></div>'+
-    '<div class="totals-card"><div class="totals-label">Objetivo total</div><div class="totals-val">'+fmtHours(totalGoal)+'</div></div>';
-  view.appendChild(totalsCard);
-
-  // Mini-fila ultimas 4 semanas cerradas
+  // Sección core
   var lbl = document.createElement('div');
   lbl.className = 'section-label';
-  lbl.textContent = 'Ultimas semanas';
-  view.appendChild(lbl);
+  lbl.textContent = 'Core systems';
+  container.appendChild(lbl);
 
-  var histRow = document.createElement('div');
-  histRow.className = 'history-row';
-  var last4 = summariesCache.slice(0,4);
-  if(!last4.length){
-    var emp = document.createElement('div');
-    emp.style.cssText = 'flex:1;text-align:center;font-size:11px;color:#444;padding:14px';
-    emp.textContent = 'Aun no hay semanas cerradas';
-    histRow.appendChild(emp);
-  } else {
-    last4.forEach(function(s){
-      var sd = new Date(s.week_start+'T12:00:00');
-      var label = sd.toLocaleDateString('es-ES',{day:'numeric',month:'short'});
-      var cell = document.createElement('div');
-      cell.className = 'hist-cell'+(s.goals_met===5?' success':'');
-      var miniBars = SUBJECTS.map(function(sb){
-        var v = s[sb.col]||0;
-        var pct = sb.goal>0 ? Math.min(100, v/sb.goal*100) : 0;
-        var height = Math.max(3, Math.round(pct/100*22));
-        return '<div class="hist-bar" style="height:'+height+'px;background:'+sb.color+(pct>=100?'':';opacity:0.55')+'"></div>';
-      }).join('');
-      cell.innerHTML =
-        '<div class="hist-label">'+label+'</div>'+
-        '<div class="hist-val">'+s.goals_met+'/5</div>'+
-        '<div class="hist-mini" style="align-items:flex-end;height:24px">'+miniBars+'</div>';
-      histRow.appendChild(cell);
+  CORE.forEach(function(c){
+    var v = daily[c.id] || 0;
+    var idx = c.scale.indexOf(v);
+    var pts = idx >= 0 ? c.pts[idx] : 0;
+    var div = document.createElement('div');
+    div.className = 'core-item';
+    var ptsCls = pts > 0 ? 'has-pts' : '';
+
+    // Frecuencia X/7 últimos días con umbral según core
+    var threshold = c.scale.length === 4 ? 2 : 1; // ≥2 para estudio/cuerpo/orden, ≥1 para puntualidad
+    var freq = lastNFrequency(c.id, threshold, 7);
+    var freqCls = freq.ok >= 5 ? 'ok' : freq.ok >= 3 ? 'warn' : '';
+    var freqLabel = '· ' + freq.ok + '/7';
+
+    div.innerHTML = '<div class="core-top"><span class="core-name">' + c.name +
+      '<span class="core-freq ' + freqCls + '">' + freqLabel + '</span></span>' +
+      '<span class="core-points ' + ptsCls + '">' + (pts > 0 ? '+' + pts : '0') + ' / ' + c.max + '</span></div>';
+    var row = document.createElement('div');
+    row.className = 'scale-row';
+    c.scale.forEach(function(sv, sidx){
+      var b = document.createElement('div');
+      var selClass = '';
+      if(v === sv){
+        if(c.scale.length === 4){ selClass = ' sel-' + sv; }
+        else if(c.scale.length === 3){ selClass = sv === 0 ? ' sel-0' : sv === 1 ? ' sel-1' : ' sel-2x'; }
+      }
+      b.className = 'scale-btn' + selClass;
+      b.innerHTML = '<span class="sv">' + sv + '</span><span class="sl">' + c.labels[sidx] + '</span>';
+      b.addEventListener('click', function(){
+        var partial = {};
+        partial[c.id] = sv;
+        saveDaily(dateStr, partial).then(function(){ renderHoy(); });
+      });
+      row.appendChild(b);
     });
-    // Rellenar huecos si hay menos de 4
-    for(var i=last4.length;i<4;i++){
-      var ph = document.createElement('div');
-      ph.className = 'hist-cell';
-      ph.style.opacity = '0.3';
-      ph.innerHTML = '<div class="hist-label">—</div><div class="hist-val">—</div><div class="hist-mini" style="height:24px"></div>';
-      histRow.appendChild(ph);
+    div.appendChild(row);
+    container.appendChild(div);
+  });
+
+  // Sueño (referencia, no editable aquí)
+  var sleepDiv = document.createElement('div');
+  sleepDiv.className = 'core-item';
+  var sleepPts = sleep && sleep.hours ? scoreSueno(sleep.hours) : 0;
+  var sptsCls = sleepPts > 0 ? 'has-pts' : '';
+  sleepDiv.innerHTML =
+    '<div class="core-top"><span class="core-name">Sueño</span>' +
+    '<span class="core-points ' + sptsCls + '">' + (sleepPts > 0 ? '+' + sleepPts : '0') + ' / 18</span></div>' +
+    '<div class="sleep-ref">' +
+      (sleep && sleep.hours ? 'Anoche: <b>' + fmtHours(sleep.hours) + '</b>' : 'Sin registrar') +
+      '<a href="#" id="sleep-link">Pestaña Sueño →</a>' +
+    '</div>';
+  container.appendChild(sleepDiv);
+  document.getElementById('sleep-link').addEventListener('click', function(e){
+    e.preventDefault();
+    goTab('sue');
+  });
+
+  // Penalizaciones
+  var pLbl = document.createElement('div');
+  pLbl.className = 'section-label';
+  pLbl.textContent = 'Penalización móvil';
+  container.appendChild(pLbl);
+
+  // Móvil
+  var movilDiv = document.createElement('div');
+  movilDiv.className = 'core-item';
+  var movilH = daily.movil_horas || 0;
+  var movilPts = scoreMovil(movilH);
+  var movilCls = movilPts < 0 ? 'neg-pts' : '';
+  var movilValCls = movilH <= 1.5 ? '' : movilH <= 3 ? 'warn' : 'bad';
+  movilDiv.innerHTML =
+    '<div class="core-top"><span class="core-name">Móvil hoy</span>' +
+    '<span class="core-points ' + movilCls + '">' + (movilPts < 0 ? movilPts : '0') + ' / -20</span></div>' +
+    '<div class="movil-row">' +
+      '<div class="movil-val ' + movilValCls + '" id="movil-val">' + fmtHours(movilH) + '</div>' +
+      '<input type="range" class="movil-slider" id="movil-slider" min="0" max="6" step="0.25" value="' + movilH + '">' +
+    '</div>' +
+    '<div class="movil-info"><span>Sin penalizar: ≤1h30</span><span>Tope -20: ≥4h</span></div>';
+  container.appendChild(movilDiv);
+  var slider = document.getElementById('movil-slider');
+  var valEl = document.getElementById('movil-val');
+  slider.addEventListener('input', function(){
+    var h = parseFloat(slider.value);
+    valEl.textContent = fmtHours(h);
+    valEl.className = 'movil-val ' + (h <= 1.5 ? '' : h <= 3 ? 'warn' : 'bad');
+  });
+  slider.addEventListener('change', function(){
+    var h = parseFloat(slider.value);
+    saveDaily(dateStr, { movil_horas: h }).then(function(){ renderHoy(); });
+  });
+
+  // Mantenimiento (tri-estado)
+  var mLbl = document.createElement('div');
+  mLbl.className = 'section-label';
+  mLbl.textContent = 'Mantenimiento · ±1 cada uno';
+  container.appendChild(mLbl);
+
+  var mGrid = document.createElement('div');
+  mGrid.className = 'maint-grid';
+  MAINT.forEach(function(m){
+    var state = daily[m.id] || 0; // 0=sin marcar, 1=hecho, -1=no hecho
+    var item = document.createElement('div');
+    var cls = 'maint-item';
+    if(state === 1) cls += ' done';
+    else if(state === -1) cls += ' fail';
+    item.className = cls;
+    item.innerHTML =
+      '<div class="maint-check"><svg viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,9 9.5,2.5" stroke="#C0DD97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+      '<span class="maint-text">' + m.name + '</span>';
+    item.addEventListener('click', function(){
+      // Ciclo: 0 (sin marcar) → 1 (hecho) → -1 (no hecho) → 0
+      var next;
+      if(state === 0) next = 1;
+      else if(state === 1) next = -1;
+      else next = 0;
+      var partial = {};
+      partial[m.id] = next;
+      saveDaily(dateStr, partial).then(function(){ renderHoy(); });
+    });
+    mGrid.appendChild(item);
+  });
+  container.appendChild(mGrid);
+
+  // Botón review (solo si es domingo o si la semana pasada no tiene review)
+  renderReviewButton(container);
+}
+
+function renderReviewButton(container){
+  // Mostrar botón si hoy es domingo, o si la semana pasada no tiene review
+  var isSunday = today.getDay() === 0;
+  var lastWk = new Date(today);
+  lastWk.setDate(today.getDate() - 7);
+  var lastWkKey = weekStartKey(lastWk);
+  var hasLastReview = !!reviewsCache[lastWkKey];
+
+  if(isSunday){
+    var thisWkKey = weekStartKey(today);
+    var hasThisReview = !!reviewsCache[thisWkKey];
+    if(!hasThisReview){
+      var banner = document.createElement('div');
+      banner.className = 'sunday-banner';
+      banner.innerHTML =
+        '<div class="sunday-banner-top"><span class="sunday-label">Domingo · Toca review</span><span class="sunday-arrow">→</span></div>' +
+        '<div class="sunday-text">Cierra la semana, revisa qué ha pasado y define la apuesta de la siguiente.</div>';
+      banner.addEventListener('click', function(){ openReviewModal(thisWkKey); });
+      container.appendChild(banner);
+      return;
     }
   }
-  view.appendChild(histRow);
 
-  var hint = document.createElement('div');
-  hint.style.cssText = 'text-align:center;font-size:11px;color:#444;margin-top:14px;line-height:1.6';
-  hint.textContent = 'Cada lunes la semana se cierra automaticamente. Los datos se guardan para siempre.';
-  view.appendChild(hint);
-}
-
-function render(){
-  if(currentTab==='day'){
-    renderHeader(); renderNav(); renderBlocks();
-  } else {
-    document.getElementById('header-date').textContent = 'Resumen semanal';
-    document.getElementById('score-pill').textContent = '— / —';
-    renderWeek();
+  if(!hasLastReview){
+    var btn = document.createElement('button');
+    btn.className = 'review-btn';
+    btn.textContent = 'Hacer review de la semana pasada';
+    btn.addEventListener('click', function(){ openReviewModal(lastWkKey); });
+    container.appendChild(btn);
   }
 }
 
-function goTab(t){
-  currentTab = t;
-  document.getElementById('view-day').style.display = t==='day' ? 'block' : 'none';
-  document.getElementById('view-week').style.display = t==='week' ? 'block' : 'none';
-  document.getElementById('tab-day').classList.toggle('active', t==='day');
-  document.getElementById('tab-week').classList.toggle('active', t==='week');
-  render();
+function renderHoy(){
+  // Header date
+  var d = getDateForDow(currentDow);
+  var isToday = dateKey(d) === dateKey(today);
+  document.getElementById('header-date').textContent = isToday
+    ? 'Hoy · ' + d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
+    : d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+
+  renderHero();
+  renderStreaks();
+  renderBet();
+  renderDayNav();
+  renderCoreSystems();
 }
 
-document.getElementById('tab-day').addEventListener('click', function(){ goTab('day'); });
-document.getElementById('tab-week').addEventListener('click', function(){ goTab('week'); });
-document.getElementById('edit-toggle').addEventListener('click', function(){
-  editMode = !editMode;
-  this.textContent = editMode ? 'Listo' : 'Editar';
-  this.className = 'edit-toggle'+(editMode?' active':'');
-  if(currentTab!=='day') goTab('day');
-  else render();
+// ════════════════════════════════════════════════════════════
+// RENDER SUEÑO (reutilizado de tu app actual)
+// ════════════════════════════════════════════════════════════
+function renderSueno(){
+  var view = document.getElementById('view-sue');
+  view.innerHTML = '';
+
+  var logs = Object.values(sleepCache);
+  var avgHrs = logs.length ? logs.reduce(function(s,r){return s+r.hours;},0)/logs.length : 0;
+  var avgQ = logs.length ? logs.reduce(function(s,r){return s+r.quality;},0)/logs.length : 0;
+  var over7 = logs.filter(function(r){return r.hours>=7;}).length;
+  var pctOver7 = logs.length ? Math.round(over7/logs.length*100) : 0;
+
+  var avgRow = document.createElement('div');
+  avgRow.className = 'sleep-avg-row';
+  avgRow.innerHTML =
+    '<div class="sleep-avg-card"><div class="sleep-avg-label">Media h.</div><div class="sleep-avg-val">' + avgHrs.toFixed(1) + 'h</div></div>' +
+    '<div class="sleep-avg-card"><div class="sleep-avg-label">Calidad</div><div class="sleep-avg-val">' + avgQ.toFixed(1) + '/4</div></div>' +
+    '<div class="sleep-avg-card"><div class="sleep-avg-label">Días +7h</div><div class="sleep-avg-val">' + pctOver7 + '%</div></div>';
+  view.appendChild(avgRow);
+
+  var todayStr = dateKey(today);
+  var todayLog = sleepCache[todayStr];
+
+  var card = document.createElement('div');
+  card.className = 'sleep-card';
+  card.innerHTML = '<div class="sleep-title">Registrar sueño de anoche</div>';
+
+  var hrsRow = document.createElement('div');
+  hrsRow.className = 'sleep-hours-row';
+  var hrsLabel = document.createElement('div'); hrsLabel.className='sleep-hours-label'; hrsLabel.textContent='Horas';
+  var hrsVal = document.createElement('div'); hrsVal.className='sleep-hours-val';
+  hrsVal.textContent = fmtHours(todayLog ? todayLog.hours : selectedHours);
+  var slider = document.createElement('input');
+  slider.type = 'range'; slider.className='sleep-slider';
+  slider.min='3'; slider.max='10'; slider.step='0.25';
+  slider.value = todayLog ? todayLog.hours : selectedHours;
+  slider.addEventListener('input', function(){
+    selectedHours = parseFloat(slider.value);
+    hrsVal.textContent = fmtHours(selectedHours);
+  });
+  hrsRow.appendChild(hrsLabel); hrsRow.appendChild(hrsVal); hrsRow.appendChild(slider);
+  card.appendChild(hrsRow);
+
+  var qLabel = document.createElement('div');
+  qLabel.style.cssText = 'font-size:11px;color:#888;margin-bottom:6px';
+  qLabel.textContent = 'Calidad';
+  card.appendChild(qLabel);
+  var qRow = document.createElement('div'); qRow.className='quality-row';
+  var qualities = [{v:1,icon:'😩',label:'Malo'},{v:2,icon:'😐',label:'Regular'},{v:3,icon:'😊',label:'Bueno'},{v:4,icon:'😴',label:'Genial'}];
+  var initQ = todayLog ? todayLog.quality : selectedQuality;
+  qualities.forEach(function(q){
+    var btn = document.createElement('div');
+    btn.className = 'q-btn' + (initQ === q.v ? ' sel-' + q.v : '');
+    btn.innerHTML = '<span class="q-icon">'+q.icon+'</span>'+q.label;
+    btn.addEventListener('click', function(){
+      selectedQuality = q.v;
+      qRow.querySelectorAll('.q-btn').forEach(function(b,i){
+        b.className = 'q-btn' + (i+1 === q.v ? ' sel-' + q.v : '');
+      });
+    });
+    qRow.appendChild(btn);
+  });
+  card.appendChild(qRow);
+
+  var note = document.createElement('textarea');
+  note.className = 'sleep-note';
+  note.placeholder = 'Nota opcional';
+  note.rows = 2;
+  if(todayLog && todayLog.note) note.value = todayLog.note;
+  card.appendChild(note);
+
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'sleep-save';
+  saveBtn.textContent = todayLog ? 'Actualizar registro' : 'Guardar';
+  saveBtn.addEventListener('click', function(){
+    saveSleep(todayStr, selectedHours, selectedQuality, note.value.trim())
+      .then(function(){ renderSueno(); renderHoy(); showToast('Sueño registrado'); });
+  });
+  card.appendChild(saveBtn);
+  view.appendChild(card);
+
+  if(Object.keys(sleepCache).length){
+    var hl = document.createElement('div');
+    hl.className = 'section-label';
+    hl.style.margin = '14px 0 6px';
+    hl.textContent = 'Historial';
+    view.appendChild(hl);
+
+    var qIcons = ['','😩','😐','😊','😴'];
+    var sorted = Object.values(sleepCache).sort(function(a,b){return b.date.localeCompare(a.date);});
+    sorted.forEach(function(r){
+      var pct = Math.min(100, Math.round((r.hours/9)*100));
+      var barColor = r.hours>=7 ? '#185FA5' : r.hours>=6 ? '#BA7517' : '#A32D2D';
+      var item = document.createElement('div'); item.className='sleep-hist-item';
+      var d = parseLocalDate(r.date);
+      var dateLabel = d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+      item.innerHTML =
+        '<div class="sleep-hist-date">' + dateLabel + '</div>' +
+        '<div class="sleep-hist-bar-wrap">' +
+          '<div class="sleep-hist-bar-bg"><div class="sleep-hist-bar-fg" style="width:'+pct+'%;background:'+barColor+'"></div></div>' +
+          '<div class="sleep-hist-label">' + (r.note||'') + '</div>' +
+        '</div>' +
+        '<div class="sleep-hist-right">' +
+          '<div class="sleep-hist-hrs">' + r.hours.toFixed(1) + 'h</div>' +
+          '<div class="sleep-hist-q">' + (qIcons[r.quality]||'') + '</div>' +
+        '</div>';
+      view.appendChild(item);
+    });
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// RENDER HISTORIAL
+// ════════════════════════════════════════════════════════════
+function renderHistorial(){
+  var view = document.getElementById('view-his');
+  view.innerHTML = '';
+
+  // Récords
+  var allDays = Object.values(dailyCache);
+  var allBets = Object.values(betsCache);
+  var bestDay = allDays.length ? Math.max.apply(null, allDays.map(function(d){return d.score_total||0;})) : 0;
+
+  // Mejor semana (media)
+  var weeks = {};
+  allDays.forEach(function(d){
+    var wk = weekStartKey(parseLocalDate(d.date));
+    if(!weeks[wk]) weeks[wk] = [];
+    weeks[wk].push(d.score_total || 0);
+  });
+  var bestWeekAvg = 0;
+  Object.values(weeks).forEach(function(arr){
+    var avg = arr.reduce(function(s,v){return s+v;},0) / arr.length;
+    if(avg > bestWeekAvg) bestWeekAvg = avg;
+  });
+
+  var betsCumplidas = allBets.filter(function(b){return b.cumplida===true;}).length;
+  var betsTotales = allBets.filter(function(b){return b.cumplida !== null;}).length;
+
+  var rec = document.createElement('div');
+  rec.className = 'records-grid';
+  rec.innerHTML =
+    '<div class="record-card"><div class="record-label">Mejor día</div><div class="record-val">' + bestDay + '</div></div>' +
+    '<div class="record-card"><div class="record-label">Mejor sem (media)</div><div class="record-val">' + Math.round(bestWeekAvg) + '</div></div>' +
+    '<div class="record-card"><div class="record-label">Apuestas cumplidas</div><div class="record-val">' + betsCumplidas + '<span class="record-sub"> / ' + betsTotales + '</span></div></div>' +
+    '<div class="record-card"><div class="record-label">Días registrados</div><div class="record-val">' + allDays.length + '</div></div>';
+  view.appendChild(rec);
+
+  // Lista de semanas
+  var lbl = document.createElement('div');
+  lbl.className = 'section-label';
+  lbl.textContent = 'Semanas';
+  view.appendChild(lbl);
+
+  // Generar últimas 8 semanas
+  var weekKeys = [];
+  for(var i=0;i<8;i++){
+    var d = new Date(today);
+    d.setDate(today.getDate() - 7*i);
+    weekKeys.push(weekStartKey(d));
+  }
+
+  weekKeys.forEach(function(wk){
+    var monday = parseLocalDate(wk);
+    var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+    var rangeStr = monday.getDate() + ' ' + monday.toLocaleDateString('es-ES',{month:'short'}) + ' — ' + sunday.getDate() + ' ' + sunday.toLocaleDateString('es-ES',{month:'short'});
+
+    var scores = [];
+    for(var i=0;i<7;i++){
+      var d = new Date(monday);
+      d.setDate(monday.getDate()+i);
+      var k = dateKey(d);
+      if(d <= today) scores.push(dailyCache[k] ? dailyCache[k].score_total : null);
+      else scores.push(null);
+    }
+    var validScores = scores.filter(function(s){return s !== null;});
+    var avg = validScores.length ? validScores.reduce(function(s,v){return s+v;},0) / validScores.length : 0;
+
+    var bet = betsCache[wk];
+    var review = reviewsCache[wk];
+
+    var card = document.createElement('div');
+    card.className = 'history-week';
+
+    var top = '<div class="hw-top"><span class="hw-range">' + rangeStr + '</span>' +
+      '<span class="hw-avg">' + Math.round(avg) + '</span></div>';
+
+    var daysHtml = '<div class="hw-days">';
+    scores.forEach(function(s, idx){
+      var cls = s === null ? '' : s >= 70 ? 's-hi' : s >= 40 ? 's-mid' : 's-lo';
+      daysHtml += '<div class="hw-day ' + cls + '">' + (s !== null ? s : '·') + '</div>';
+    });
+    daysHtml += '</div>';
+
+    var betHtml = '';
+    if(bet){
+      var cmp = bet.cumplida === true ? '<span class="ok">✓ cumplida</span>'
+              : bet.cumplida === false ? '<span class="ko">✗ fallada</span>'
+              : '<span>en curso · ' + bet.meta_progreso + '/' + bet.meta_objetivo + '</span>';
+      betHtml = '<div class="hw-bet"><b>Apuesta:</b> ' + bet.texto + ' — ' + cmp + '</div>';
+    }
+
+    card.innerHTML = top + daysHtml + betHtml;
+    view.appendChild(card);
+  });
+
+  if(!allDays.length){
+    var emp = document.createElement('div');
+    emp.className = 'empty';
+    emp.textContent = 'Empieza a registrar tus días y aquí verás el histórico.';
+    view.appendChild(emp);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// MODALES
+// ════════════════════════════════════════════════════════════
+function openBetModal(){
+  document.getElementById('bet-input-text').value = '';
+  document.getElementById('bet-input-meta').value = 5;
+  document.getElementById('ov-bet').classList.add('open');
+}
+
+function openReviewModal(weekKey){
+  var monday = parseLocalDate(weekKey);
+  var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+  document.getElementById('review-week-range').textContent =
+    'Semana del ' + monday.getDate() + ' ' + monday.toLocaleDateString('es-ES',{month:'short'}) +
+    ' al ' + sunday.getDate() + ' ' + sunday.toLocaleDateString('es-ES',{month:'short'});
+
+  // Cerrar apuesta de esa semana si existía
+  var bet = betsCache[weekKey];
+  if(bet && bet.cumplida === null){
+    var cumplida = bet.meta_progreso >= bet.meta_objetivo;
+    sb('PATCH','weekly_bets?week_start=eq.'+weekKey, { cumplida: cumplida }).catch(function(){});
+    bet.cumplida = cumplida;
+  }
+
+  document.getElementById('rv-solido').value = '';
+  document.getElementById('rv-vendido').value = '';
+  document.getElementById('rv-patron').value = '';
+  document.getElementById('rv-bet-text').value = '';
+  document.getElementById('rv-bet-meta').value = 5;
+
+  document.getElementById('ov-review').classList.add('open');
+  document.getElementById('ov-review').dataset.weekKey = weekKey;
+}
+
+document.getElementById('bet-cancel').addEventListener('click', function(){
+  document.getElementById('ov-bet').classList.remove('open');
+});
+document.getElementById('bet-save').addEventListener('click', function(){
+  var txt = document.getElementById('bet-input-text').value.trim();
+  var meta = parseInt(document.getElementById('bet-input-meta').value, 10);
+  if(!txt || !meta){ showToast('Completa los dos campos'); return; }
+  var wk = weekStartKey(today);
+  saveBet(wk, txt, meta).then(function(){
+    document.getElementById('ov-bet').classList.remove('open');
+    renderHoy();
+    showToast('Apuesta guardada');
+  });
+});
+document.getElementById('rv-cancel').addEventListener('click', function(){
+  document.getElementById('ov-review').classList.remove('open');
+});
+document.getElementById('rv-save').addEventListener('click', function(){
+  var weekKey = document.getElementById('ov-review').dataset.weekKey;
+  var solido = document.getElementById('rv-solido').value.trim();
+  var vendido = document.getElementById('rv-vendido').value.trim();
+  var patron = document.getElementById('rv-patron').value.trim();
+  var betText = document.getElementById('rv-bet-text').value.trim();
+  var betMeta = parseInt(document.getElementById('rv-bet-meta').value, 10);
+
+  if(!solido || !vendido){ showToast('Mínimo: sólido y vendido'); return; }
+
+  // Calcular media de la semana
+  var monday = parseLocalDate(weekKey);
+  var sum = 0, count = 0;
+  for(var i=0;i<7;i++){
+    var d = new Date(monday); d.setDate(monday.getDate()+i);
+    var k = dateKey(d);
+    if(dailyCache[k]){ sum += dailyCache[k].score_total || 0; count++; }
+  }
+  var media = count > 0 ? sum/count : 0;
+
+  saveReview(weekKey, solido, vendido, patron, media).then(function(){
+    if(betText && betMeta){
+      // Apuesta para la semana SIGUIENTE a la del review
+      var next = parseLocalDate(weekKey);
+      next.setDate(next.getDate() + 7);
+      var nextKey = dateKey(next);
+      return saveBet(nextKey, betText, betMeta);
+    }
+  }).then(function(){
+    document.getElementById('ov-review').classList.remove('open');
+    renderHoy();
+    showToast('Review guardada');
+  });
 });
 
-document.getElementById('add-block-btn').addEventListener('click', function(){ addBlock(currentDow); });
-
-function seedDefaultsIfEmpty(){
-  var allBlocks = Object.values(blocksCache).reduce(function(a,b){return a.concat(b);},[]);
-  if(allBlocks.length > 0) return Promise.resolve();
-  var inserts = DEFAULT_BLOCKS.map(function(b){
-    return {day:b.day, block_idx:b.block_idx, time:b.time, task:b.task, is_class:b.is_class, subject:b.subject, default_minutes:120};
+document.querySelectorAll('.overlay').forEach(function(el){
+  el.addEventListener('click', function(e){
+    if(e.target === el) el.classList.remove('open');
   });
-  return fetch(SB_URL+'/rest/v1/study_blocks',{
-    method:'POST',
-    headers:{
-      'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
-      'Content-Type':'application/json',
-      'Prefer':'return=representation'
-    },
-    body:JSON.stringify(inserts)
-  }).then(function(r){return r.json();}).then(function(res){
-    if(Array.isArray(res)) res.forEach(function(b){
-      if(!blocksCache[b.day]) blocksCache[b.day]=[];
-      blocksCache[b.day].push(b);
-    });
-  }).catch(function(){});
+});
+
+// ════════════════════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════════════════════
+function goTab(t){
+  currentTab = t;
+  ['hoy','sue','his'].forEach(function(x){
+    document.getElementById('view-'+x).style.display = x === t ? 'block' : 'none';
+    document.getElementById('tab-'+x).classList.remove('active');
+  });
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t === 'hoy') renderHoy();
+  if(t === 'sue') renderSueno();
+  if(t === 'his') renderHistorial();
+}
+document.getElementById('tab-hoy').addEventListener('click', function(){ goTab('hoy'); });
+document.getElementById('tab-sue').addEventListener('click', function(){ goTab('sue'); });
+document.getElementById('tab-his').addEventListener('click', function(){ goTab('his'); });
+
+// ════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════
+var toastT;
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(function(){ t.classList.remove('show'); }, 1400);
 }
 
-var toastT;
-function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove('show'); },1400); }
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+weekDays = getWeekDays();
+currentDow = today.getDay();
+setSync('syncing');
 
-setSyncStatus('syncing');
-loadAll()
-  .then(function(){ return seedDefaultsIfEmpty(); })
-  .then(function(){ return autoCloseMissingWeeks(); })
-  .then(function(){ goTab('day'); });
+// Cargar últimos 60 días
+var loadDates = [];
+for(var i=0;i<60;i++){
+  var d = new Date(today); d.setDate(today.getDate() - i);
+  loadDates.push(dateKey(d));
+}
+
+Promise.all([
+  loadDaily(loadDates),
+  loadSleep(loadDates),
+  loadBets(),
+  loadReviews()
+]).then(function(){
+  setSync('ok');
+  goTab('hoy');
+});
 </script>
 </body>
 </html>
