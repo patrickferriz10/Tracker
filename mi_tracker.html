@@ -227,6 +227,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:999}
 .toast.show{opacity:1}
 
+/* ── Navegación semanal ───────────────────────────── */
+.week-nav{display:flex;align-items:center;justify-content:space-between;padding:0 2px;margin-bottom:8px;font-size:11px;color:#666;font-weight:500}
+.week-nav-arrow{background:none;border:none;color:#7F77DD;font-size:14px;font-weight:600;cursor:pointer;padding:4px 10px;border-radius:6px}
+.week-nav-arrow:active{background:#16132a}
+.week-nav-arrow:disabled{color:#333;cursor:not-allowed}
+.week-nav-arrow:disabled:active{background:none}
+.week-nav-label{flex:1;text-align:center;letter-spacing:.3px}
+.week-nav-label.past{color:#BA7517}
+
+/* ── Banner día no editable ─────────────────────── */
+.locked-banner{background:#1a1a0d;border:1px solid #3a2a0a;border-radius:11px;padding:10px 13px;margin-bottom:10px;font-size:12px;color:#FAC775;line-height:1.4;text-align:center}
+
+/* ── Read-only en scale buttons ─────────────────── */
+.scale-btn.locked{opacity:.5;cursor:not-allowed;pointer-events:none}
+.maint-item.locked{opacity:.5;cursor:not-allowed;pointer-events:none}
+.movil-slider:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── Sueño: selector de fecha ────────────────────── */
+.sleep-date-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.sleep-date-label{font-size:11px;color:#888;font-weight:500;flex-shrink:0;width:100%;margin-bottom:2px}
+.sleep-date-chips{display:flex;gap:5px;flex-wrap:wrap;width:100%}
+.sleep-date-chip{background:#0d0d1a;border:1px solid #2c2c4a;border-radius:7px;padding:6px 10px;font-size:11px;color:#888;cursor:pointer;font-weight:500;white-space:nowrap}
+.sleep-date-chip.active{background:#0d1f3a;border-color:#185FA5;color:#85B7EB}
+.sleep-date-chip.has-data::after{content:" ●";color:#185FA5;font-size:8px;vertical-align:middle;margin-left:2px}
+
 /* ── Empty ──────────────────────────────────────────── */
 .empty{text-align:center;padding:30px 20px;color:#444;font-size:12px;line-height:1.7}
 </style>
@@ -544,6 +569,13 @@ var betsCache = {};    // {weekStart: row}
 var reviewsCache = {}; // {weekStart: row}
 var historyDays = [];  // últimos 60+ días para histórico
 var weekDays = [];
+var weekOffset = 0;    // 0 = semana actual, -1 = anterior, etc.
+
+// Límite de días atrás para edición retrospectiva
+var MAX_DAYS_BACK = 7;
+
+// Para el selector de fecha en la pestaña Sueño
+var sleepEditDate = null; // dateStr o null para hoy
 
 var selectedHours = 7.5;
 var selectedQuality = 3;
@@ -569,8 +601,14 @@ function parseLocalDate(str){
   return new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10), 12, 0, 0);
 }
 function getDateForDow(dow){
-  var d = new Date(today);
-  d.setDate(today.getDate() - (today.getDay() - dow));
+  // Devuelve la fecha de un día específico (0=dom..6=sab) en la semana navegada actualmente.
+  // Calculamos desde el LUNES de la semana navegada para evitar ambigüedad con el domingo.
+  var monday = weekStart(today);
+  monday.setDate(monday.getDate() + 7*weekOffset);
+  // Mapeo: lun=1, mar=2, mie=3, jue=4, vie=5, sab=6, dom=0(→7)
+  var offsetFromMonday = dow === 0 ? 6 : dow - 1;
+  var d = new Date(monday);
+  d.setDate(monday.getDate() + offsetFromMonday);
   return d;
 }
 function weekStart(d){
@@ -597,6 +635,26 @@ function getWeekDays(){
     arr.push(d);
   }
   return arr;
+}
+// Días de una semana arbitraria (con offset respecto a la actual).
+function getWeekDaysWithOffset(offset){
+  var monday = weekStart(today);
+  monday.setDate(monday.getDate() + 7*offset);
+  var arr = [];
+  for(var i=0;i<7;i++){
+    var d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    arr.push(d);
+  }
+  return arr;
+}
+// ¿Es una fecha editable? Hoy y los últimos MAX_DAYS_BACK días.
+// Días futuros no editables tampoco.
+function isDateEditable(d){
+  var todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0);
+  var dMid = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
+  var diff = Math.round((todayMid - dMid) / 86400000);
+  return diff >= 0 && diff <= MAX_DAYS_BACK;
 }
 function dowFromMonday(jsDow){ return (jsDow + 6) % 7; } // 0=lun..6=dom
 
@@ -884,21 +942,76 @@ function renderBet(){
   };
 }
 
+function renderWeekNav(){
+  var nav = document.getElementById('week-nav');
+  if(!nav){
+    nav = document.createElement('div');
+    nav.className = 'week-nav';
+    nav.id = 'week-nav';
+    document.getElementById('view-hoy').prepend(nav);
+  }
+  // Etiqueta de la semana
+  var monday = weekStart(today);
+  monday.setDate(monday.getDate() + 7*weekOffset);
+  var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+  var rangeStr;
+  if(weekOffset === 0){
+    rangeStr = 'Esta semana';
+  } else {
+    rangeStr = monday.getDate() + ' ' + monday.toLocaleDateString('es-ES',{month:'short'}) +
+               ' — ' + sunday.getDate() + ' ' + sunday.toLocaleDateString('es-ES',{month:'short'});
+  }
+  // Determinar si se puede ir más atrás. Solo dejamos ir tan atrás como MAX_DAYS_BACK lo permita.
+  // El lunes de la semana actual está a (today.getDay()+6)%7 días atrás.
+  // Si vamos a la semana anterior, el último editable es el domingo de esa semana = 1 día antes del lunes actual.
+  // Para ir más atrás de eso, hay que comprobar que algún día de esa semana sigue siendo editable.
+  var prevMon = new Date(monday); prevMon.setDate(monday.getDate()-7);
+  var prevSun = new Date(prevMon); prevSun.setDate(prevMon.getDate()+6);
+  var canGoBack = isDateEditable(prevSun); // si el último día de la semana anterior aún es editable
+  var canGoForward = weekOffset < 0;
+
+  nav.innerHTML =
+    '<button class="week-nav-arrow" id="week-prev"' + (canGoBack ? '' : ' disabled') + '>←</button>' +
+    '<span class="week-nav-label' + (weekOffset < 0 ? ' past' : '') + '">' + rangeStr + '</span>' +
+    '<button class="week-nav-arrow" id="week-next"' + (canGoForward ? '' : ' disabled') + '>→</button>';
+
+  document.getElementById('week-prev').addEventListener('click', function(){
+    if(!canGoBack) return;
+    weekOffset--;
+    currentDow = 0; // domingo
+    renderHoy();
+  });
+  document.getElementById('week-next').addEventListener('click', function(){
+    if(!canGoForward) return;
+    weekOffset++;
+    // Al volver a la semana actual seleccionamos hoy. Si vamos a una semana intermedia, domingo.
+    if(weekOffset === 0){
+      currentDow = today.getDay();
+    } else {
+      currentDow = 0; // domingo
+    }
+    renderHoy();
+  });
+}
+
 function renderDayNav(){
   var nav = document.getElementById('days-nav');
   if(!nav){
     nav = document.createElement('div');
     nav.className = 'days-nav';
     nav.id = 'days-nav';
-    document.getElementById('view-hoy').prepend(nav);
+    document.getElementById('view-hoy').appendChild(nav);
   }
   nav.innerHTML = '';
-  weekDays.forEach(function(d){
+  var daysOfWeek = getWeekDaysWithOffset(weekOffset);
+  daysOfWeek.forEach(function(d){
     var dow = d.getDay();
     var k = dateKey(d);
     var daily = dailyCache[k];
     var btn = document.createElement('div');
+    var isFuture = d > today && dateKey(d) !== dateKey(today);
     btn.className = 'day-btn' + (dow === currentDow ? ' active' : '');
+    if(isFuture) btn.style.opacity = '0.4';
     var sCls = '';
     if(daily){
       var sc = daily.score_total;
@@ -909,6 +1022,7 @@ function renderDayNav(){
       '<span class="dd">' + d.getDate() + '</span>' +
       '<span class="ds ' + sCls + '">' + (daily ? daily.score_total : '·') + '</span>';
     btn.addEventListener('click', function(){
+      if(isFuture) return; // No se selecciona el futuro
       currentDow = dow;
       renderHoy();
     });
@@ -917,17 +1031,15 @@ function renderDayNav(){
 }
 
 function renderCoreSystems(){
-  var dateStr = dateKey(getDateForDow(currentDow));
+  var dayDate = getDateForDow(currentDow);
+  var dateStr = dateKey(dayDate);
   var daily = dailyCache[dateStr] || {};
   var sleep = sleepCache[dateStr];
+  var editable = isDateEditable(dayDate);
 
-  var container = document.getElementById('core-container');
-  if(!container){
-    container = document.createElement('div');
-    container.id = 'core-container';
-    document.getElementById('view-hoy').appendChild(container);
-  }
-  container.innerHTML = '';
+  var container = document.createElement('div');
+  container.id = 'core-container';
+  document.getElementById('view-hoy').appendChild(container);
 
   // Sección core
   var lbl = document.createElement('div');
@@ -961,9 +1073,10 @@ function renderCoreSystems(){
         if(c.scale.length === 4){ selClass = ' sel-' + sv; }
         else if(c.scale.length === 3){ selClass = sv === 0 ? ' sel-0' : sv === 1 ? ' sel-1' : ' sel-2x'; }
       }
-      b.className = 'scale-btn' + selClass;
+      b.className = 'scale-btn' + selClass + (editable ? '' : ' locked');
       b.innerHTML = '<span class="sv">' + sv + '</span><span class="sl">' + c.labels[sidx] + '</span>';
       b.addEventListener('click', function(){
+        if(!editable) return;
         var partial = {};
         partial[c.id] = sv;
         saveDaily(dateStr, partial).then(function(){ renderHoy(); });
@@ -1010,7 +1123,7 @@ function renderCoreSystems(){
     '<span class="core-points ' + movilCls + '">' + (movilPts < 0 ? movilPts : '0') + ' / -20</span></div>' +
     '<div class="movil-row">' +
       '<div class="movil-val ' + movilValCls + '" id="movil-val">' + fmtHours(movilH) + '</div>' +
-      '<input type="range" class="movil-slider" id="movil-slider" min="0" max="6" step="0.25" value="' + movilH + '">' +
+      '<input type="range" class="movil-slider" id="movil-slider" min="0" max="6" step="0.25" value="' + movilH + '"' + (editable ? '' : ' disabled') + '>' +
     '</div>' +
     '<div class="movil-info"><span>Sin penalizar: ≤1h30</span><span>Tope -20: ≥4h</span></div>';
   container.appendChild(movilDiv);
@@ -1040,11 +1153,13 @@ function renderCoreSystems(){
     var cls = 'maint-item';
     if(state === 1) cls += ' done';
     else if(state === -1) cls += ' fail';
+    if(!editable) cls += ' locked';
     item.className = cls;
     item.innerHTML =
       '<div class="maint-check"><svg viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,9 9.5,2.5" stroke="#C0DD97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
       '<span class="maint-text">' + m.name + '</span>';
     item.addEventListener('click', function(){
+      if(!editable) return;
       // Ciclo: 0 (sin marcar) → 1 (hecho) → -1 (no hecho) → 0
       var next;
       if(state === 0) next = 1;
@@ -1105,7 +1220,34 @@ function renderHoy(){
   renderHero();
   renderStreaks();
   renderBet();
+
+  // Limpiamos completamente el view de Hoy y lo construimos en orden:
+  // 1. Week nav (← Esta semana →)
+  // 2. Days nav (Lun..Dom)
+  // 3. Banner de día no editable (si aplica)
+  // 4. Core container
+  var view = document.getElementById('view-hoy');
+  view.innerHTML = '';
+  renderWeekNav();
   renderDayNav();
+
+  // Banner si día no editable
+  var dateStr = dateKey(d);
+  var editable = isDateEditable(d);
+  if(!editable){
+    var banner = document.createElement('div');
+    banner.className = 'locked-banner';
+    var dMid = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
+    var todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0);
+    var diff = Math.round((todayMid - dMid) / 86400000);
+    if(diff > MAX_DAYS_BACK){
+      banner.textContent = 'Este día tiene más de ' + MAX_DAYS_BACK + ' días — solo lectura';
+    } else if(diff < 0){
+      banner.textContent = 'Día en el futuro — no se puede editar';
+    }
+    view.appendChild(banner);
+  }
+
   renderCoreSystems();
 }
 
@@ -1130,25 +1272,69 @@ function renderSueno(){
     '<div class="sleep-avg-card"><div class="sleep-avg-label">Días +7h</div><div class="sleep-avg-val">' + pctOver7 + '%</div></div>';
   view.appendChild(avgRow);
 
-  var todayStr = dateKey(today);
-  var todayLog = sleepCache[todayStr];
+  // Si no hay fecha seleccionada, usar hoy
+  if(!sleepEditDate) sleepEditDate = dateKey(today);
+  var editingLog = sleepCache[sleepEditDate];
+  var editingDate = parseLocalDate(sleepEditDate);
+  var isEditingToday = sleepEditDate === dateKey(today);
 
   var card = document.createElement('div');
   card.className = 'sleep-card';
-  card.innerHTML = '<div class="sleep-title">Registrar sueño de anoche</div>';
+  var titleText = isEditingToday ? 'Registrar sueño de anoche' :
+                  'Editar sueño · ' + editingDate.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'});
+  card.innerHTML = '<div class="sleep-title">' + titleText + '</div>';
 
+  // Selector de fecha — últimos 7 días
+  var dateLbl = document.createElement('div');
+  dateLbl.className = 'sleep-date-label';
+  dateLbl.textContent = 'Día que registrar';
+  card.appendChild(dateLbl);
+  var dateChips = document.createElement('div');
+  dateChips.className = 'sleep-date-chips';
+  for(var i=0;i<=MAX_DAYS_BACK;i++){
+    var dd = new Date(today); dd.setDate(today.getDate() - i);
+    var ddKey = dateKey(dd);
+    var chip = document.createElement('div');
+    var hasData = !!sleepCache[ddKey];
+    var isActive = ddKey === sleepEditDate;
+    chip.className = 'sleep-date-chip' + (isActive ? ' active' : '') + (hasData ? ' has-data' : '');
+    var chipLabel;
+    if(i === 0) chipLabel = 'Hoy';
+    else if(i === 1) chipLabel = 'Ayer';
+    else chipLabel = dd.toLocaleDateString('es-ES',{weekday:'short',day:'numeric'});
+    chip.textContent = chipLabel;
+    (function(k){
+      chip.addEventListener('click', function(){
+        sleepEditDate = k;
+        renderSueno();
+      });
+    })(ddKey);
+    dateChips.appendChild(chip);
+  }
+  card.appendChild(dateChips);
+  // Espaciado para separar selector del slider
+  var spacer = document.createElement('div');
+  spacer.style.cssText = 'height:8px';
+  card.appendChild(spacer);
+
+  // Hours slider
   var hrsRow = document.createElement('div');
   hrsRow.className = 'sleep-hours-row';
   var hrsLabel = document.createElement('div'); hrsLabel.className='sleep-hours-label'; hrsLabel.textContent='Horas';
   var hrsVal = document.createElement('div'); hrsVal.className='sleep-hours-val';
-  hrsVal.textContent = fmtHours(todayLog ? todayLog.hours : selectedHours);
+  var initialHours = editingLog ? editingLog.hours : selectedHours;
+  hrsVal.textContent = fmtHours(initialHours);
   var slider = document.createElement('input');
   slider.type = 'range'; slider.className='sleep-slider';
   slider.min='3'; slider.max='10'; slider.step='0.25';
-  slider.value = todayLog ? todayLog.hours : selectedHours;
+  slider.value = initialHours;
+  // Variable local para registrar lo que está editando ahora
+  var currentHours = initialHours;
+  var currentQuality = editingLog ? editingLog.quality : selectedQuality;
   slider.addEventListener('input', function(){
-    selectedHours = parseFloat(slider.value);
-    hrsVal.textContent = fmtHours(selectedHours);
+    currentHours = parseFloat(slider.value);
+    selectedHours = currentHours;
+    hrsVal.textContent = fmtHours(currentHours);
   });
   hrsRow.appendChild(hrsLabel); hrsRow.appendChild(hrsVal); hrsRow.appendChild(slider);
   card.appendChild(hrsRow);
@@ -1159,12 +1345,12 @@ function renderSueno(){
   card.appendChild(qLabel);
   var qRow = document.createElement('div'); qRow.className='quality-row';
   var qualities = [{v:1,icon:'😩',label:'Malo'},{v:2,icon:'😐',label:'Regular'},{v:3,icon:'😊',label:'Bueno'},{v:4,icon:'😴',label:'Genial'}];
-  var initQ = todayLog ? todayLog.quality : selectedQuality;
   qualities.forEach(function(q){
     var btn = document.createElement('div');
-    btn.className = 'q-btn' + (initQ === q.v ? ' sel-' + q.v : '');
+    btn.className = 'q-btn' + (currentQuality === q.v ? ' sel-' + q.v : '');
     btn.innerHTML = '<span class="q-icon">'+q.icon+'</span>'+q.label;
     btn.addEventListener('click', function(){
+      currentQuality = q.v;
       selectedQuality = q.v;
       qRow.querySelectorAll('.q-btn').forEach(function(b,i){
         b.className = 'q-btn' + (i+1 === q.v ? ' sel-' + q.v : '');
@@ -1178,15 +1364,19 @@ function renderSueno(){
   note.className = 'sleep-note';
   note.placeholder = 'Nota opcional';
   note.rows = 2;
-  if(todayLog && todayLog.note) note.value = todayLog.note;
+  if(editingLog && editingLog.note) note.value = editingLog.note;
   card.appendChild(note);
 
   var saveBtn = document.createElement('button');
   saveBtn.className = 'sleep-save';
-  saveBtn.textContent = todayLog ? 'Actualizar registro' : 'Guardar';
+  saveBtn.textContent = editingLog ? 'Actualizar registro' : 'Guardar';
   saveBtn.addEventListener('click', function(){
-    saveSleep(todayStr, selectedHours, selectedQuality, note.value.trim())
-      .then(function(){ renderSueno(); renderHoy(); showToast('Sueño registrado'); });
+    saveSleep(sleepEditDate, currentHours, currentQuality, note.value.trim())
+      .then(function(){
+        renderSueno();
+        renderHoy();
+        showToast(isEditingToday ? 'Sueño registrado' : 'Sueño actualizado');
+      });
   });
   card.appendChild(saveBtn);
   view.appendChild(card);
