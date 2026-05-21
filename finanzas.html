@@ -85,8 +85,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-cancel{flex:1;padding:12px;background:#2c2c4a;border:none;border-radius:10px;color:#888;font-size:14px;font-weight:600;cursor:pointer}
 .btn-save-g{flex:2;padding:12px;background:#3B6D11;border:none;border-radius:10px;color:#C0DD97;font-size:14px;font-weight:600;cursor:pointer}
 .btn-save-r{flex:2;padding:12px;background:#A32D2D;border:none;border-radius:10px;color:#f09595;font-size:14px;font-weight:600;cursor:pointer}
-.close-month-btn{width:100%;padding:13px;background:#16132a;border:1px solid #534AB7;border-radius:12px;color:#7F77DD;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px}
-.closed-badge{width:100%;padding:13px;background:#0d1a0d;border:1px solid #27500A;border-radius:12px;color:#63991b;font-size:13px;font-weight:600;text-align:center;margin-top:10px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:999}
 .toast.show{opacity:1}
 </style>
@@ -158,7 +156,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 var SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
 var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 var ERASMUS_GOAL = 5000;
-var SAVINGS_ALREADY = 933;
+// SAVINGS_ALREADY actualizado el 21/05/2026 tras sincronizar cash -> TR
+// Incluye: 1.546€ míos en TR + 500€ de mi padre (intocables, ahorro 100%)
+// Total real reflejado: 2.046€ a fecha 21/05/2026
+var SAVINGS_ALREADY = 1710.62;
 var SAVINGS_PCT = 40;
 var MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -167,22 +168,21 @@ var INC_CATS = [
   {id:'futbol',   icon:'⚽',label:'Futbol'},
   {id:'familia',  icon:'👨',label:'Familia'},
   {id:'workaway', icon:'🌍',label:'Workaway'},
-  {id:'extra',    icon:'✨',label:'Extra'},
-  {id:'sobrante', icon:'💰',label:'Sobrante'}
+  {id:'extra',    icon:'✨',label:'Extra'}
 ];
 var EXP_CATS = [
-  {id:'comida',       icon:'🛒',label:'Compra'},
-  {id:'comida_fuera', icon:'🍔',label:'Com. fuera'},
-  {id:'gasolina',     icon:'⛽',label:'Gasolina'},
-  {id:'ocio',         icon:'🎉',label:'Ocio'},
-  {id:'ropa',         icon:'👕',label:'Ropa'},
-  {id:'barberia',     icon:'✂️',label:'Barberia'},
-  {id:'piso',         icon:'🏠',label:'Piso'},
-  {id:'suscr',        icon:'📱',label:'Suscripc.'},
-  {id:'otro',         icon:'📦',label:'Otro'}
+  {id:'comida',   icon:'🛒',label:'Comida'},
+  {id:'gasolina', icon:'⛽',label:'Gasolina'},
+  {id:'ocio',     icon:'🎉',label:'Ocio'},
+  {id:'ropa',     icon:'👕',label:'Ropa'},
+  {id:'barberia', icon:'✂️',label:'Barberia'},
+  {id:'piso',     icon:'🏠',label:'Piso'},
+  {id:'suscr',    icon:'📱',label:'Suscripc.'},
+  {id:'otro',     icon:'📦',label:'Otro'}
 ];
 var FIXED_EXP = [
   {cat:'piso',     label:'Gastos comunes piso', amount:50},
+  {cat:'gasolina', label:'Gasolina',             amount:45},
   {cat:'comida',   label:'Compra mensual',        amount:180},
   {cat:'barberia', label:'Barberia',              amount:15}
 ];
@@ -192,7 +192,6 @@ var currentTab = 'res';
 var selInc = 'practicas';
 var selExp = 'otro';
 var monthCache = {};
-var closedCache = {};
 
 function mk(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function fmt(n){ return n.toFixed(2).replace('.',',')+' €'; }
@@ -214,14 +213,12 @@ function sbReq(method, path, body){
 
 function loadMonth(month){
   setSyncStatus('syncing');
-  var p1 = sbReq('GET','finance_logs?month=eq.'+month+'&select=*');
-  var p2 = sbReq('GET','closed_months?month=eq.'+month+'&select=*');
-  return Promise.all([p1,p2]).then(function(res){
-    monthCache[month] = Array.isArray(res[0])?res[0]:[];
-    if(Array.isArray(res[1])&&res[1].length) closedCache[month]=res[1][0];
-    setSyncStatus('ok');
-    return monthCache[month];
-  }).catch(function(){ setSyncStatus('err'); return monthCache[month]||[]; });
+  return sbReq('GET','finance_logs?month=eq.'+month+'&select=*')
+    .then(function(rows){
+      monthCache[month] = Array.isArray(rows)?rows:[];
+      setSyncStatus('ok');
+      return monthCache[month];
+    }).catch(function(){ setSyncStatus('err'); return monthCache[month]||[]; });
 }
 
 function ensureFixed(month){
@@ -267,52 +264,11 @@ function totalSaved(){
   var total = SAVINGS_ALREADY;
   Object.keys(monthCache).forEach(function(m){
     var rows = monthCache[m]||[];
-    var inc = rows.filter(function(r){return r.type==='inc'&&r.cat!=='sobrante';}).reduce(function(s,r){return s+r.amount;},0);
-    total += inc*(SAVINGS_PCT/100);
-    if(closedCache[m]) total += closedCache[m].extra_saved;
+    var inc = rows.filter(function(r){return r.type==='inc';}).reduce(function(s,r){return s+r.amount;},0);
+    var exp = rows.filter(function(r){return r.type==='exp';}).reduce(function(s,r){return s+r.amount;},0);
+    total += Math.max(0,inc-exp)*(SAVINGS_PCT/100);
   });
   return total;
-}
-
-function nextMonthKey(month){
-  var parts = month.split('-');
-  var y = parseInt(parts[0]); var mo = parseInt(parts[1]);
-  mo++; if(mo>12){mo=1;y++;}
-  return y+'-'+String(mo).padStart(2,'0');
-}
-
-function closeMonth(month){
-  var rows = monthCache[month]||[];
-  var inc = rows.filter(function(r){return r.type==='inc'&&r.cat!=='sobrante';}).reduce(function(s,r){return s+r.amount;},0);
-  var exp = rows.filter(function(r){return r.type==='exp';}).reduce(function(s,r){return s+r.amount;},0);
-  var extra = Math.max(0, inc - inc*(SAVINGS_PCT/100) - exp);
-  var nextMonth = nextMonthKey(month);
-  var monthLabel = MONTHS[parseInt(month.split('-')[1])-1];
-  setSyncStatus('syncing');
-  return fetch(SB_URL+'/rest/v1/closed_months',{
-    method:'POST',
-    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation,resolution=merge-duplicates'},
-    body:JSON.stringify({month:month, extra_saved:extra})
-  }).then(function(r){return r.json();})
-  .then(function(res){
-    var r=Array.isArray(res)?res[0]:res;
-    if(r) closedCache[month]=r;
-    if(extra <= 0) return;
-    return fetch(SB_URL+'/rest/v1/finance_logs',{
-      method:'POST',
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
-      body:JSON.stringify({month:nextMonth,type:'inc',cat:'sobrante',label:'Sobrante '+monthLabel,amount:extra,note:'',fixed:false})
-    }).then(function(r){return r.json();})
-    .then(function(res){
-      var nr=Array.isArray(res)?res[0]:res;
-      if(nr){ if(!monthCache[nextMonth]) monthCache[nextMonth]=[]; monthCache[nextMonth].push(nr); }
-    });
-  })
-  .then(function(){
-    setSyncStatus('ok');
-    render();
-    showToast('Mes cerrado - +'+fmt(extra)+' al mes siguiente');
-  }).catch(function(){setSyncStatus('err');});
 }
 
 function renderErasmus(){
@@ -364,61 +320,24 @@ function makeEntry(icon,name,note,amtText,amtClass,isFixed,onDel){
 }
 
 function renderRes(){
-  var month = mk(cur);
   var rows = getRows();
-  var incRows = rows.filter(function(r){return r.type==='inc'&&r.cat!=='sobrante';});
-  var sobranteRows = rows.filter(function(r){return r.type==='inc'&&r.cat==='sobrante';});
-  var inc = incRows.reduce(function(s,r){return s+r.amount;},0);
-  var sobranteInc = sobranteRows.reduce(function(s,r){return s+r.amount;},0);
+  var inc = rows.filter(function(r){return r.type==='inc';}).reduce(function(s,r){return s+r.amount;},0);
   var exp = rows.filter(function(r){return r.type==='exp';}).reduce(function(s,r){return s+r.amount;},0);
-  var toSave = inc*(SAVINGS_PCT/100);
-  var sobrante = Math.max(0, inc - toSave - exp);
-  var isClosed = !!closedCache[month];
+  var free = Math.max(0,inc-exp);
+  var toSave = free*(SAVINGS_PCT/100);
+  var toSpend = free-toSave;
   var view = document.getElementById('view-res');
   view.innerHTML = '';
-
-  var incBreakdown = '';
-  if(incRows.length > 1){
-    incRows.forEach(function(r){
-      var ap = r.amount*(SAVINGS_PCT/100);
-      incBreakdown += '<div class="saving-row" style="font-size:11px;color:#555"><span>-> '+r.label+' ('+fmt(r.amount)+')</span><span style="color:#63991b">-> '+fmt(ap)+'</span></div>';
-    });
-  }
-  var sobranteHtml = sobranteInc > 0
-    ? '<div class="saving-row"><span>Sobrante mes anterior</span><span style="color:#C0DD97">+'+fmt(sobranteInc)+'</span></div>'
-    : '';
-  var closedExtra = isClosed ? closedCache[month].extra_saved : 0;
 
   var box = document.createElement('div');
   box.className = 'saving-box';
   box.innerHTML = '<div class="saving-title">Regla del '+SAVINGS_PCT+'% este mes</div>'+
     '<div class="saving-row"><span>Ingresos totales</span><span>'+fmt(inc)+'</span></div>'+
-    incBreakdown+
-    '<div class="saving-row"><span>Apartar para Erasmus ('+SAVINGS_PCT+'%)</span><span style="color:#C0DD97">'+fmt(toSave)+'</span></div>'+
-    sobranteHtml+
     '<div class="saving-row"><span>Gastos totales</span><span style="color:#f09595">-'+fmt(exp)+'</span></div>'+
-    '<div class="saving-row"><span>Queda para gastar</span><span style="color:#85B7EB">'+fmt(sobrante)+'</span></div>'+
-    (isClosed
-      ? '<div class="saving-tip">Mes cerrado - '+fmt(closedExtra)+' pasados al mes siguiente.</div>'
-      : (sobrante>0 ? '<div class="saving-tip">Si cierras el mes, '+fmt(sobrante)+' extra iran al mes siguiente.</div>'
-                    : '<div class="saving-tip">Transfiere '+fmt(toSave)+' a tu cuenta de ahorro.</div>'));
+    '<div class="saving-row"><span>Apartar para Erasmus</span><span>'+fmt(toSave)+'</span></div>'+
+    '<div class="saving-row"><span>Disponible para gastar</span><span style="color:#85B7EB">'+fmt(toSpend)+'</span></div>'+
+    (toSave>0?'<div class="saving-tip">Transfiere '+fmt(toSave)+' a tu cuenta de ahorro.</div>':'');
   view.appendChild(box);
-
-  if(!isClosed){
-    var closeBtn = document.createElement('button');
-    closeBtn.className = 'close-month-btn';
-    closeBtn.textContent = 'Cerrar mes - '+fmt(sobrante)+' extra al mes siguiente';
-    closeBtn.addEventListener('click', function(){
-      if(!confirm('Cerrar '+month+'? Se sumaran '+fmt(sobrante)+' al proximo mes.')) return;
-      closeMonth(month);
-    });
-    view.appendChild(closeBtn);
-  } else {
-    var badge = document.createElement('div');
-    badge.className = 'closed-badge';
-    badge.textContent = 'Mes cerrado - +'+fmt(closedExtra)+' pasados al mes siguiente';
-    view.appendChild(badge);
-  }
 
   var bycat={};
   rows.filter(function(r){return r.type==='exp';}).forEach(function(r){bycat[r.cat]=(bycat[r.cat]||0)+r.amount;});
@@ -448,16 +367,7 @@ function renderInc(){
   view.innerHTML='';
   if(!rows.length){var emp=document.createElement('div');emp.className='empty';emp.textContent='Sin ingresos este mes';view.appendChild(emp);}
   rows.forEach(function(r){
-    (function(row){
-      var noteText = row.note || '';
-      if(row.cat !== 'sobrante'){
-        var ap = row.amount*(SAVINGS_PCT/100);
-        noteText = (noteText ? noteText+' - ' : '') + 'apartar '+fmt(ap);
-      } else {
-        noteText = (noteText ? noteText+' - ' : '') + 'integro a ahorros';
-      }
-      view.appendChild(makeEntry(catIcon(INC_CATS,row.cat),row.label,noteText,'+'+fmt(row.amount),'green',false,function(){deleteEntry(row.id);}));
-    })(r);
+    view.appendChild(makeEntry(catIcon(INC_CATS,r.cat),r.label,r.note,'+'+fmt(r.amount),'green',false,function(){deleteEntry(r.id);}));
   });
   var btn=document.createElement('button');btn.className='add-btn add-inc';btn.textContent='+ Añadir ingreso';
   btn.addEventListener('click',function(){openSheet('sh-inc');});
@@ -470,9 +380,7 @@ function renderExp(){
   view.innerHTML='';
   if(!rows.length){var emp=document.createElement('div');emp.className='empty';emp.textContent='Sin gastos este mes';view.appendChild(emp);}
   rows.forEach(function(r){
-    (function(row){
-      view.appendChild(makeEntry(catIcon(EXP_CATS,row.cat),row.label,row.note,'-'+fmt(row.amount),'red',row.fixed,row.fixed?null:function(){deleteEntry(row.id);}));
-    })(r);
+    view.appendChild(makeEntry(catIcon(EXP_CATS,r.cat),r.label,r.note,'-'+fmt(r.amount),'red',r.fixed,r.fixed?null:function(){deleteEntry(r.id);}));
   });
   var btn=document.createElement('button');btn.className='add-btn add-exp';btn.textContent='+ Añadir gasto';
   btn.addEventListener('click',function(){openSheet('sh-exp');});
