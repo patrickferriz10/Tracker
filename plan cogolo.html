@@ -212,6 +212,27 @@
   .pstep.dl{background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(138,122,82,.10) 6px 7px)}
   .pstep.dl .sw{color:var(--trail)}
 
+  /* ---------- Casillas "hecho" ---------- */
+  .wcount{font-family:'Space Mono',monospace;font-size:12px;color:var(--ink-soft);margin-top:8px;letter-spacing:.04em}
+  .wcount b{color:var(--trail);font-size:14px}
+  .done{
+    display:flex;align-items:center;gap:8px;padding:10px 14px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .done .dlbl{
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ink-soft);margin-right:2px;
+  }
+  .ck{
+    width:30px;height:30px;border:1.7px solid var(--accent,var(--trail));
+    background:transparent;border-radius:6px;cursor:pointer;
+    font-family:'Space Mono',monospace;font-size:13px;font-weight:700;
+    color:var(--accent,var(--trail));display:inline-flex;align-items:center;
+    justify-content:center;padding:0;transition:background .12s,color .12s,transform .08s;
+  }
+  .ck:active{transform:scale(.9)}
+  .ck.on{background:var(--accent,var(--trail));color:#fff}
+
   /* ---------- Pie ---------- */
   .foot{
     margin-top:30px;border:1.5px dashed var(--trail);padding:14px 16px;
@@ -431,6 +452,20 @@ function row(b){
   </div>`;
 }
 
+const SKEY='cogolo-train-v1';
+function load(){try{return JSON.parse(localStorage.getItem(SKEY))||{}}catch(e){return {}}}
+function save(o){try{localStorage.setItem(SKEY,JSON.stringify(o))}catch(e){}}
+function isDone(w,k,i){const s=load()[w];return !!(s&&s[k]&&s[k][i]);}
+function weekCount(w){const s=load()[w]||{};let c=0;['str','aer','ana'].forEach(k=>{const o=s[k]||{};Object.keys(o).forEach(i=>{if(o[i])c++;});});return c;}
+function countTxt(w){return `Hechas esta semana · <b>${weekCount(w)}/5</b>`;}
+function updWeekCount(w){const el=document.getElementById('wcount');if(el)el.innerHTML=countTxt(w);}
+function tog(el,w,k,i){const s=load();s[w]=s[w]||{};s[w][k]=s[w][k]||{};s[w][k][i]=!s[w][k][i];save(s);el.classList.toggle('on',s[w][k][i]);updWeekCount(w);}
+function ckboxes(w,k,n){
+  let b='';
+  for(let i=0;i<n;i++){const on=isDone(w,k,i)?'on':'';b+=`<button class="ck ${on}" aria-label="Marcar hecho" onclick="tog(this,${w},'${k}',${i})">${n>1?(i+1):'✓'}</button>`;}
+  return `<div class="done"><span class="dlbl">Hecho</span>${b}</div>`;
+}
+
 let view='week';
 
 function viewTabs(){
@@ -449,6 +484,7 @@ function renderWeek(w){
       <div class="wno">Semana <span>${String(w).padStart(2,'0')}</span></div>
       <div class="phase">Fase<b>${ph}</b><span style="font-size:10.5px;color:var(--ink-soft)">${phd}</span></div>
     </div>
+    <div class="wcount" id="wcount">${countTxt(w)}</div>
 
     <div class="card">
       <div class="card-top">
@@ -456,6 +492,7 @@ function renderWeek(w){
         <h3>Sesión full-body</h3>
         <span class="meta">×3 / semana</span>
       </div>
+      ${ckboxes(w,'str',3)}
       <div class="rows">${s}</div>
       <div class="note">Mismo orden los 3 días. Cuando un ejercicio se queda fácil, salta a la variante más dura — no añadas reps infinitas. Descanso 60–90 s entre series.</div>
       <div class="mincard"><b>Mínimo</b><span>Ropa puesta + 1 serie de cada bloque (~7 min). Eso ya cuenta como sesión hecha.</span></div>
@@ -467,6 +504,7 @@ function renderWeek(w){
         <h3>Aeróbico</h3>
         <span class="meta">×1 / semana</span>
       </div>
+      ${ckboxes(w,'aer',1)}
       <div class="rows">
         <div class="row">
           <div class="blk">Fondo · ritmo conversacional</div>
@@ -483,6 +521,7 @@ function renderWeek(w){
         <h3>Anaeróbico</h3>
         <span class="meta">×1 / semana</span>
       </div>
+      ${ckboxes(w,'ana',1)}
       <div class="rows">
         <div class="row">
           <div class="blk">Series · corre por tiempo, no por metros</div>
