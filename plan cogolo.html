@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan Cogolo · 8 semanas</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cogolo">
+<meta name="theme-color" content="#232A26">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E2E0D8;
+    --paper-2:#EAE8E1;
+    --ink:#232A26;
+    --ink-soft:#4F564E;
+    --line:#B7B1A2;
+    --line-soft:#CDC8BB;
+    --trail:#C24232;      /* rojo sendero CAI — fuerza */
+    --glacier:#3D7A93;    /* azul glaciar — carrera */
+    --bronze:#8A7A52;     /* fase / eyebrow */
+    --shadow:rgba(35,42,38,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    /* contornos topográficos sutiles de fondo */
+    background-image:
+      repeating-linear-gradient(115deg, transparent 0 38px, rgba(138,122,82,.035) 38px 39px),
+      repeating-linear-gradient(25deg, transparent 0 52px, rgba(61,122,147,.03) 52px 53px);
+    padding-bottom:48px;
+  }
+  .wrap{max-width:620px;margin:0 auto;padding:0 18px}
+
+  /* ---------- Cabecera ---------- */
+  header{padding:26px 0 8px}
+  .kicker{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--bronze);margin-bottom:6px;
+  }
+  h1{
+    font-family:'Saira Condensed',sans-serif;font-weight:700;
+    font-size:clamp(34px,9vw,52px);line-height:.92;letter-spacing:.01em;
+    text-transform:uppercase;
+  }
+  h1 .alt{color:var(--trail)}
+  .sub{
+    margin-top:10px;font-size:14px;color:var(--ink-soft);max-width:46ch;
+  }
+
+  /* ---------- Reglas (acordeón) ---------- */
+  .rules{
+    margin-top:20px;border:1.5px solid var(--ink);background:var(--paper-2);
+  }
+  .rules summary{
+    list-style:none;cursor:pointer;padding:13px 16px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:18px;
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .rules summary::-webkit-details-marker{display:none}
+  .rules summary .tag{
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;
+    color:var(--trail);border:1px solid var(--trail);padding:3px 7px;
+    text-transform:none;flex:none;
+  }
+  .rules summary .chev{transition:transform .25s;color:var(--ink-soft);font-size:13px}
+  .rules[open] summary .chev{transform:rotate(180deg)}
+  .rules ol{padding:4px 16px 16px;margin:0;list-style:none;counter-reset:r}
+  .rules li{
+    counter-increment:r;position:relative;padding:9px 0 9px 30px;
+    font-size:13.5px;border-top:1px solid var(--line-soft);color:var(--ink-soft);
+  }
+  .rules li::before{
+    content:counter(r,decimal-leading-zero);position:absolute;left:0;top:9px;
+    font-family:'Space Mono',monospace;font-size:11px;color:var(--trail);font-weight:700;
+  }
+  .rules li b{color:var(--ink);font-weight:600}
+
+  /* ---------- Navegador-cresta (semanas) ---------- */
+  .ridge-block{margin-top:26px}
+  .ridge-label{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--bronze);margin-bottom:8px;
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .ridge-label .hint{color:var(--ink-soft);letter-spacing:.04em;text-transform:none;font-size:10.5px}
+  .ridge{width:100%;height:auto;display:block;touch-action:manipulation}
+  .wp{cursor:pointer}
+  .wp circle{transition:r .15s, fill .15s, stroke-width .15s}
+  .wp:focus{outline:none}
+  .wp:focus-visible .ring{stroke:var(--ink);stroke-width:2.5px}
+
+  /* ---------- Panel de la semana ---------- */
+  .week{margin-top:22px;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.week{animation:none}}
+
+  .week-head{
+    display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+    border-bottom:2px solid var(--ink);padding-bottom:8px;flex-wrap:wrap;
+  }
+  .week-head .wno{
+    font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:40px;
+    line-height:.9;text-transform:uppercase;
+  }
+  .week-head .wno span{color:var(--trail)}
+  .phase{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--bronze);text-align:right;
+  }
+  .phase b{display:block;color:var(--ink);font-size:13px;letter-spacing:.06em;margin-top:2px}
+
+  /* ---------- Tarjeta de sesión ---------- */
+  .card{
+    margin-top:16px;background:var(--paper-2);border:1.5px solid var(--line);
+    border-left:4px solid var(--accent,var(--trail));
+  }
+  .card.run{--accent:var(--glacier)}
+  .card-top{
+    display:flex;align-items:center;gap:10px;padding:11px 14px 10px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .pill{
+    font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+    letter-spacing:.08em;text-transform:uppercase;color:#fff;
+    background:var(--accent,var(--trail));padding:3px 8px;flex:none;
+  }
+  .card-top h3{
+    font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:20px;
+    text-transform:uppercase;letter-spacing:.03em;
+  }
+  .card-top .meta{margin-left:auto;font-size:11.5px;color:var(--ink-soft);font-family:'Space Mono',monospace}
+
+  .rows{padding:4px 14px 12px}
+  .row{
+    display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:baseline;
+    padding:10px 0;border-top:1px solid var(--line-soft);
+  }
+  .row:first-child{border-top:none}
+  .row .blk{
+    font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--bronze);grid-column:1/-1;margin-bottom:-4px;
+  }
+  .row .name{font-size:14px;font-weight:500;color:var(--ink)}
+  .row .name small{display:block;font-weight:400;font-size:12px;color:var(--ink-soft);margin-top:1px}
+  .row .dose{
+    font-family:'Space Mono',monospace;font-size:14px;font-weight:700;
+    color:var(--accent,var(--trail));text-align:right;white-space:nowrap;
+  }
+  .row .dose small{display:block;font-weight:400;font-size:10.5px;color:var(--ink-soft);letter-spacing:0}
+
+  .note{
+    padding:10px 14px;font-size:12px;color:var(--ink-soft);
+    background:repeating-linear-gradient(135deg,transparent 0 7px,rgba(61,122,147,.06) 7px 8px);
+    border-top:1px solid var(--line-soft);
+  }
+  .note b{color:var(--glacier)}
+
+  /* ---------- Vista / mínimo / progresión ---------- */
+  .viewtabs{display:flex;margin-top:22px;border:1.5px solid var(--ink);width:fit-content}
+  .vtab{
+    font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:14px;
+    text-transform:uppercase;letter-spacing:.05em;padding:7px 18px;
+    background:transparent;border:none;cursor:pointer;color:var(--ink-soft);
+  }
+  .vtab+.vtab{border-left:1.5px solid var(--ink)}
+  .vtab.on{background:var(--ink);color:var(--paper)}
+  .vtab:focus-visible{outline:2px solid var(--trail);outline-offset:2px}
+
+  .mincard{
+    display:flex;gap:10px;align-items:baseline;padding:10px 14px;
+    border-top:1px dashed var(--trail);font-size:12.5px;color:var(--ink-soft);
+  }
+  .mincard b{
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--trail);flex:none;
+  }
+  .card.run .mincard{border-top-color:var(--glacier)}
+  .card.run .mincard b{color:var(--glacier)}
+
+  .prog-block{
+    margin-top:16px;background:var(--paper-2);border:1.5px solid var(--line);
+    border-left:4px solid var(--accent,var(--trail));
+  }
+  .prog-block.run{--accent:var(--glacier)}
+  .prog-block h4{
+    font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:18px;
+    text-transform:uppercase;letter-spacing:.03em;padding:10px 14px;
+    border-bottom:1px solid var(--line-soft);display:flex;gap:10px;align-items:center;
+  }
+  .pstep{
+    display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:baseline;
+    padding:8px 14px;border-top:1px solid var(--line-soft);font-size:13.5px;
+  }
+  .pstep:nth-of-type(2){border-top:none}
+  .pstep .sw{font-family:'Space Mono',monospace;font-size:11px;color:var(--bronze);font-weight:700}
+  .pstep .pv{color:var(--ink)}
+  .pstep .pv small{color:var(--ink-soft)}
+  .pstep .pd{
+    font-family:'Space Mono',monospace;font-size:13px;font-weight:700;
+    color:var(--accent,var(--trail));text-align:right;white-space:nowrap;
+  }
+  .pstep.dl{background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(138,122,82,.10) 6px 7px)}
+  .pstep.dl .sw{color:var(--trail)}
+
+  /* ---------- Pie ---------- */
+  .foot{
+    margin-top:30px;border:1.5px dashed var(--trail);padding:14px 16px;
+    font-size:13px;color:var(--ink-soft);background:var(--paper-2);
+  }
+  .foot b{color:var(--ink)}
+  .foot .deadline{
+    font-family:'Space Mono',monospace;color:var(--trail);font-weight:700;
+    letter-spacing:.04em;
+  }
+  .legend{
+    display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;
+    font-family:'Space Mono',monospace;font-size:11px;color:var(--ink-soft);
+  }
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:11px;height:11px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Cogolo · Val di Pejo · 8 semanas</div>
+    <h1>Plan de<br><span class="alt">ascenso</span></h1>
+    <p class="sub">Fuerza sin material + carrera. La dificultad sube semana a semana, igual que el terreno. Toca la cresta para saltar de semana.</p>
+  </header>
+
+  <details class="rules">
+    <summary>
+      Reglas que no cambian
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <span class="tag">mandan siempre</span>
+        <span class="chev">▼</span>
+      </span>
+    </summary>
+    <ol>
+      <li><b>El ancla se fija el día 1.</b> En cuanto veas el ritmo de la granja, engancha el entreno a un evento fijo y clávalo. No esperes a "hacerte al ritmo".</li>
+      <li><b>Unidad mínima innegociable.</b> El día roto: sesión completa O mínimo (1 serie empuje + 1 sentadilla / rodar 10 min). Nunca un cero. Un cero rompe la cadena; un mínimo la mantiene.</li>
+      <li><b>El techo es la recuperación, no la voluntad.</b> Entrenar fatigado resta. Si arrastras dos noches malas, recortas tú antes de que recorte la lesión.</li>
+      <li><b>No encadenes los dos castigos de pierna.</b> Tus dos mayores estresores de pierna son una sesión de fuerza y el día de sprints. Esos dos nunca en días seguidos. La carrera aeróbica suave sí puede ir pegada a fuerza (bajo impacto, suelta piernas). Si por horario un día de fuerza cae junto a los sprints, ese día baja a la mitad sentadilla y zancada.</li>
+      <li><b>Finde = ruta = descanso activo.</b> No metas carrera dura encima de la ruta larga.</li>
+      <li><b>La carrera sube despacio por el tendón, no por el fuelle.</b> Tu fondo futbolero pedirá más caña de la que aguantan las articulaciones. Aguántate.</li>
+      <li><b>El marcador es la sesión hecha, no el espejo.</b> El cuerpo va 6 semanas por detrás. Trackea que apareciste.</li>
+    </ol>
+  </details>
+
+  <details class="rules" style="margin-top:12px">
+    <summary>
+      Cómo repartir la semana
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <span class="tag">ajusta a la granja</span>
+        <span class="chev">▼</span>
+      </span>
+    </summary>
+    <ol style="counter-reset:none">
+      <li style="padding-left:0">3 fuerza + 2 carrera + 1 ruta + 1 descanso real. Los fija tú cuando sepas los horarios. Ejemplo que respeta las reglas:</li>
+      <li style="padding-left:0;font-family:'Space Mono',monospace;font-size:12px;color:var(--ink);line-height:1.9">
+        L · <b style="color:var(--trail)">Fuerza</b> completa<br>
+        M · <b style="color:var(--glacier)">Aeróbico</b> suave<br>
+        X · <b style="color:var(--trail)">Fuerza</b> completa<br>
+        J · <b>Descanso</b> real<br>
+        V · <b style="color:var(--trail)">Fuerza</b> (piernas a la mitad)<br>
+        S · <b style="color:var(--glacier)">Anaeróbico</b> (sprints)<br>
+        D · <b style="color:var(--bronze)">Ruta</b> (recuperación activa)
+      </li>
+      <li style="padding-left:0">Sprints (sábado) llevan al lado el viernes con piernas ligeras y el domingo de ruta suave. Nunca fuerza completa pegada a sprints.</li>
+    </ol>
+  </details>
+
+  <div class="ridge-block">
+    <div class="ridge-label">
+      <span>Perfil de la ruta</span>
+      <span class="hint">↘ baja en la semana 4 = descarga</span>
+    </div>
+    <svg class="ridge" viewBox="0 0 320 104" role="tablist" aria-label="Selector de semana">
+      <defs>
+        <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#C24232" stop-opacity=".16"/>
+          <stop offset="1" stop-color="#C24232" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <line x1="20" y1="88" x2="300" y2="88" stroke="var(--line)" stroke-width="1"/>
+      <path id="ridgeArea" fill="url(#fill)"></path>
+      <polyline id="ridgeLine" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round"/>
+      <g id="waypoints"></g>
+    </svg>
+  </div>
+
+  <div class="week" id="weekPanel"></div>
+
+  <div class="foot">
+    <b>Pendiente para antes de agosto:</b> definir el enfoque de septiembre — compañero de entreno (estructura tipo fútbol) + ataque a la cocina, que es donde de verdad se decide el físico.
+    <span class="deadline">Fecha tope: 31 julio.</span> Anótalo donde lo veas, no en el chat.
+    <div class="legend">
+      <span><i style="background:var(--trail)"></i> Fuerza</span>
+      <span><i style="background:var(--glacier)"></i> Carrera</span>
+      <span><i style="background:var(--bronze)"></i> Fase</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PHASES = {
+  1:["Base","Asentar patrón y técnica"], 2:["Base","Asentar patrón y técnica"],
+  3:["Construcción","Subir volumen y carga"], 4:["Construcción · descarga","Recuperar para subir"],
+  5:["Intensificación","Variantes más duras"], 6:["Intensificación","Variantes más duras"],
+  7:["Pico","Máxima dificultad"], 8:["Pico · afilado","Específico fútbol"]
+};
+
+// Fuerza: misma plantilla (5 bloques), cambian variante + dosis por semana
+const STR = {
+ 1:[["Empuje","Flexión declinada","pies elevados","4×12","3 s bajada"],
+    ["Sentadilla","Sentadilla peso corporal","tempo, sin rebote","4×20","3 s bajada"],
+    ["Tracción","Remo improvisado","cuerpo casi vertical (fácil)","3×12",""],
+    ["Pierna unilat.","Zancadas caminando","","3×12","por pierna"],
+    ["Core","Plancha + Hollow hold","","3×35 s / 3×20 s",""]],
+ 2:[["Empuje","Flexión declinada","pies elevados","4×15","3 s bajada"],
+    ["Sentadilla","Sentadilla peso corporal","tempo","4×22","3 s bajada"],
+    ["Tracción","Remo improvisado","cuerpo casi vertical","3×14",""],
+    ["Pierna unilat.","Zancadas caminando","","3×14","por pierna"],
+    ["Core","Plancha + Hollow hold","","3×45 s / 3×25 s",""]],
+ 3:[["Empuje","Flexión declinada","últimas 2 series diamante","4×15","pausa 1 s abajo"],
+    ["Sentadilla","Sentadilla con pausa","+ mochila cargada","4×18","pausa 2 s abajo"],
+    ["Tracción","Remo, ángulo más bajo","+ mochila","3×12",""],
+    ["Pierna unilat.","Zancadas + puente glúteo 1 pierna","","3×12 / 3×12","por pierna"],
+    ["Core","Plancha + Elevación piernas","","3×45 s / 3×12",""]],
+ 4:[["Empuje","Flexión declinada + diamante","","4×12","pausa 1 s"],
+    ["Sentadilla","Sentadilla con pausa","+ mochila","4×20","pausa 2 s"],
+    ["Tracción","Remo, ángulo más bajo","+ mochila","3×14",""],
+    ["Pierna unilat.","Zancadas + puente 1 pierna","","3×14 / 3×14","por pierna"],
+    ["Core","Plancha + Elevación piernas","","3×60 s / 3×14",""]],
+ 5:[["Empuje","Flexión arquera","alternando brazos","4×10","por lado"],
+    ["Sentadilla","Búlgara","pie atrás elevado","4×12","por pierna"],
+    ["Tracción","Remo horizontal / dominadas","si hay barra","3×8–10",""],
+    ["Pierna unilat.","Búlgara con pausa","","3×10","por pierna"],
+    ["Core","Plancha lateral + Hollow rock","","3×30 s/lado / 3×20",""]],
+ 6:[["Empuje","Flexión arquera","","4×12","por lado"],
+    ["Sentadilla","Búlgara","","4×14","por pierna"],
+    ["Tracción","Remo horizontal / dominadas","","3×10",""],
+    ["Pierna unilat.","Shrimp squat asistida","","3×8","por pierna"],
+    ["Core","Plancha lateral + Hollow rock","","3×40 s/lado / 3×25",""]],
+ 7:[["Empuje","Pseudo-planche","manos a la cadera, inclinas","4×8",""],
+    ["Sentadilla","Pistol asistida","con apoyo","4×6","por pierna"],
+    ["Tracción","Horizontal total / dominadas","con pausa","3×máx",""],
+    ["Pierna unilat.","Shrimp squat","","3×8","por pierna"],
+    ["Core","Plancha c/ elevación + Elev. colgado","o en V","3×40 s / 3×12",""]],
+ 8:[["Empuje","Pseudo-planche","","4×10",""],
+    ["Sentadilla","Pistol asistida / libre","","4×8","por pierna"],
+    ["Tracción","Horizontal / dominadas","con pausa","3×máx",""],
+    ["Pierna unilat.","Saltos de zancada","potencia","3×8","por pierna"],
+    ["Core","Plancha c/ elevación + Elev. colgado","o en V","3×45 s / 3×15",""]]
+};
+
+// Carrera por semana: [aeróbico tiempo, aeróbico km, anaeróbico desc, anaeróbico dist/rep]
+const RUN = {
+ 1:["25 min","≈ 4 km","6 × 20 s fuerte","≈ 90 m/rep","90 s recuperación"],
+ 2:["28 min","≈ 4,7 km","8 × 20 s fuerte","≈ 90 m/rep","90 s recuperación"],
+ 3:["30 min","≈ 5 km","8 × 30 s fuerte","≈ 150 m/rep","90 s recuperación"],
+ 4:["30 min","≈ 5 km · descarga","6 × 40 s (o cuestas)","≈ 200 m/rep","2 min recuperación"],
+ 5:["35 min","≈ 5,8 km","8 × 30 s fuerte","≈ 150 m/rep","75 s recuperación"],
+ 6:["38 min","≈ 6,3 km","10 × 30 s fuerte","≈ 150 m/rep","75 s recuperación"],
+ 7:["40 min","≈ 6,7 km","4 × 60 s fuerte","≈ 300 m/rep","90 s recuperación"],
+ 8:["40 min","≈ 6,7 km · mantener","8 × 15 s muy rápido","≈ 80 m/rep","descanso completo"]
+};
+
+// --- cresta ---
+const elev=[0.12,0.22,0.40,0.34,0.55,0.66,0.85,1.0];
+const xs=elev.map((_,i)=>20+i*40);
+const ys=elev.map(e=>88-e*70);
+let active=1;
+
+function buildRidge(){
+  const pts=xs.map((x,i)=>`${x},${ys[i]}`).join(' ');
+  document.getElementById('ridgeLine').setAttribute('points',pts);
+  document.getElementById('ridgeArea').setAttribute('d',
+    `M20,88 L${pts.replace(/ /g,' L')} L300,88 Z`);
+  const g=document.getElementById('waypoints');
+  g.innerHTML='';
+  xs.forEach((x,i)=>{
+    const w=i+1;
+    const grp=document.createElementNS('http://www.w3.org/2000/svg','g');
+    grp.setAttribute('class','wp');grp.setAttribute('tabindex','0');
+    grp.setAttribute('role','tab');grp.setAttribute('aria-label','Semana '+w);
+    grp.innerHTML=`
+      <circle class="ring" cx="${x}" cy="${ys[i]}" r="9" fill="transparent" stroke="transparent"/>
+      <circle class="dot" cx="${x}" cy="${ys[i]}" r="4" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5"/>
+      <text x="${x}" y="100" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="var(--ink-soft)">${w}</text>`;
+    grp.addEventListener('click',()=>select(w));
+    grp.addEventListener('keydown',e=>{
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();select(w);}
+      if(e.key==='ArrowRight'){e.preventDefault();select(Math.min(8,w+1));}
+      if(e.key==='ArrowLeft'){e.preventDefault();select(Math.max(1,w-1));}
+    });
+    g.appendChild(grp);
+  });
+  paintRidge();
+}
+function paintRidge(){
+  document.querySelectorAll('.wp').forEach((g,i)=>{
+    const on=(i+1)===active;
+    const dot=g.querySelector('.dot');
+    dot.setAttribute('r',on?7:4);
+    dot.setAttribute('fill',on?'var(--trail)':'var(--paper)');
+    dot.setAttribute('stroke',on?'var(--trail)':'var(--ink)');
+    g.setAttribute('aria-selected',on?'true':'false');
+  });
+}
+
+function row(b){
+  const sub=b[2]?`<small>${b[2]}</small>`:'';
+  const sup=b[4]?`<small>${b[4]}</small>`:'';
+  return `<div class="row">
+    <div class="blk">${b[0]}</div>
+    <div class="name">${b[1]}${sub}</div>
+    <div class="dose">${b[3]}${sup}</div>
+  </div>`;
+}
+
+let view='week';
+
+function viewTabs(){
+  return `<div class="viewtabs" role="tablist">
+    <button class="vtab ${view==='week'?'on':''}" onclick="setView('week')">Semana</button>
+    <button class="vtab ${view==='prog'?'on':''}" onclick="setView('prog')">Progresión</button>
+  </div>`;
+}
+
+function renderWeek(w){
+  const [ph,phd]=PHASES[w];
+  const s=STR[w].map(row).join('');
+  const r=RUN[w];
+  return `
+    <div class="week-head">
+      <div class="wno">Semana <span>${String(w).padStart(2,'0')}</span></div>
+      <div class="phase">Fase<b>${ph}</b><span style="font-size:10.5px;color:var(--ink-soft)">${phd}</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="pill">Fuerza</span>
+        <h3>Sesión full-body</h3>
+        <span class="meta">×3 / semana</span>
+      </div>
+      <div class="rows">${s}</div>
+      <div class="note">Mismo orden los 3 días. Cuando un ejercicio se queda fácil, salta a la variante más dura — no añadas reps infinitas. Descanso 60–90 s entre series.</div>
+      <div class="mincard"><b>Mínimo</b><span>Ropa puesta + 1 serie de cada bloque (~7 min). Eso ya cuenta como sesión hecha.</span></div>
+    </div>
+
+    <div class="card run">
+      <div class="card-top">
+        <span class="pill">Carrera</span>
+        <h3>Aeróbico</h3>
+        <span class="meta">×1 / semana</span>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <div class="blk">Fondo · ritmo conversacional</div>
+          <div class="name">Rodaje continuo<small>si no puedes mantener una frase, vas rápido</small></div>
+          <div class="dose">${r[0]}<small>${r[1]}</small></div>
+        </div>
+      </div>
+      <div class="mincard"><b>Mínimo</b><span>Salir y rodar 10 min suave.</span></div>
+    </div>
+
+    <div class="card run">
+      <div class="card-top">
+        <span class="pill">Carrera</span>
+        <h3>Anaeróbico</h3>
+        <span class="meta">×1 / semana</span>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <div class="blk">Series · corre por tiempo, no por metros</div>
+          <div class="name">${r[2]}<small>${r[4]}</small></div>
+          <div class="dose">${r[3]}</div>
+        </div>
+      </div>
+      <div class="note"><b>Los metros orientan, el cronómetro manda.</b> La distancia es para saber si vas a ritmo, no una marca que perseguir. Calienta 8–10 min suave antes y afloja 5 min al acabar.</div>
+      <div class="mincard"><b>Mínimo</b><span>Calienta + 3 series.</span></div>
+    </div>`;
+}
+
+function progBlock(title,pill,isRun,steps){
+  return `<div class="prog-block ${isRun?'run':''}">
+    <h4><span class="pill">${pill}</span>${title}</h4>${steps}</div>`;
+}
+
+function renderProg(){
+  const titles=['Empuje','Sentadilla','Tracción','Pierna unilateral','Core'];
+  let out='<div style="height:4px"></div>';
+  for(let i=0;i<5;i++){
+    let steps='';
+    for(let w=1;w<=8;w++){
+      const b=STR[w][i];
+      const supp=b[4]?` <small>· ${b[4]}</small>`:'';
+      steps+=`<div class="pstep ${w===4?'dl':''}">
+        <div class="sw">S${w}</div>
+        <div class="pv">${b[1]}</div>
+        <div class="pd">${b[3]}${supp?`<br><span style="font-weight:400;font-size:10px;color:var(--ink-soft)">${b[4]}</span>`:''}</div>
+      </div>`;
+    }
+    out+=progBlock(titles[i],'Fuerza',false,steps);
+  }
+  let ra='';
+  for(let w=1;w<=8;w++){const r=RUN[w];
+    ra+=`<div class="pstep ${w===4?'dl':''}"><div class="sw">S${w}</div><div class="pv">Rodaje suave <small>${r[1]}</small></div><div class="pd">${r[0]}</div></div>`;}
+  out+=progBlock('Carrera aeróbica','Carrera',true,ra);
+  let rn='';
+  for(let w=1;w<=8;w++){const r=RUN[w];
+    rn+=`<div class="pstep ${w===4?'dl':''}"><div class="sw">S${w}</div><div class="pv">${r[2]} <small>${r[4]}</small></div><div class="pd">${r[3]}</div></div>`;}
+  out+=progBlock('Carrera anaeróbica','Carrera',true,rn);
+  out+='<p style="margin-top:14px;font-size:11.5px;color:var(--ink-soft);font-family:\'Space Mono\',monospace">Franja rayada = semana 4, descarga intencionada.</p>';
+  return out;
+}
+
+function render(){
+  document.getElementById('weekPanel').innerHTML=
+    viewTabs() + (view==='week' ? renderWeek(active) : renderProg());
+}
+function setView(v){view=v;render();}
+function select(w){active=w;view='week';paintRidge();render();}
+
+buildRidge();render();
+</script>
+</body>
+</html>
