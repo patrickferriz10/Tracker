@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#EEF1E4">
+<title>Mama Joy · Cogolo</title>
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=IBM+Plex+Mono:wght@500;600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --papel:#EEF1E4;      /* heno pálido */
+    --carta:#FFFFFF;
+    --tinta:#22321F;      /* abeto oscuro */
+    --prato:#33684A;      /* verde prado (acción / positivo) */
+    --prato-osc:#27523A;
+    --prato-suave:#E3EDE2;
+    --rame:#A85B32;       /* cobre (descuentos de comidas) */
+    --bruma:#7E8A76;      /* texto secundario */
+    --linea:#D9DFCB;
+    --radio:14px;
+    --sombra:0 2px 10px rgba(34,50,31,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Instrument Sans',system-ui,sans-serif;
+    background:var(--papel);
+    color:var(--tinta);
+    font-size:15px;
+    line-height:1.45;
+    padding:20px 16px 48px;
+  }
+  .app{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+
+  button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--prato);outline-offset:2px;border-radius:6px}
+  input{font:inherit;color:inherit}
+
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .eyebrow{
+    font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--bruma);
+  }
+
+  /* ---------- Cabecera ---------- */
+  header .eyebrow{margin-bottom:2px}
+  .wordmark{
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
+    font-size:30px;letter-spacing:-.01em;line-height:1.1;
+    display:flex;align-items:center;gap:8px;
+  }
+  .wordmark svg{flex:none}
+
+  /* ---------- Aviso de configuración ---------- */
+  .banner{
+    display:none;background:#FBF3E3;border:1.5px solid #E3CF9E;border-radius:var(--radio);
+    padding:14px 16px;font-size:14px;
+  }
+  .banner.visible{display:block}
+  .banner strong{display:block;margin-bottom:4px}
+  .banner code{font-family:'IBM Plex Mono',monospace;font-size:12.5px;background:#F3E7CB;padding:1px 5px;border-radius:5px}
+
+  /* ---------- Selector de persona ---------- */
+  .chips{display:flex;gap:4px;background:#E1E6D2;border-radius:12px;padding:4px}
+  .chips button{
+    flex:1;padding:9px 6px;border-radius:9px;font-weight:600;font-size:14px;
+    color:var(--bruma);transition:background .15s,color .15s;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .chips button[aria-pressed="true"]{background:var(--carta);color:var(--tinta);box-shadow:0 1px 4px rgba(34,50,31,.12)}
+
+  /* ---------- Recibo (balance) ---------- */
+  .recibo-wrap{filter:drop-shadow(0 3px 8px rgba(34,50,31,.10))}
+  .recibo{
+    background:var(--carta);border-radius:var(--radio) var(--radio) 0 0;
+    padding:20px 20px 16px;
+  }
+  .recibo .eyebrow{color:var(--prato)}
+  .neto{
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
+    font-size:46px;letter-spacing:-.02em;line-height:1.05;margin:4px 0 2px;
+  }
+  .neto.negativo{color:var(--rame)}
+  .neto-sub{font-size:13px;color:var(--bruma);margin-bottom:14px}
+  .desglose{border-top:2px dashed var(--linea);padding-top:12px;display:flex;flex-direction:column;gap:7px}
+  .fila-ledger{display:flex;justify-content:space-between;align-items:baseline;font-size:14px}
+  .fila-ledger .concepto{color:var(--bruma)}
+  .fila-ledger .importe{font-family:'IBM Plex Mono',monospace;font-weight:600}
+  .importe.pos{color:var(--prato)}
+  .importe.neg{color:var(--rame)}
+  .zigzag{
+    height:14px;
+    background-image:
+      linear-gradient(45deg,transparent 33.333%,var(--carta) 33.333%,var(--carta) 66.667%,transparent 66.667%),
+      linear-gradient(-45deg,transparent 33.333%,var(--carta) 33.333%,var(--carta) 66.667%,transparent 66.667%);
+    background-size:14px 28px;
+    background-position:0 -14px;
+  }
+
+  /* ---------- Tarjetas ---------- */
+  .card{background:var(--carta);border-radius:var(--radio);padding:18px 18px 20px;box-shadow:var(--sombra)}
+  .card h2{
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:17px;
+    margin-bottom:14px;
+  }
+  .campo{margin-bottom:16px}
+  .campo > .eyebrow{display:block;margin-bottom:7px}
+
+  /* Fecha */
+  .fila-fecha{display:flex;gap:8px;align-items:stretch}
+  .btn-nav{
+    width:42px;border:1.5px solid var(--linea);border-radius:10px;
+    font-size:18px;color:var(--bruma);flex:none;
+  }
+  .btn-nav:active{background:var(--prato-suave)}
+  input[type="date"]{
+    flex:1;min-width:0;border:1.5px solid var(--linea);border-radius:10px;
+    padding:9px 10px;background:var(--carta);font-size:15px;
+    -webkit-appearance:none;appearance:none;
+  }
+  .btn-hoy{
+    flex:none;padding:0 14px;border:1.5px solid var(--linea);border-radius:10px;
+    font-weight:600;font-size:13px;color:var(--prato);
+  }
+
+  /* Horas */
+  .stepper{display:flex;gap:8px;align-items:stretch}
+  .stepper button{
+    width:52px;border:1.5px solid var(--linea);border-radius:10px;
+    font-size:22px;font-weight:500;color:var(--prato);flex:none;
+  }
+  .stepper button:active{background:var(--prato-suave)}
+  .stepper input{
+    flex:1;min-width:0;text-align:center;border:1.5px solid var(--linea);border-radius:10px;
+    padding:10px 6px;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:17px;
+  }
+
+  /* Comidas */
+  .toggles{display:flex;gap:8px}
+  .toggles button{
+    flex:1;padding:11px 4px;border:1.5px solid var(--linea);border-radius:10px;
+    font-weight:600;font-size:13.5px;color:var(--bruma);
+    transition:background .15s,border-color .15s,color .15s;
+  }
+  .toggles button[aria-pressed="true"]{
+    background:var(--prato-suave);border-color:var(--prato);color:var(--tinta);
+  }
+  .toggles button[aria-pressed="true"]::before{content:"✓ ";color:var(--prato)}
+
+  /* Nota */
+  input[type="text"]{
+    width:100%;border:1.5px solid var(--linea);border-radius:10px;padding:10px 12px;font-size:14.5px;
+  }
+  input[type="text"]::placeholder{color:#AEB6A5}
+
+  /* Vista previa + guardar */
+  .preview{
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--bruma);
+    background:var(--papel);border-radius:9px;padding:9px 12px;margin-bottom:14px;
+  }
+  .acciones{display:flex;gap:10px}
+  .btn-guardar{
+    flex:1;background:var(--prato);color:#fff;font-weight:600;font-size:16px;
+    padding:14px;border-radius:12px;transition:background .15s;
+  }
+  .btn-guardar:active{background:var(--prato-osc)}
+  .btn-guardar:disabled{opacity:.6}
+  .btn-borrar{
+    flex:none;display:none;padding:0 16px;border:1.5px solid var(--linea);border-radius:12px;
+    color:var(--rame);font-weight:600;font-size:14px;
+  }
+  .btn-borrar.visible{display:block}
+
+  /* ---------- La cuadrilla ---------- */
+  .cuadrilla{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .mini{
+    background:var(--carta);border-radius:12px;padding:12px 10px;box-shadow:var(--sombra);
+    display:flex;flex-direction:column;gap:3px;min-width:0;
+  }
+  .mini .nombre{font-size:12px;font-weight:600;color:var(--bruma);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mini .valor{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:15px}
+  .mini .detalle{font-size:11px;color:var(--bruma)}
+
+  /* ---------- Historial ---------- */
+  .historial{display:flex;flex-direction:column}
+  .dia{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    padding:12px 4px;border-bottom:1px solid var(--linea);
+  }
+  .dia:last-child{border-bottom:none}
+  .dia:active{background:var(--prato-suave)}
+  .dia .fecha-txt{flex:none;width:76px;font-size:13px;font-weight:600}
+  .dia .datos{flex:1;display:flex;align-items:center;gap:10px;min-width:0}
+  .dia .horas-txt{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--bruma);flex:none}
+  .puntos{display:flex;gap:4px}
+  .punto{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--linea)}
+  .punto.si{background:var(--rame);border-color:var(--rame)}
+  .dia .neto-txt{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13.5px;flex:none;margin-left:auto}
+  .neto-txt.pos{color:var(--prato)}
+  .neto-txt.neg{color:var(--rame)}
+  .vacio{color:var(--bruma);font-size:14px;padding:6px 2px}
+
+  footer{font-size:12px;color:var(--bruma);text-align:center}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(8px);
+    background:var(--tinta);color:#fff;font-size:14px;font-weight:500;
+    padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s;max-width:88vw;text-align:center;
+  }
+  .toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <p class="eyebrow">Cogolo · 9 €/h · −7 €/comida</p>
+    <h1 class="wordmark">
+      <svg width="26" height="26" viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="5" y="28" width="7" height="5" rx="2.5" fill="#A85B32"/>
+        <rect x="36" y="28" width="7" height="5" rx="2.5" fill="#A85B32"/>
+        <rect x="10" y="25" width="28" height="6" rx="3" fill="#C97C4E"/>
+        <path d="M13 31 H35 V37 C35 41.5 31.5 44 27.5 44 H20.5 C16.5 44 13 41.5 13 37 Z" fill="#A85B32"/>
+        <path d="M24 22 C22 19.5 15 17 15 12 C15 8.6 18 7 20.8 8 C22.4 8.6 23.5 10 24 11.2 C24.5 10 25.6 8.6 27.2 8 C30 7 33 8.6 33 12 C33 17 26 19.5 24 22 Z" fill="#33684A"/>
+      </svg>
+      Mama Joy
+    </h1>
+  </header>
+
+  <div class="banner" id="banner">
+    <strong>Falta configurar Supabase</strong>
+    Abre <code>index.html</code> y pega tu <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code> al principio del <code>&lt;script&gt;</code>. Antes, ejecuta <code>supabase_setup.sql</code> en el SQL Editor.
+  </div>
+
+  <nav class="chips" id="chips" aria-label="Persona"></nav>
+
+  <!-- Balance estilo recibo -->
+  <div class="recibo-wrap">
+    <section class="recibo" aria-live="polite">
+      <p class="eyebrow" id="balTitulo">Balance</p>
+      <p class="neto mono" id="balNeto">0,00 €</p>
+      <p class="neto-sub">te deben al final del Workaway</p>
+      <div class="desglose">
+        <div class="fila-ledger">
+          <span class="concepto" id="balHorasConcepto">0 h × 9,00 €</span>
+          <span class="importe pos" id="balHorasImp">+0,00 €</span>
+        </div>
+        <div class="fila-ledger">
+          <span class="concepto" id="balComidasConcepto">0 comidas × 7,00 €</span>
+          <span class="importe neg" id="balComidasImp">−0,00 €</span>
+        </div>
+      </div>
+    </section>
+    <div class="zigzag" aria-hidden="true"></div>
+  </div>
+
+  <!-- Registro del día -->
+  <section class="card">
+    <h2>Registrar día</h2>
+
+    <div class="campo">
+      <span class="eyebrow">Fecha</span>
+      <div class="fila-fecha">
+        <button class="btn-nav" id="btnPrev" aria-label="Día anterior">‹</button>
+        <input type="date" id="fecha" aria-label="Fecha">
+        <button class="btn-nav" id="btnNext" aria-label="Día siguiente">›</button>
+        <button class="btn-hoy" id="btnHoy">Hoy</button>
+      </div>
+    </div>
+
+    <div class="campo">
+      <span class="eyebrow">Horas trabajadas</span>
+      <div class="stepper">
+        <button id="btnMenos" aria-label="Media hora menos">−</button>
+        <input type="number" id="horas" inputmode="decimal" step="0.5" min="0" max="24" value="0" aria-label="Horas trabajadas">
+        <button id="btnMas" aria-label="Media hora más">+</button>
+      </div>
+    </div>
+
+    <div class="campo">
+      <span class="eyebrow">Comidas</span>
+      <div class="toggles">
+        <button id="tgDesayuno" aria-pressed="false">Desayuno</button>
+        <button id="tgComida" aria-pressed="false">Comida</button>
+        <button id="tgCena" aria-pressed="false">Cena</button>
+      </div>
+    </div>
+
+    <div class="campo">
+      <span class="eyebrow">Nota (opcional)</span>
+      <input type="text" id="notas" maxlength="120" placeholder="p. ej. tarde libre, cena fuera…">
+    </div>
+
+    <p class="preview mono" id="preview"></p>
+
+    <div class="acciones">
+      <button class="btn-guardar" id="btnGuardar">Guardar día</button>
+      <button class="btn-borrar" id="btnBorrar">Borrar</button>
+    </div>
+  </section>
+
+  <!-- Los tres -->
+  <section>
+    <p class="eyebrow" style="margin-bottom:8px">La cuadrilla</p>
+    <div class="cuadrilla" id="cuadrilla"></div>
+  </section>
+
+  <!-- Historial -->
+  <section class="card">
+    <h2 id="histTitulo">Historial</h2>
+    <div class="historial" id="historial"></div>
+  </section>
+
+  <footer>Tarifas: 9 €/h · 7 €/comida — se cambian en la config del código.</footer>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============================================================
+   CONFIGURACIÓN  👇 edita estas 5 líneas
+   ============================================================ */
+const SUPABASE_URL      = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
+const PERSONAS          = ['Ot', 'Joel', 'Patrick'];
+const TARIFA_HORA       = 9;   // € por hora trabajada
+const PRECIO_COMIDA     = 7;   // € que descuentan por comida
+/* ============================================================ */
+
+const $ = id => document.getElementById(id);
+const fmtEur = new Intl.NumberFormat('es-ES', { style:'currency', currency:'EUR' });
+const eur = n => fmtEur.format(n);
+const eurSigno = n => (n >= 0 ? '+' : '−') + eur(Math.abs(n));
+const fmtH = n => n.toLocaleString('es-ES', { maximumFractionDigits: 2 });
+
+const hoyISO = () => {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 10);
+};
+const fechaBonita = iso =>
+  new Date(iso + 'T12:00:00').toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
+
+const configurado = !SUPABASE_URL.includes('TU-PROYECTO') && !SUPABASE_ANON_KEY.includes('TU-ANON');
+const sb = configurado ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+/* ---------- Estado ---------- */
+let registros = [];                       // todas las filas de la tabla
+let persona = localStorage.getItem('cogolo_persona');
+if (!PERSONAS.includes(persona)) persona = PERSONAS[0];
+let editorSucio = false;                  // el usuario está editando sin guardar
+
+/* ---------- Helpers de datos ---------- */
+const netoDe = r => {
+  const comidas = (r.desayuno ? 1 : 0) + (r.comida ? 1 : 0) + (r.cena ? 1 : 0);
+  return Number(r.horas) * TARIFA_HORA - comidas * PRECIO_COMIDA;
+};
+const totalesDe = nombre => {
+  const filas = registros.filter(r => r.persona === nombre);
+  const horas = filas.reduce((s, r) => s + Number(r.horas), 0);
+  const comidas = filas.reduce((s, r) => s + (r.desayuno?1:0) + (r.comida?1:0) + (r.cena?1:0), 0);
+  return { horas, comidas, dias: filas.length,
+           neto: horas * TARIFA_HORA - comidas * PRECIO_COMIDA };
+};
+const registroActual = () =>
+  registros.find(r => r.persona === persona && r.fecha === $('fecha').value);
+
+/* ---------- Render ---------- */
+function renderChips() {
+  $('chips').innerHTML = '';
+  PERSONAS.forEach(n => {
+    const b = document.createElement('button');
+    b.textContent = n;
+    b.setAttribute('aria-pressed', n === persona);
+    b.onclick = () => {
+      persona = n;
+      localStorage.setItem('cogolo_persona', n);
+      editorSucio = false;
+      renderChips(); cargarEditor(); renderTodo();
+    };
+    $('chips').appendChild(b);
+  });
+}
+
+function renderBalance() {
+  const t = totalesDe(persona);
+  $('balTitulo').textContent = 'Balance · ' + persona;
+  $('balNeto').textContent = eur(t.neto);
+  $('balNeto').classList.toggle('negativo', t.neto < 0);
+  $('balHorasConcepto').textContent = `${fmtH(t.horas)} h × ${eur(TARIFA_HORA)}`;
+  $('balHorasImp').textContent = '+' + eur(t.horas * TARIFA_HORA);
+  $('balComidasConcepto').textContent = `${t.comidas} comida${t.comidas === 1 ? '' : 's'} × ${eur(PRECIO_COMIDA)}`;
+  $('balComidasImp').textContent = '−' + eur(t.comidas * PRECIO_COMIDA);
+}
+
+function renderCuadrilla() {
+  $('cuadrilla').innerHTML = '';
+  PERSONAS.forEach(n => {
+    const t = totalesDe(n);
+    const d = document.createElement('div');
+    d.className = 'mini';
+    d.innerHTML = `<span class="nombre">${n}</span>
+      <span class="valor" style="color:${t.neto < 0 ? 'var(--rame)' : 'var(--prato)'}">${eur(t.neto)}</span>
+      <span class="detalle">${fmtH(t.horas)} h · ${t.comidas} com.</span>`;
+    $('cuadrilla').appendChild(d);
+  });
+}
+
+function renderHistorial() {
+  const filas = registros
+    .filter(r => r.persona === persona)
+    .sort((a, b) => b.fecha.localeCompare(a.fecha));
+  $('histTitulo').textContent = `Historial · ${filas.length} día${filas.length === 1 ? '' : 's'}`;
+  const cont = $('historial');
+  cont.innerHTML = '';
+  if (!filas.length) {
+    cont.innerHTML = '<p class="vacio">Aún no hay días registrados. Guarda el primero arriba.</p>';
+    return;
+  }
+  filas.forEach(r => {
+    const neto = netoDe(r);
+    const b = document.createElement('button');
+    b.className = 'dia';
+    b.title = r.notas || '';
+    b.innerHTML = `
+      <span class="fecha-txt">${fechaBonita(r.fecha)}</span>
+      <span class="datos">
+        <span class="horas-txt">${fmtH(Number(r.horas))} h</span>
+        <span class="puntos" aria-label="comidas">
+          <span class="punto ${r.desayuno ? 'si' : ''}"></span>
+          <span class="punto ${r.comida ? 'si' : ''}"></span>
+          <span class="punto ${r.cena ? 'si' : ''}"></span>
+        </span>
+      </span>
+      <span class="neto-txt ${neto < 0 ? 'neg' : 'pos'}">${eurSigno(neto)}</span>`;
+    b.onclick = () => {
+      $('fecha').value = r.fecha;
+      editorSucio = false;
+      cargarEditor();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    cont.appendChild(b);
+  });
+}
+
+function renderPreview() {
+  const h = leerHoras();
+  const c = ['tgDesayuno','tgComida','tgCena']
+    .filter(id => $(id).getAttribute('aria-pressed') === 'true').length;
+  const neto = h * TARIFA_HORA - c * PRECIO_COMIDA;
+  $('preview').textContent =
+    `${fmtH(h)} h → +${eur(h * TARIFA_HORA)}  ·  ${c} com. → −${eur(c * PRECIO_COMIDA)}  ·  neto ${eurSigno(neto)}`;
+}
+
+function renderTodo() { renderBalance(); renderCuadrilla(); renderHistorial(); }
+
+/* ---------- Editor ---------- */
+function leerHoras() {
+  let h = parseFloat($('horas').value.replace?.(',', '.') ?? $('horas').value);
+  if (isNaN(h)) h = 0;
+  return Math.min(24, Math.max(0, h));
+}
+function ponerToggle(id, on) { $(id).setAttribute('aria-pressed', on ? 'true' : 'false'); }
+
+function cargarEditor() {
+  const r = registroActual();
+  $('horas').value = r ? Number(r.horas) : 0;
+  ponerToggle('tgDesayuno', r?.desayuno);
+  ponerToggle('tgComida',   r?.comida);
+  ponerToggle('tgCena',     r?.cena);
+  $('notas').value = r?.notas || '';
+  $('btnBorrar').classList.toggle('visible', !!r);
+  renderPreview();
+}
+
+function moverFecha(dias) {
+  const d = new Date($('fecha').value + 'T12:00:00');
+  d.setDate(d.getDate() + dias);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  $('fecha').value = d.toISOString().slice(0, 10);
+  editorSucio = false;
+  cargarEditor();
+}
+
+/* ---------- Datos (Supabase) ---------- */
+async function cargar() {
+  if (!sb) return;
+  const { data, error } = await sb.from('registros').select('*').order('fecha', { ascending: false });
+  if (error) { toast('Error de conexión con Supabase'); console.error(error); return; }
+  registros = data || [];
+  renderTodo();
+  if (!editorSucio) cargarEditor();
+}
+
+async function guardar() {
+  if (!sb) { toast('Configura Supabase primero'); return; }
+  const fila = {
+    persona,
+    fecha: $('fecha').value,
+    horas: leerHoras(),
+    desayuno: $('tgDesayuno').getAttribute('aria-pressed') === 'true',
+    comida:   $('tgComida').getAttribute('aria-pressed') === 'true',
+    cena:     $('tgCena').getAttribute('aria-pressed') === 'true',
+    notas: $('notas').value.trim() || null,
+    actualizado: new Date().toISOString(),
+  };
+  if (!fila.fecha) { toast('Elige una fecha'); return; }
+  $('btnGuardar').disabled = true;
+  $('btnGuardar').textContent = 'Guardando…';
+  const { error } = await sb.from('registros').upsert(fila, { onConflict: 'persona,fecha' });
+  $('btnGuardar').disabled = false;
+  $('btnGuardar').textContent = 'Guardar día';
+  if (error) { toast('No se pudo guardar'); console.error(error); return; }
+  editorSucio = false;
+  toast(`Guardado · ${fechaBonita(fila.fecha)}`);
+  await cargar();
+}
+
+async function borrar() {
+  if (!sb || !registroActual()) return;
+  if (!confirm(`¿Borrar el registro del ${fechaBonita($('fecha').value)}?`)) return;
+  const { error } = await sb.from('registros').delete().match({ persona, fecha: $('fecha').value });
+  if (error) { toast('No se pudo borrar'); console.error(error); return; }
+  editorSucio = false;
+  toast('Registro borrado');
+  await cargar();
+}
+
+/* ---------- UI feedback ---------- */
+let toastTimer;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 2000);
+}
+
+/* ---------- Eventos ---------- */
+$('btnGuardar').onclick = guardar;
+$('btnBorrar').onclick = borrar;
+$('btnPrev').onclick = () => moverFecha(-1);
+$('btnNext').onclick = () => moverFecha(1);
+$('btnHoy').onclick = () => { $('fecha').value = hoyISO(); editorSucio = false; cargarEditor(); };
+$('fecha').onchange = () => { editorSucio = false; cargarEditor(); };
+$('btnMenos').onclick = () => { $('horas').value = Math.max(0, leerHoras() - 0.5); editorSucio = true; renderPreview(); };
+$('btnMas').onclick   = () => { $('horas').value = Math.min(24, leerHoras() + 0.5); editorSucio = true; renderPreview(); };
+$('horas').oninput = () => { editorSucio = true; renderPreview(); };
+$('notas').oninput = () => { editorSucio = true; };
+['tgDesayuno','tgComida','tgCena'].forEach(id => {
+  $(id).onclick = () => {
+    ponerToggle(id, $(id).getAttribute('aria-pressed') !== 'true');
+    editorSucio = true;
+    renderPreview();
+  };
+});
+
+/* ---------- Arranque ---------- */
+$('fecha').value = hoyISO();
+renderChips();
+cargarEditor();
+renderTodo();
+
+if (!configurado) {
+  $('banner').classList.add('visible');
+} else {
+  cargar();
+  // Tiempo real: cualquier cambio de los tres refresca la app
+  sb.channel('cambios_registros')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'registros' }, () => cargar())
+    .subscribe();
+  // Al volver a la app (móvil), recarga por si acaso
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') cargar();
+  });
+}
+</script>
+</body>
+</html>
