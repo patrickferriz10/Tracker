@@ -1,1664 +1,564 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E1216">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tracker">
 <title>Mi Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f1a;color:#eee;min-height:100vh;padding-bottom:60px}
-.app{max-width:420px;margin:0 auto;padding:14px}
+:root{
+  --bg:#0E1216; --surface:#161C22; --surface-2:#1E262E; --line:#28323C;
+  --ink:#ECEFF3; --muted:#8A97A5; --faint:#5C6773;
+  --ok:#4DB6A5; --bad:#E2574C; --warn:#E8A33D;
+  --k-trabajo:#7C93A8; --k-clase:#7C93A8; --k-comida:#4DB6A5; --k-gym:#E8A33D;
+  --k-futbol:#E8A33D; --k-estudio:#8C7BE0; --k-rutina:#5C6773; --k-clave:#ECEFF3;
+  --pad:16px;
+  padding-top:env(safe-area-inset-top,0px);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:400 15px/1.45 "Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;font-variant-numeric:tabular-nums}
+.wrap{max-width:520px;margin:0 auto;padding:16px var(--pad) 60px}
+button,input{font:inherit;color:inherit;font-variant-numeric:tabular-nums}
+button{background:none;border:none;padding:0;cursor:pointer}
+.hide{display:none!important}
 
-/* ── Header ─────────────────────────────────────────────── */
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.topbar h1{font-size:17px;font-weight:600;color:#fff}
-.topbar .date{font-size:11px;color:#666;margin-top:1px}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:#444;flex-shrink:0}
-.sync-dot.ok{background:#63991b}.sync-dot.syncing{background:#BA7517;animation:pulse 1s infinite}.sync-dot.err{background:#A32D2D}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.head h1{font-size:17px;font-weight:600;margin:0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.dot.ok{background:var(--ok)}.dot.syncing{background:var(--warn);animation:p 1s infinite}.dot.err{background:var(--bad)}
+@keyframes p{50%{opacity:.3}}
 
-/* ── Score hero ─────────────────────────────────────────── */
-.hero{background:linear-gradient(180deg,#16132a 0%,#0f0f1a 100%);border:1px solid #2c2c4a;border-radius:18px;padding:18px 16px;margin-bottom:12px}
-.hero-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:10px}
-.score-now{flex:1}
-.score-label{font-size:10px;color:#7F77DD;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:2px}
-.score-num{font-size:46px;font-weight:700;color:#fff;line-height:1;letter-spacing:-1px}
-.score-num.neg{color:#f09595}
-.score-max{font-size:13px;color:#555;margin-left:4px;font-weight:500}
-.score-7d{text-align:right;flex-shrink:0}
-.score-7d-label{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
-.score-7d-num{font-size:22px;font-weight:600;color:#aaa}
-.compare{display:flex;gap:14px;font-size:11px;color:#666;padding-top:10px;border-top:1px solid #1f1f3a}
-.compare span{flex:1}
-.compare b{font-weight:600}
-.compare .up{color:#C0DD97}
-.compare .down{color:#f09595}
-.compare .eq{color:#888}
+.daynav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.daynav button.arr{width:38px;height:38px;border:1px solid var(--line);border-radius:10px;color:var(--muted);font-size:19px;flex:none}
+.daynav .lbl{flex:1;text-align:center}
+.daynav .lbl b{display:block;font-size:16px;font-weight:600}
+.daynav .lbl span{font-size:12.5px;color:var(--faint)}
 
-/* ── Apuesta semanal ────────────────────────────────────── */
-.bet-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:14px;padding:13px 15px;margin-bottom:12px;cursor:pointer}
-.bet-card.empty{border-style:dashed;border-color:#3a3a5a;background:#111120}
-.bet-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.bet-label{font-size:10px;color:#FAC775;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
-.bet-progress-text{font-size:11px;color:#888;font-weight:500}
-.bet-text{font-size:13px;color:#eee;line-height:1.4;margin-bottom:8px}
-.bet-text.placeholder{color:#555;font-style:italic}
-.bet-bar{background:#0d0d1a;border-radius:4px;height:5px;overflow:hidden}
-.bet-bar-fg{height:5px;border-radius:4px;background:linear-gradient(90deg,#BA7517,#FAC775);transition:width .4s}
+.seg{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.seg .t{font-size:13px;color:var(--muted);flex:none}
+.seg .opts{flex:1;display:flex;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:3px;gap:3px}
+.seg .opts button{flex:1;padding:7px 4px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--muted)}
+.seg .opts button.on{background:var(--surface-2);color:var(--ink);font-weight:600}
 
-/* ── Tabs ───────────────────────────────────────────────── */
-.tabs{display:flex;gap:6px;margin-bottom:10px}
-.tab{flex:1;padding:9px 4px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:#666}
-.tab.t-hoy.active{background:#16132a;border-color:#534AB7;color:#7F77DD}
-.tab.t-sue.active{background:#0d1f3a;border-color:#185FA5;color:#85B7EB}
-.tab.t-his.active{background:#1a1a0d;border-color:#BA7517;color:#FAC775}
+.banner{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+.banner b{color:var(--ink);font-weight:600}
+.also{border-left:3px solid var(--warn)}
 
-/* ── Day nav ───────────────────────────────────────────── */
-.days-nav{display:flex;gap:5px;margin-bottom:12px}
-.day-btn{flex:1;padding:7px 2px;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:9px;cursor:pointer;text-align:center}
-.day-btn.active{background:#534AB7;border-color:#534AB7}
-.day-btn .dn{font-size:9px;color:#888;display:block}
-.day-btn .dd{font-size:13px;font-weight:600;color:#fff;display:block}
-.day-btn.active .dn{color:rgba(255,255,255,.7)}
-.day-btn .ds{font-size:8px;color:#444;display:block;margin-top:1px;font-weight:600}
-.day-btn .ds.s-hi{color:#63991b}
-.day-btn .ds.s-mid{color:#BA7517}
-.day-btn .ds.s-lo{color:#A32D2D}
-.day-btn.active .ds{color:rgba(255,255,255,.6)}
+h3{font-size:13px;font-weight:600;color:var(--muted);margin:20px 0 6px;text-transform:uppercase;letter-spacing:.06em}
 
-/* ── Section ──────────────────────────────────────────── */
-.section-label{font-size:10px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.7px;margin:14px 0 6px;padding:0 2px}
+/* Agenda */
+.it{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.it .tm{width:44px;flex:none;font-size:13.5px;color:var(--muted);padding-top:1px}
+.it .bar{width:3px;align-self:stretch;border-radius:2px;flex:none;background:var(--k-rutina)}
+.it .tx{flex:1;font-size:14.5px;line-height:1.4}
+.it .tx small{display:block;font-size:12.5px;color:var(--faint);margin-top:1px}
+.it.key .tx{font-weight:600}
+.it.key .tm{color:var(--ink);font-weight:600}
+.it.past{opacity:.38}
+.it.now{background:var(--surface);border-radius:10px;padding:9px 10px;margin:0 -10px;border-bottom-color:transparent}
+.it .tag{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--bg);background:var(--ink);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:2px}
+.it .tag.next{background:var(--surface-2);color:var(--muted)}
 
-/* ── Core item ────────────────────────────────────────── */
-.core-item{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:13px;padding:12px 14px;margin-bottom:7px}
-.core-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.core-name{font-size:13px;color:#ddd;font-weight:500}
-.core-points{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:#0d0d1a;color:#666}
-.core-points.has-pts{background:#1a3a08;color:#C0DD97}
-.core-points.neg-pts{background:#2a0808;color:#f09595}
-.scale-row{display:flex;gap:5px}
-.scale-btn{flex:1;padding:8px 2px;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:7px;cursor:pointer;text-align:center;font-size:10px;color:#666;transition:all .15s}
-.scale-btn .sv{font-size:14px;font-weight:700;display:block;line-height:1.1}
-.scale-btn .sl{font-size:9px;display:block;margin-top:1px;opacity:.7}
-.scale-btn.sel-0{background:#1a0d0d;border-color:#3a1a1a;color:#a06060}
-.scale-btn.sel-1{background:#1a1a0d;border-color:#3a2a0a;color:#FAC775}
-.scale-btn.sel-2{background:#0d1a0d;border-color:#27500A;color:#C0DD97}
-.scale-btn.sel-3{background:#16132a;border-color:#534AB7;color:#7F77DD}
-.scale-btn.sel-2x{background:#0d1a0d;border-color:#27500A;color:#C0DD97}
+/* Registro */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+.card .ct{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.card .ct b{font-size:15.5px;font-weight:600}
+.card .ct span{font-size:12.5px;color:var(--faint)}
+.chainnote{font-size:12.5px;color:var(--faint);margin-bottom:12px}
+.row{padding:12px 0;border-top:1px solid var(--line)}
+.row .q{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.row .q span{font-size:14px;color:var(--muted)}
+.row .q em{font-style:normal;font-size:12.5px;font-weight:600}
+.ok-t{color:var(--ok)}.bad-t{color:var(--bad)}.neu-t{color:var(--faint)}
+.hm{display:flex;gap:8px;align-items:center}
+.hm input{width:72px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 8px;font-size:20px;font-weight:600;text-align:center;outline:none;-webkit-appearance:none}
+.hm input:focus{border-color:var(--muted)}
+.hm .u{font-size:13px;color:var(--faint);margin-right:6px}
+.step{display:flex;align-items:center;gap:10px}
+.step button{width:52px;height:44px;border:1px solid var(--line);border-radius:11px;font-size:22px;color:var(--muted);background:var(--bg)}
+.step button:active{background:var(--surface-2)}
+.step .v{flex:1;text-align:center;font-size:26px;font-weight:700;letter-spacing:-.02em}
+.save{width:100%;margin-top:12px;padding:14px;border-radius:12px;background:var(--ink);color:var(--bg);font-weight:600;font-size:15.5px}
+.save:disabled{background:var(--surface-2);color:var(--faint)}
+.done{display:flex;gap:8px;margin-top:4px}
+.done .c{flex:1;background:var(--bg);border-radius:11px;padding:10px 6px;text-align:center}
+.done .c .l{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+.done .c .n{font-size:18px;font-weight:700;margin-top:2px}
+.link{font-size:13px;color:var(--muted);text-decoration:underline;margin-top:10px;display:inline-block}
 
-/* ── Sueño ref ───────────────────────────────────────── */
-.sleep-ref{font-size:10px;color:#666;margin-top:6px;display:flex;align-items:center;gap:6px}
-.sleep-ref b{color:#85B7EB;font-weight:600}
-.sleep-ref a{color:#85B7EB;text-decoration:none;font-size:10px;margin-left:auto;font-weight:600}
+/* Semana */
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:6px}
+.wd{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 2px;text-align:center;cursor:pointer}
+.wd.sel{border-color:var(--muted)}
+.wd .l{font-size:11px;color:var(--faint)}
+.wd .n{font-size:14px;font-weight:600;margin:1px 0 5px}
+.wd .ds{display:flex;flex-direction:column;align-items:center;gap:3px}
+.wd .ds i{width:8px;height:8px;border-radius:50%;background:var(--line);display:block}
+.wd .ds i.ok{background:var(--ok)}.wd .ds i.neu{background:var(--muted)}.wd .ds i.bad{background:var(--bad)}.wd .ds i.na{background:transparent;border:1px solid var(--line);width:6px;height:6px}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--faint);margin-top:8px;flex-wrap:wrap}
+.rule{font-size:13.5px;color:var(--muted);margin-top:12px;line-height:1.5}
+.rule b{color:var(--ink)}
+.prog{display:flex;gap:5px;margin-top:8px}
+.prog i{flex:1;height:6px;border-radius:99px;background:var(--surface-2);display:block}
+.prog i.on{background:var(--ok)}
 
-/* ── Móvil slider ────────────────────────────────────── */
-.movil-row{display:flex;align-items:center;gap:10px;margin-top:8px}
-.movil-val{font-size:18px;font-weight:700;color:#85B7EB;width:50px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
-.movil-val.warn{color:#FAC775}
-.movil-val.bad{color:#f09595}
-.movil-slider{flex:1;accent-color:#185FA5}
-.movil-info{font-size:10px;color:#555;margin-top:5px;display:flex;justify-content:space-between}
-
-/* ── Tabaco ──────────────────────────────────────────── */
-.tabaco-row{display:flex;align-items:center;gap:10px}
-.tab-toggle{flex:1;padding:9px;background:#0d0d1a;border:1px solid #27500A;border-radius:8px;text-align:center;font-size:11px;color:#63991b;cursor:pointer;font-weight:600}
-.tab-toggle.fumed{background:#1a0808;border-color:#A32D2D;color:#f09595}
-
-/* ── Mantenimiento ───────────────────────────────────── */
-.maint-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.maint-item{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:10px;padding:10px 11px;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
-.maint-item.done{border-color:#27500A;background:#0d1a0d}
-.maint-text{font-size:12px;color:#bbb;flex:1;line-height:1.2}
-.maint-item.done .maint-text{color:#C0DD97}
-.maint-check{width:20px;height:20px;border-radius:50%;border:1.5px solid #444;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
-.maint-item.done .maint-check{background:#3B6D11;border-color:#3B6D11}
-.maint-check svg{display:none;width:11px;height:11px}
-.maint-item.done .maint-check svg{display:block}
-
-/* ── Rachas troncales ───────────────────────────────── */
-.streaks-bar{display:flex;gap:8px;margin-bottom:12px}
-.streak-card{flex:1;background:#1a1a2e;border:1px solid #2c2c4a;border-radius:12px;padding:11px 13px;position:relative;overflow:hidden}
-.streak-card.alive{border-color:#27500A;background:linear-gradient(135deg,#0d1a0d 0%,#1a1a2e 100%)}
-.streak-card.broken{border-color:#3a1a1a;background:linear-gradient(135deg,#1a0d0d 0%,#1a1a2e 100%)}
-.streak-card.zero{opacity:.7}
-.streak-name{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:3px}
-.streak-card.alive .streak-name{color:#63991b}
-.streak-card.broken .streak-name{color:#A32D2D}
-.streak-count{font-size:22px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums}
-.streak-card.alive .streak-count{color:#C0DD97}
-.streak-card.broken .streak-count{color:#f09595}
-.streak-unit{font-size:10px;color:#666;margin-left:3px}
-.streak-sub{font-size:10px;color:#555;margin-top:3px;font-weight:500}
-.streak-card.broken .streak-sub{color:#f09595;font-weight:600}
-
-/* ── Núcleo: stat frecuencia "X/7" dentro de core ── */
-.core-freq{font-size:10px;color:#666;margin-left:8px;font-weight:500;font-variant-numeric:tabular-nums}
-.core-freq.ok{color:#63991b}
-.core-freq.warn{color:#BA7517}
-
-/* ── Mantenimiento tri-estado ────────────────────── */
-.maint-item.fail{border-color:#3a1a1a;background:#1a0d0d}
-.maint-item.fail .maint-text{color:#f09595;text-decoration:line-through;text-decoration-color:#5a1a1a}
-.maint-item.fail .maint-check{background:#1a0808;border-color:#A32D2D}
-.maint-item.fail .maint-check svg{display:block}
-.maint-item.fail .maint-check svg polyline{stroke:#A32D2D}
-
-/* ── Sueño tab ───────────────────────────────────────── */
-.sleep-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:16px;padding:16px;margin-bottom:10px}
-.sleep-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:14px}
-.sleep-hours-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.sleep-hours-label{font-size:12px;color:#888;width:60px;flex-shrink:0}
-.sleep-hours-val{font-size:22px;font-weight:700;color:#85B7EB;width:60px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
-.sleep-slider{flex:1;accent-color:#185FA5}
-.quality-row{display:flex;gap:8px;margin-bottom:14px}
-.q-btn{flex:1;padding:8px 4px;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;cursor:pointer;text-align:center;font-size:11px;color:#666;transition:all .15s}
-.q-btn.sel-1{background:#2a0808;border-color:#A32D2D;color:#f09595}
-.q-btn.sel-2{background:#2a1f0a;border-color:#BA7517;color:#FAC775}
-.q-btn.sel-3{background:#0d1a0d;border-color:#3B6D11;color:#C0DD97}
-.q-btn.sel-4{background:#0d1f3a;border-color:#185FA5;color:#85B7EB}
-.q-icon{font-size:16px;display:block;margin-bottom:2px}
-.sleep-note{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:8px 10px;font-size:12px;color:#aaa;font-family:inherit;resize:none;outline:none;margin-bottom:12px}
-.sleep-save{width:100%;padding:12px;background:#0F3460;border:1px solid #185FA5;border-radius:10px;color:#85B7EB;font-size:14px;font-weight:600;cursor:pointer}
-.sleep-avg-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.sleep-avg-card{background:#0d0d1a;border-radius:10px;padding:10px;text-align:center}
-.sleep-avg-label{font-size:9px;color:#666;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
-.sleep-avg-val{font-size:16px;font-weight:700;color:#85B7EB}
-.sleep-hist-item{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:12px;padding:11px 13px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
-.sleep-hist-date{font-size:11px;color:#888;width:60px;flex-shrink:0}
-.sleep-hist-bar-wrap{flex:1}
-.sleep-hist-bar-bg{background:#0d0d1a;border-radius:4px;height:5px;margin-bottom:3px}
-.sleep-hist-bar-fg{height:5px;border-radius:4px;background:#185FA5}
-.sleep-hist-label{font-size:10px;color:#888}
-.sleep-hist-right{text-align:right;flex-shrink:0}
-.sleep-hist-hrs{font-size:14px;font-weight:700;color:#85B7EB;font-variant-numeric:tabular-nums}
-.sleep-hist-q{font-size:11px;color:#555;margin-top:1px}
-
-/* ── Histórico tab ──────────────────────────────────── */
-.history-week{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:13px;padding:13px 15px;margin-bottom:8px}
-.hw-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.hw-range{font-size:11px;color:#888;font-weight:500}
-.hw-avg{font-size:20px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
-.hw-days{display:flex;gap:3px;margin-bottom:8px}
-.hw-day{flex:1;height:22px;border-radius:4px;background:#0d0d1a;display:flex;align-items:center;justify-content:center;font-size:9px;color:#444;font-weight:600}
-.hw-day.s-hi{background:#27500A;color:#C0DD97}
-.hw-day.s-mid{background:#3a2a0a;color:#FAC775}
-.hw-day.s-lo{background:#2a0808;color:#f09595}
-.hw-bet{font-size:11px;color:#888;line-height:1.3;border-top:1px solid #2c2c4a;padding-top:7px;margin-top:7px}
-.hw-bet b{color:#FAC775;font-weight:600}
-.hw-bet .ok{color:#C0DD97}
-.hw-bet .ko{color:#f09595}
-
-.records-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.record-card{background:#1a1a2e;border:1px solid #2c2c4a;border-radius:11px;padding:11px}
-.record-label{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;font-weight:600}
-.record-val{font-size:18px;font-weight:700;color:#7F77DD;font-variant-numeric:tabular-nums}
-.record-sub{font-size:10px;color:#555;margin-top:1px}
-
-/* ── Modal review ────────────────────────────────────── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:flex-end;justify-content:center}
-.overlay.open{display:flex}
-.sheet{background:#1a1a2e;border-radius:20px 20px 0 0;border-top:1px solid #2c2c4a;padding:20px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto}
-.sheet h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:4px}
-.sheet .subtitle{font-size:11px;color:#888;margin-bottom:16px}
-.sheet-field{margin-bottom:14px}
-.sheet-field label{font-size:11px;color:#7F77DD;font-weight:600;display:block;margin-bottom:5px}
-.sheet-field textarea, .sheet-field input{width:100%;background:#0d0d1a;border:1px solid #2c2c4a;border-radius:8px;padding:10px 12px;font-size:13px;color:#eee;font-family:inherit;resize:none;outline:none;line-height:1.4}
-.sheet-field textarea{min-height:55px}
-.sheet-field textarea:focus, .sheet-field input:focus{border-color:#7F77DD}
-.sheet-field .help{font-size:10px;color:#555;margin-top:3px}
-.sheet-btns{display:flex;gap:8px;margin-top:14px}
-.btn-cancel{flex:1;padding:11px;background:#2c2c4a;border:none;border-radius:10px;color:#888;font-size:13px;font-weight:600;cursor:pointer}
-.btn-save{flex:2;padding:11px;background:#534AB7;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer}
-
-/* ── Sunday banner ──────────────────────────────────── */
-.sunday-banner{background:#1a1a0d;border:1px solid #BA7517;border-radius:13px;padding:13px 15px;margin-bottom:12px;cursor:pointer}
-.sunday-banner-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.sunday-label{font-size:10px;color:#FAC775;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
-.sunday-arrow{color:#FAC775;font-size:14px;font-weight:700}
-.sunday-text{font-size:12px;color:#bbb;line-height:1.4}
-
-/* ── Botón abrir review ──────────────────────────────── */
-.review-btn{width:100%;padding:12px;background:#16132a;border:1px solid #534AB7;border-radius:11px;color:#7F77DD;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px}
-
-/* ── Toast ──────────────────────────────────────────── */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:999}
-.toast.show{opacity:1}
-
-/* ── Navegación semanal ───────────────────────────── */
-.week-nav{display:flex;align-items:center;justify-content:space-between;padding:0 2px;margin-bottom:8px;font-size:11px;color:#666;font-weight:500}
-.week-nav-arrow{background:none;border:none;color:#7F77DD;font-size:14px;font-weight:600;cursor:pointer;padding:4px 10px;border-radius:6px}
-.week-nav-arrow:active{background:#16132a}
-.week-nav-arrow:disabled{color:#333;cursor:not-allowed}
-.week-nav-arrow:disabled:active{background:none}
-.week-nav-label{flex:1;text-align:center;letter-spacing:.3px}
-.week-nav-label.past{color:#BA7517}
-
-/* ── Banner día no editable ─────────────────────── */
-.locked-banner{background:#1a1a0d;border:1px solid #3a2a0a;border-radius:11px;padding:10px 13px;margin-bottom:10px;font-size:12px;color:#FAC775;line-height:1.4;text-align:center}
-
-/* ── Read-only en scale buttons ─────────────────── */
-.scale-btn.locked{opacity:.5;cursor:not-allowed;pointer-events:none}
-.maint-item.locked{opacity:.5;cursor:not-allowed;pointer-events:none}
-.movil-slider:disabled{opacity:.5;cursor:not-allowed}
-
-/* ── Sueño: selector de fecha ────────────────────── */
-.sleep-date-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.sleep-date-label{font-size:11px;color:#888;font-weight:500;flex-shrink:0;width:100%;margin-bottom:2px}
-.sleep-date-chips{display:flex;gap:5px;flex-wrap:wrap;width:100%}
-.sleep-date-chip{background:#0d0d1a;border:1px solid #2c2c4a;border-radius:7px;padding:6px 10px;font-size:11px;color:#888;cursor:pointer;font-weight:500;white-space:nowrap}
-.sleep-date-chip.active{background:#0d1f3a;border-color:#185FA5;color:#85B7EB}
-.sleep-date-chip.has-data::after{content:" ●";color:#185FA5;font-size:8px;vertical-align:middle;margin-left:2px}
-
-/* ── Empty ──────────────────────────────────────────── */
-.empty{text-align:center;padding:30px 20px;color:#444;font-size:12px;line-height:1.7}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,10px);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:14px;font-weight:500;opacity:0;transition:.2s;pointer-events:none;z-index:60;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="wrap">
+  <div class="head"><h1>Mi Tracker</h1><span class="dot" id="sync"></span></div>
 
-  <div class="topbar">
-    <div>
-      <h1>Mi Tracker</h1>
-      <div class="date" id="header-date"></div>
-    </div>
-    <div class="sync-dot" id="sync-dot"></div>
+  <div class="daynav">
+    <button class="arr" id="prev" aria-label="Día anterior">‹</button>
+    <div class="lbl"><b id="dlbl"></b><span id="drel"></span></div>
+    <button class="arr" id="next" aria-label="Día siguiente">›</button>
   </div>
 
-  <!-- Hero score -->
-  <div class="hero">
-    <div class="hero-row">
-      <div class="score-now">
-        <div class="score-label">Hoy</div>
-        <div><span class="score-num" id="score-num">0</span><span class="score-max">/100</span></div>
-      </div>
-      <div class="score-7d">
-        <div class="score-7d-label">Media 7d</div>
-        <div class="score-7d-num" id="score-7d">—</div>
-      </div>
-    </div>
-    <div class="compare">
-      <span>vs sem. pasada: <b id="cmp-1w">—</b></span>
-      <span>vs hace 4 sem: <b id="cmp-4w">—</b></span>
+  <div class="seg">
+    <span class="t">Partido este finde</span>
+    <div class="opts" id="match">
+      <button data-m="sab">Sábado</button>
+      <button data-m="dom">Domingo</button>
     </div>
   </div>
 
-  <!-- Rachas troncales -->
-  <div class="streaks-bar" id="streaks-bar"></div>
+  <div id="banners"></div>
+  <div id="regTop"></div>
+  <h3>El día</h3>
+  <div id="agenda"></div>
+  <div id="regBottom"></div>
 
-  <!-- Apuesta semanal -->
-  <div class="bet-card" id="bet-card">
-    <div class="bet-top">
-      <span class="bet-label">Apuesta de la semana</span>
-      <span class="bet-progress-text" id="bet-progress-text"></span>
-    </div>
-    <div class="bet-text" id="bet-text"></div>
-    <div class="bet-bar"><div class="bet-bar-fg" id="bet-bar-fg" style="width:0%"></div></div>
-  </div>
-
-  <!-- Tabs -->
-  <div class="tabs">
-    <div class="tab t-hoy active" id="tab-hoy">Hoy</div>
-    <div class="tab t-sue" id="tab-sue">Sueño</div>
-    <div class="tab t-his" id="tab-his">Historial</div>
-  </div>
-
-  <!-- Vista HOY -->
-  <div id="view-hoy"></div>
-
-  <!-- Vista Sueño -->
-  <div id="view-sue" style="display:none"></div>
-
-  <!-- Vista Historial -->
-  <div id="view-his" style="display:none"></div>
-
+  <h3>Últimos días</h3>
+  <div class="wk" id="week"></div>
+  <div class="legend"><span>Arriba: móvil</span><span>Medio: luz</span><span>Abajo: salida</span></div>
+  <div class="rule" id="rule"></div>
 </div>
-
-<!-- Modal review semanal -->
-<div class="overlay" id="ov-review">
-  <div class="sheet">
-    <h3>Review de la semana</h3>
-    <div class="subtitle" id="review-week-range"></div>
-    <div class="sheet-field">
-      <label>¿Dónde he estado sólido?</label>
-      <textarea id="rv-solido" placeholder="Lo que ha ido bien, donde he competido bien..."></textarea>
-    </div>
-    <div class="sheet-field">
-      <label>¿Dónde me he vendido barato?</label>
-      <textarea id="rv-vendido" placeholder="Donde me he relajado, evitado incomodidad..."></textarea>
-    </div>
-    <div class="sheet-field">
-      <label>¿Qué patrón me está frenando?</label>
-      <textarea id="rv-patron" placeholder="Qué se repite, qué tengo que romper..."></textarea>
-    </div>
-    <div class="sheet-field">
-      <label>Apuesta para la semana que viene</label>
-      <input type="text" id="rv-bet-text" placeholder="Ej: 5 sesiones de estudio profundo (cal ≥2)">
-      <div class="help">Concreta. Verificable. Difícil pero alcanzable.</div>
-    </div>
-    <div class="sheet-field">
-      <label>Meta numérica</label>
-      <input type="number" id="rv-bet-meta" min="1" max="20" value="5">
-      <div class="help">Cuántas veces tienes que cumplirla en la semana.</div>
-    </div>
-    <div class="sheet-btns">
-      <button class="btn-cancel" id="rv-cancel">Más tarde</button>
-      <button class="btn-save" id="rv-save">Guardar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal apuesta nueva (sin review) -->
-<div class="overlay" id="ov-bet">
-  <div class="sheet">
-    <h3>Apuesta de la semana</h3>
-    <div class="subtitle">Algo concreto. Verificable. Que cueste.</div>
-    <div class="sheet-field">
-      <label>Texto</label>
-      <input type="text" id="bet-input-text" placeholder="Ej: 5 sesiones de estudio profundo (cal ≥2)">
-    </div>
-    <div class="sheet-field">
-      <label>Meta numérica</label>
-      <input type="number" id="bet-input-meta" min="1" max="20" value="5">
-    </div>
-    <div class="sheet-btns">
-      <button class="btn-cancel" id="bet-cancel">Cancelar</button>
-      <button class="btn-save" id="bet-save">Guardar</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-// CONFIG
-// ════════════════════════════════════════════════════════════
-var SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
-var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
+// ═══ CONFIGURACIÓN ══════════════════════════════════════════
+const SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
+const SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 
-var BASE = 20;
+const OBJ = { movil: 90, luz: '23:15', salida: '07:40' }; // minutos de pantalla, hora de luz, hora de salir
+const FESTIVOS = ['2026-10-12', '2026-12-08', '2026-12-25'];
+const TRANSFERENCIA = '1.122 € a Trade Republic: 1.000 al ETF y 122 al colchón';
+const BATIDO = '400 ml de leche, 50 g de avena, 30 g de whey y la creatina';
 
-// Core systems con peso máximo (nuevo sistema 0-100)
-// Mapeos manuales por escala para que la distribución de puntos no sea lineal:
-// estudio: 0/9/17/25 → diferencia clara entre niveles
-// cuerpo: 0/5/10/14
-// orden: 0/4/7/10
-// puntualidad: 0/4/8
-var CORE = [
-  {id:'estudio',     name:'Estudio profundo',  max:25, scale:[0,1,2,3], labels:['Nada','Mediocre','Sólido','Élite'], pts:[0,9,17,25]},
-  {id:'cuerpo',      name:'Cuerpo / entreno',  max:14, scale:[0,1,2,3], labels:['Nada','Mínimo','Completo','Duro'],   pts:[0,5,10,14]},
-  {id:'orden_prep',  name:'Orden + prep mañana', max:10, scale:[0,1,2,3], labels:['Nada','Algo','Sólido','Todo listo'], pts:[0,4,7,10]},
-  {id:'puntualidad', name:'Puntualidad',       max:8,  scale:[0,1,2],   labels:['Tarde','A tiempo','Con margen'],     pts:[0,4,8]}
-];
+// ═══ FECHAS ═════════════════════════════════════════════════
+const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const ds = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const pd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const add = (s,n) => { const d = pd(s); d.setDate(d.getDate()+n); return ds(d); };
+const dow = s => pd(s).getDay();
+const lunes = s => add(s, -((dow(s)+6)%7));
+const diff = (a,b) => Math.round((pd(b)-pd(a))/86400000);
+const q = new URLSearchParams(location.search).get('hoy');       // ?hoy=2026-10-06 para probar
+const HOY = q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? q : ds(new Date());
+const esFestivo = s => FESTIVOS.includes(s);
+const laborable = s => dow(s)>=1 && dow(s)<=5 && !esFestivo(s);
+const primerMartes = s => dow(s)===2 && pd(s).getDate()<=7;
 
-// Sueño se calcula desde sleep_logs (horas reales)
-// 0..18 puntos. Tabla: <5h=0, 6h=8, 7h=14, 7.5h=16, 8h+=18
-function scoreSueno(horas){
-  if(!horas || horas <= 0) return 0;
-  if(horas < 5) return 0;
-  if(horas < 6) return Math.round((horas-5)*8);   // 5→0, 6→8
-  if(horas < 7) return Math.round(8 + (horas-6)*6); // 6→8, 7→14
-  if(horas < 8) return Math.round(14 + (horas-7)*4); // 7→14, 8→18
-  return 18; // tope
-}
+// Horas como minutos. Para la luz, de madrugada cuenta como tarde (00:30 → 24:30).
+const toMin = t => { const [h,m] = t.split(':').map(Number); return h*60+m; };
+const fmt = m => { m = ((m%1440)+1440)%1440; return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); };
+const luzMin = t => { const m = toMin(t); return m < 720 ? m+1440 : m; };
+const fmtMov = m => m==null ? '–' : Math.floor(m/60) ? Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m' : m+' min';
 
-// Móvil: hasta 1.5h = 0, escala lineal hasta 4h = -20
-function scoreMovil(horas){
-  if(!horas || horas <= 1.5) return 0;
-  if(horas >= 4) return -20;
-  return -Math.round((horas - 1.5) / 2.5 * 20);
-}
+// ═══ PLAN SEMANAL ═══════════════════════════════════════════
+// k: trabajo · clase · comida · gym · futbol · estudio · rutina · clave
+// Las tres "clave" son la cadena: salir de casa, registro y luz apagada.
+function plan(s, partido){
+  const d = dow(s), B = partido==='dom', fest = esFestivo(s), it = [];
+  const P = (t,txt,k,sub,extra) => it.push(Object.assign({t,txt,k,sub},extra||{}));
+  const gymFinde = (d===0 && !B) || (d===6 && B);
+  const domTotal = (d===2 || gymFinde) ? 3 : 5;
 
-// ── RACHAS TRONCALES ────────────────────────────────────────
-// Reglas:
-// - Móvil controlado: día se considera "cumplido" si movil_horas > 0 (registrado) Y <= 1.5
-// - Estudio profundo: día se considera "cumplido" si estudio >= 2 (marcado al menos sólido)
-// - Día "registrado" para móvil: movil_horas > 0 (slider tocado)
-// - Día "registrado" para estudio: estudio > 0 (algún botón tocado, incluido 0 si está explícito).
-//   Para distinguir 0 explícito de "no marcado", usamos un trick: si daily existe y tiene fecha
-//   pero estudio===0, lo consideramos no registrado salvo que otra cosa en el daily esté marcada.
-// - Pausa: 1 día sin registro no rompe. 2 días consecutivos sin registro rompen.
-// - Si el día está registrado pero falla el hábito, rompe inmediatamente.
-//
-// Devuelve: {count: número de días en racha, broken: bool si la racha se rompió hoy/ayer}
-
-function dayHasAnyMark(daily){
-  if(!daily) return false;
-  if((daily.movil_horas||0) > 0) return true;
-  if((daily.estudio||0) > 0) return true;
-  if((daily.cuerpo||0) > 0) return true;
-  if((daily.orden_prep||0) > 0) return true;
-  if((daily.puntualidad||0) > 0) return true;
-  // Mantenimiento: si alguno tiene valor distinto de 0 (positivo o negativo) cuenta como marcado
-  for(var i=0;i<MAINT.length;i++){
-    if((daily[MAINT[i].id]||0) !== 0) return true;
+  // Festivo entre semana: día libre, se mantiene el deporte del día y la noche
+  if(fest && d>=1 && d<=5){
+    P('09:00','Levantarse, como muy tarde','rutina','Desayuno tranquilo y 2 series de dominadas');
+    P('10:00','Estudio: inglés','estudio','Hasta las 12:00');
+    P('12:00','Batido + plátano','comida');
+    if(d===2) P('12:30','Gimnasio: tirón y pierna','gym');
+    if(d===5) P('12:30','Gimnasio: empuje','gym');
+    P('14:00','Comida','comida');
+    P('16:00','Estudio: carrera o GEPR','estudio','Hasta las 17:30');
+    P('18:00','Bocadillo','comida');
+    if(d===3 || d===4) P('19:45','Fútbol','futbol','Si hay entreno');
+    P('21:30','Cena','comida');
   }
-  return false;
-}
 
-function dayRegisteredForTrunk(daily, trunkId){
-  // Para móvil: solo cuenta como registrado si el slider se ha movido (>0)
-  // Para estudio: cuenta si estudio>0 O si hay marcas de otras cosas (asumimos que el usuario abrió la app)
-  if(!daily) return false;
-  if(trunkId === 'movil'){
-    return (daily.movil_horas || 0) > 0;
+  // Mañana de lunes a viernes
+  if(d>=1 && d<=5 && !fest){
+    let sub = 'Agua, 2 series de dominadas y sin móvil hasta salir';
+    if(d===2) sub = 'Peso en ayunas'+(primerMartes(s)?', cintura y foto':'')+' · '+sub.toLowerCase();
+    P('06:55','Levantarse','rutina',sub);
+    P('07:00','Desayuno','comida');
+    P('07:35','A la mochila: batido de la nevera y bocadillo del congelador','rutina');
+    P('07:40','Salir de casa','clave','Si sales a esta hora, llegas',{cadena:'salida'});
+    P('08:15','Trabajo hasta las 14:15','trabajo','El batido, a la nevera de la oficina');
+    P('11:00', d===5 && !B ? 'Batido + yogur o un segundo plátano' : 'Batido + plátano','comida', d===5 && !B ? 'Hoy la comida es ligera, así que la media mañana va más cargada' : null);
   }
-  if(trunkId === 'estudio'){
-    // Si el usuario tocó algo del día pero no el estudio, consideramos que estudio=0 implícito
-    // y por tanto NO cumple. Para evitar trampa de "no marco estudio para no romper".
-    return dayHasAnyMark(daily);
-  }
-  return false;
-}
 
-function dayPassesTrunk(daily, sleep, trunkId){
-  if(!daily) return false;
-  if(trunkId === 'movil'){
-    var h = daily.movil_horas || 0;
-    return h > 0 && h <= 1.5;
+  // Lo propio de cada día
+  if(fest && d>=1 && d<=5){ /* ya está arriba */ }
+  else if(d===1){
+    P('13:45','Comida en el trabajo','comida','Táper; alargas la jornada media hora');
+    P('15:00','Clase hasta las 21:00','clase');
+    P('18:00','Bocadillo en el descanso','comida');
+    P('21:30','Cena','comida','Carne a la plancha + guarnición de la nevera');
   }
-  if(trunkId === 'estudio'){
-    return (daily.estudio || 0) >= 2;
+  else if(d===2){
+    P('14:30','Comida en el gimnasio','comida');
+    P('15:00','Gimnasio: tirón y pierna','gym');
+    P('16:30','Bocadillo','comida');
+    P('17:00','Estudio: electrónica de potencia','estudio','Hasta las 19:00');
+    P('19:00','Tanda de cocina mientras cenas','comida','40 min · la ración del sábado, al congelador');
+    P('20:30','Inglés','estudio','45 min');
   }
-  return false;
-}
-
-// Calcular racha actual de un hábito troncal
-// Recorre hacia atrás desde hoy. Permite 1 día de pausa. 2 consecutivos sin registro rompen.
-function computeTrunkStreak(trunkId){
-  var count = 0;
-  var consecutiveUnregistered = 0;
-  var broken = false;
-  // Recorrer desde hoy hacia atrás, hasta 60 días máximo
-  for(var i=0;i<60;i++){
-    var d = new Date(today);
-    d.setDate(today.getDate() - i);
-    var k = dateKey(d);
-    var daily = dailyCache[k];
-    var registered = dayRegisteredForTrunk(daily, trunkId);
-    if(!registered){
-      consecutiveUnregistered++;
-      if(consecutiveUnregistered >= 2){
-        // 2 días seguidos sin registro -> racha rota
-        break;
-      }
-      // 1 día sin registro -> pausa, no rompe, sigue contando atrás
-      continue;
-    }
-    // Día registrado
-    consecutiveUnregistered = 0;
-    if(dayPassesTrunk(daily, sleepCache[k], trunkId)){
-      count++;
+  else if(d===3){
+    P('13:45','Comida en el trabajo','comida');
+    P('15:00','Clase hasta las 19:00','clase');
+    P('18:00','Bocadillo','comida');
+    P('19:45','Fútbol','futbol');
+    P('21:45','Cena','comida');
+  }
+  else if(d===4){
+    P('13:45','Comida ligera en el trabajo','comida','Hoy no toca plato: a las 15:00 hay futsal');
+    P('15:00','Futsal','futbol');
+    P('16:30','Comida de verdad','comida','El segundo táper');
+    if(!B){
+      P('17:15','Estudio: carrera o GEPR','estudio','Hasta las 19:00');
+      P('18:30','Bocadillo','comida');
+      P('19:45','Fútbol','futbol');
+      P('21:45','Cena','comida');
     } else {
-      // Día registrado y falla -> racha rota
-      break;
+      P('18:00','Gimnasio: empuje','gym','Esta semana el entreno de fútbol pasa al viernes');
+      P('19:30','Bocadillo al salir','comida');
+      P('21:00','Cena','comida');
     }
   }
-  return { count: count, broken: false };
-}
-
-// Detectar si la racha se rompió "recientemente" (hoy o ayer) para mostrar
-// el mensaje "empieza de nuevo" durante 24h.
-// Devuelve true si:
-//   - hoy hay registro y falla
-//   - ayer hubo registro y falla, y hoy aún no se ha registrado nada
-function trunkBrokenRecently(trunkId){
-  var todayKey = dateKey(today);
-  var todayDaily = dailyCache[todayKey];
-  if(todayDaily && dayRegisteredForTrunk(todayDaily, trunkId) && !dayPassesTrunk(todayDaily, sleepCache[todayKey], trunkId)){
-    return true;
-  }
-  // Ayer
-  var y = new Date(today); y.setDate(today.getDate()-1);
-  var yKey = dateKey(y);
-  var yDaily = dailyCache[yKey];
-  if(yDaily && dayRegisteredForTrunk(yDaily, trunkId) && !dayPassesTrunk(yDaily, sleepCache[yKey], trunkId)){
-    // Sólo mostramos "empieza de nuevo" si hoy aún no hay registro positivo
-    if(!todayDaily || !dayPassesTrunk(todayDaily, sleepCache[todayKey], trunkId)){
-      return true;
+  else if(d===5){
+    if(!B){
+      P('14:30','Comida ligera','comida','En 45 minutos hay gimnasio');
+      P('15:15','Gimnasio: empuje','gym');
+      P('16:40','Bocadillo de camino','comida');
+      P('17:00','Clase hasta las 19:00','clase');
+      P('19:45','Cena grande','comida','Hoy es la comida fuerte del día');
+      P('21:00','Noche libre','rutina');
+    } else {
+      P('14:30','Comida','comida');
+      P('15:15','Estudio: carrera o GEPR','estudio','Hasta las 16:45, en el hueco del gimnasio');
+      P('17:00','Clase hasta las 19:00','clase');
+      P('19:00','Bocadillo al salir','comida');
+      P('19:45','Fútbol','futbol');
+      P('21:45','Cena','comida');
     }
   }
-  return false;
-}
-
-// Calcular "X de los últimos 7 días" para mostrar en cada core card
-function lastNFrequency(coreId, threshold, n){
-  var ok = 0, registered = 0;
-  for(var i=0;i<n;i++){
-    var d = new Date(today);
-    d.setDate(today.getDate() - i);
-    var k = dateKey(d);
-    var daily = dailyCache[k];
-    if(!daily) continue;
-    var v = daily[coreId] || 0;
-    if(v > 0 || dayHasAnyMark(daily)){ registered++; }
-    if(v >= threshold) ok++;
+  if(d===6){
+    if(!B){
+      P('09:00','Levantarse, como muy tarde','rutina','Desayuno de tortitas');
+      P('10:00','Estudio: inglés','estudio','Hasta las 12:30');
+      P('12:30','Compra de la semana','rutina');
+      P('13:30','Comida','comida','Casi tres horas antes de la convocatoria');
+      P('15:30','Merienda ligera','comida');
+      P('16:15','Convocatoria','futbol','Partido a las 18:45');
+      P('21:00','Cena al volver','comida');
+    } else {
+      P('09:00','Levantarse, como muy tarde','rutina','Desayuno de tortitas');
+      P('09:30','Estudio: inglés','estudio','Hasta las 11:00');
+      P('11:00','Gimnasio: mixto','gym');
+      P('13:00','Compra de la semana y pan','rutina');
+      P('14:00','Comida','comida');
+      P('16:30','Inglés','estudio','Hasta las 18:00');
+      P('18:00','Tanda grande','comida','Táperes y cinco bocadillos al congelador · 90 min');
+      P('19:45','Cena','comida');
+      P('20:30','Finanzas: cerrar la semana','rutina','10 min');
+    }
   }
-  return { ok: ok, total: n };
-}
-
-// Mantenimiento: tres estados (sin marcar=0, hecho=+1, no hecho=-1). Suma a la base.
-var MAINT = [
-  {id:'m_suplementos', name:'Suplementos'},
-  {id:'m_dientes',     name:'Dientes'},
-  {id:'m_leer',        name:'Leer 10min'},
-  {id:'m_desayuno',    name:'Desayuno'},
-  {id:'m_italiano',    name:'Lezione Italiano'}
-];
-
-// Hábitos troncales — rachas de días consecutivos
-// Tabaco eliminado del sistema (superado).
-var TRUNK = [
-  {id:'movil', name:'Móvil controlado', desc:'≤1h30 al día'},
-  {id:'estudio', name:'Estudio profundo', desc:'calidad ≥2'}
-];
-
-// ════════════════════════════════════════════════════════════
-// ESTADO
-// ════════════════════════════════════════════════════════════
-var DAYS_LABEL = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
-var today = new Date();
-var currentDow = today.getDay();
-var currentTab = 'hoy';
-var dailyCache = {};   // {dateStr: row}
-var sleepCache = {};   // {dateStr: row}
-var betsCache = {};    // {weekStart: row}
-var reviewsCache = {}; // {weekStart: row}
-var historyDays = [];  // últimos 60+ días para histórico
-var weekDays = [];
-var weekOffset = 0;    // 0 = semana actual, -1 = anterior, etc.
-
-// Límite de días atrás para edición retrospectiva
-var MAX_DAYS_BACK = 7;
-
-// Para el selector de fecha en la pestaña Sueño
-var sleepEditDate = null; // dateStr o null para hoy
-
-var selectedHours = 7.5;
-var selectedQuality = 3;
-
-// ════════════════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════════════════
-function setSync(s){ document.getElementById('sync-dot').className = 'sync-dot ' + s; }
-// dateKey usa HORA LOCAL (no UTC) para evitar desfases de zona horaria.
-// toISOString convierte a UTC, lo que en España (UTC+1/+2) produce el día anterior
-// si la hora local está entre 00:00 y 01:00 o 02:00.
-function dateKey(d){
-  var y = d.getFullYear();
-  var m = String(d.getMonth() + 1).padStart(2, '0');
-  var dd = String(d.getDate()).padStart(2, '0');
-  return y + '-' + m + '-' + dd;
-}
-// Construye un Date a partir de un string 'YYYY-MM-DD' interpretándolo como hora LOCAL al mediodía.
-// Esto garantiza que getDate(), getMonth(), getDay() devuelvan el día correcto sin
-// ambigüedad por zona horaria.
-function parseLocalDate(str){
-  var parts = str.split('-');
-  return new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10), 12, 0, 0);
-}
-function getDateForDow(dow){
-  // Devuelve la fecha de un día específico (0=dom..6=sab) en la semana navegada actualmente.
-  // Calculamos desde el LUNES de la semana navegada para evitar ambigüedad con el domingo.
-  var monday = weekStart(today);
-  monday.setDate(monday.getDate() + 7*weekOffset);
-  // Mapeo: lun=1, mar=2, mie=3, jue=4, vie=5, sab=6, dom=0(→7)
-  var offsetFromMonday = dow === 0 ? 6 : dow - 1;
-  var d = new Date(monday);
-  d.setDate(monday.getDate() + offsetFromMonday);
-  return d;
-}
-function weekStart(d){
-  // Lunes como inicio (ISO)
-  var x = new Date(d);
-  var dow = x.getDay();
-  var diff = (dow + 6) % 7;
-  x.setDate(x.getDate() - diff);
-  x.setHours(0,0,0,0);
-  return x;
-}
-function weekStartKey(d){ return dateKey(weekStart(d)); }
-function fmtHours(h){
-  var hrs = Math.floor(h);
-  var mins = Math.round((h - hrs) * 60);
-  return mins === 0 ? hrs + 'h' : hrs + "h" + String(mins).padStart(2,'0');
-}
-function getWeekDays(){
-  var monday = weekStart(today);
-  var arr = [];
-  for(var i=0;i<7;i++){
-    var d = new Date(monday);
-    d.setDate(monday.getDate()+i);
-    arr.push(d);
+  if(d===0){
+    if(!B){
+      P('09:00','Levantarse, como muy tarde','rutina','Comprar el pan de los bocadillos');
+      P('11:00','Gimnasio: mixto','gym');
+      P('14:00','Comida','comida');
+      P('16:00','Estudio: inglés','estudio','Hasta las 17:45. La tarde del domingo tiene dueño');
+      P('17:45','Finanzas: cerrar la semana','rutina','10 min');
+      P('18:00','Tanda grande','comida','Táperes y cinco bocadillos al congelador · 90 min');
+      P('19:45','Cena','comida');
+      P('20:30','Ritual ampliado','rutina','Batido, táper del lunes y ropa: mañana es el día largo');
+    } else {
+      P('09:00','Levantarse, como muy tarde','rutina');
+      P('09:30','Antes de nada: lo del lunes listo','rutina','Batido, táper y ropa. Vuelves reventado');
+      P('10:00','Estudio: carrera o GEPR','estudio','Hasta las 12:00');
+      P('12:30','Comida','comida','Unas tres horas antes del partido');
+      P('13:30','Bus de ida: inglés de oído','estudio','Podcast, serie o audiolibro. No Instagram');
+      P('16:30','Partido','futbol','La hora cambia según el campo');
+      P('18:30','Bus de vuelta: inglés de oído','estudio');
+      P('21:00','Cena al llegar','comida');
+    }
   }
-  return arr;
-}
-// Días de una semana arbitraria (con offset respecto a la actual).
-function getWeekDaysWithOffset(offset){
-  var monday = weekStart(today);
-  monday.setDate(monday.getDate() + 7*offset);
-  var arr = [];
-  for(var i=0;i<7;i++){
-    var d = new Date(monday);
-    d.setDate(monday.getDate()+i);
-    arr.push(d);
+
+  // Noche
+  const mañanaTrabajo = d>=0 && d<=4;
+  if(mañanaTrabajo){
+    P('22:20','Ducha','rutina');
+    const ritualHecho = d===0; // domingo: ampliado a las 20:30 (A) o por la mañana (B)
+    if(!ritualHecho){
+      P('22:35','Ritual de la noche','rutina', 'Batido de mañana ('+BATIDO+'), plátano, '+(d===3?'los dos táperes del jueves':'táper si toca')+', ropa y móvil a cargar fuera');
+    }
   }
-  return arr;
-}
-// ¿Es una fecha editable? Hoy y los últimos MAX_DAYS_BACK días.
-// Días futuros no editables tampoco.
-function isDateEditable(d){
-  var todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0);
-  var dMid = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
-  var diff = Math.round((todayMid - dMid) / 86400000);
-  return diff >= 0 && diff <= MAX_DAYS_BACK;
-}
-function dowFromMonday(jsDow){ return (jsDow + 6) % 7; } // 0=lun..6=dom
+  P('22:50','Dominadas: completar las '+domTotal+' de hoy','gym','Con los 5 minutos de movilidad');
+  P('23:00','Registro del día','clave','Aquí abajo, en veinte segundos',{cadena:'registro'});
+  P('23:05','Journaling y lectura','rutina');
+  if(mañanaTrabajo) P('23:15','Luz apagada','clave','El primer eslabón de mañana',{cadena:'luz'});
 
-// ════════════════════════════════════════════════════════════
-// SUPABASE
-// ════════════════════════════════════════════════════════════
-function sb(method, path, body){
-  return fetch(SB_URL+'/rest/v1/'+path, {
-    method: method,
-    headers: {
-      'apikey': SB_KEY, 'Authorization':'Bearer '+SB_KEY,
-      'Content-Type':'application/json',
-      'Prefer': method==='POST' ? 'return=representation,resolution=merge-duplicates'
-              : method==='PATCH' ? 'return=representation' : ''
-    },
-    body: body ? JSON.stringify(body) : undefined
-  }).then(function(r){ return r.status===204 ? null : r.json(); });
+  return it.sort((a,b) => toMin(a.t)-toMin(b.t));
 }
 
-function loadDaily(dates){
-  return sb('GET','daily_logs?date=in.('+dates.join(',')+')&select=*')
-    .then(function(rows){
-      if(Array.isArray(rows)) rows.forEach(function(r){ dailyCache[r.date] = r; });
-    }).catch(function(){});
+// Lo que va por calendario, sin hora fija
+function tambien(s){
+  const out = [], dd = pd(s).getDate();
+  if(dd===1) out.push('Transferir '+TRANSFERENCIA);
+  if(dd===2) out.push('Comprobar que la aportación al ETF se ha ejecutado');
+  const t = ultimoTest();
+  if(t && s>=HOY && add(t,14)<=s && s===HOY) out.push('Toca test de dominadas: una serie al fallo, en frío');
+  return out;
 }
 
-function loadSleep(dates){
-  return sb('GET','sleep_logs?date=in.('+dates.join(',')+')&select=*')
-    .then(function(rows){
-      if(Array.isArray(rows)) rows.forEach(function(r){ sleepCache[r.date] = r; });
-    }).catch(function(){});
-}
+// ═══ DATOS ══════════════════════════════════════════════════
+const st = { days:{}, weeks:{}, tests:[], sel:HOY, editing:false, draft:null };
 
-function loadBets(){
-  // Cargamos las últimas 12 semanas
-  return sb('GET','weekly_bets?order=week_start.desc&limit=12&select=*')
-    .then(function(rows){
-      if(Array.isArray(rows)) rows.forEach(function(r){ betsCache[r.week_start] = r; });
-    }).catch(function(){});
+function setSync(c){ document.getElementById('sync').className = 'dot '+c; }
+function sb(method, path, body, prefer){
+  const h = { apikey:SB_KEY, Authorization:'Bearer '+SB_KEY, 'Content-Type':'application/json' };
+  if(prefer) h.Prefer = prefer;
+  return fetch(SB_URL+'/rest/v1/'+path, { method, headers:h, body: body ? JSON.stringify(body) : undefined })
+    .then(r => r.ok ? r.text().then(t => t ? JSON.parse(t) : null) : r.text().then(t => { throw new Error(r.status+' '+t); }));
 }
+const upsert = (table, conflict, row) => sb('POST', table+'?on_conflict='+conflict, row, 'return=representation,resolution=merge-duplicates');
 
-function loadReviews(){
-  return sb('GET','weekly_reviews?order=week_start.desc&limit=12&select=*')
-    .then(function(rows){
-      if(Array.isArray(rows)) rows.forEach(function(r){ reviewsCache[r.week_start] = r; });
-    }).catch(function(){});
-}
-
-function saveDaily(dateStr, partial){
+async function cargar(){
   setSync('syncing');
-  var existing = dailyCache[dateStr] || { date: dateStr };
-  var merged = Object.assign({}, existing, partial, { date: dateStr });
-  // Recalcular score
-  merged.score_total = computeScore(merged, sleepCache[dateStr]);
-  return sb('POST','daily_logs', merged)
-    .then(function(res){
-      var r = Array.isArray(res) ? res[0] : res;
-      if(r) dailyCache[dateStr] = r;
-      else dailyCache[dateStr] = merged;
-      setSync('ok');
-    }).catch(function(){ setSync('err'); showToast('Error de conexión'); });
+  try{
+    const desde = add(HOY,-70);
+    const [days, weeks, tests] = await Promise.all([
+      sb('GET','tracker_days?select=*&date=gte.'+desde),
+      sb('GET','tracker_weeks?select=*&week_start=gte.'+add(lunes(HOY),-28)),
+      sb('GET','pullup_tests?select=date&order=date.desc&limit=1').catch(() => [])
+    ]);
+    (days||[]).forEach(r => st.days[r.date] = r);
+    (weeks||[]).forEach(r => st.weeks[r.week_start] = r.match_day);
+    st.tests = tests || [];
+    setSync('ok');
+  }catch(e){ console.error(e); setSync('err'); toast('No carga. Revisa la conexión'); }
+}
+const ultimoTest = () => st.tests.length ? st.tests[0].date : null;
+const partidoDe = s => st.weeks[lunes(s)] || 'sab';
+
+// ═══ CUMPLIMIENTO ═══════════════════════════════════════════
+function objetivoLuz(s){ return dow(s)>=1 && dow(s)<=5 ? OBJ.luz : null; } // la noche antes de un día laborable
+function estado(s){
+  const r = st.days[s];
+  const res = { movil:'none', luz:'none', salida: laborable(s) ? 'none' : 'na' };
+  if(!r) return res;
+  if(r.screen_min!=null) res.movil = r.screen_min <= OBJ.movil ? 'ok' : 'bad';
+  if(r.lights_off){ const o = objetivoLuz(s); res.luz = !o ? 'neu' : (luzMin(r.lights_off) <= luzMin(o) ? 'ok' : 'bad'); }
+  if(res.salida!=='na' && r.left_home) res.salida = toMin(r.left_home) <= toMin(OBJ.salida) ? 'ok' : 'bad';
+  return res;
+}
+const registrado = s => { const r = st.days[s]; return !!(r && r.screen_min!=null && r.lights_off); };
+
+// ═══ PINTAR ═════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const esc = t => String(t).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+function pintar(){
+  const s = st.sel, d = pd(s);
+  $('dlbl').textContent = DIAS[d.getDay()].replace(/^./, c => c.toUpperCase())+' '+d.getDate()+' de '+MESES[d.getMonth()];
+  const n = diff(HOY, s);
+  $('drel').textContent = n===0 ? 'Hoy' : n===1 ? 'Mañana' : n===-1 ? 'Ayer' : n>0 ? 'Dentro de '+n+' días' : 'Hace '+(-n)+' días';
+
+  const m = partidoDe(s);
+  [...$('match').children].forEach(b => b.classList.toggle('on', b.dataset.m===m));
+
+  // Avisos
+  let ban = '';
+  if(esFestivo(s)) ban += '<div class="banner"><b>Festivo.</b> Ni trabajo ni clase. Es un día sin estructura: el que más se parece a un domingo en Enschede.</div>';
+  tambien(s).forEach(t => ban += '<div class="banner also"><b>Hoy también:</b> '+esc(t)+'</div>');
+  $('banners').innerHTML = ban;
+
+  // Agenda
+  const items = plan(s, m);
+  let ahora = -1;
+  if(s===HOY){
+    const now = new Date(), nm = now.getHours()*60+now.getMinutes();
+    items.forEach((x,i) => { if(toMin(x.t) <= nm) ahora = i; });
+  }
+  $('agenda').innerHTML = items.map((x,i) => {
+    const cls = ['it'];
+    if(x.k==='clave') cls.push('key');
+    if(s===HOY && i<ahora) cls.push('past');
+    if(s===HOY && i===ahora) cls.push('now');
+    if(s<HOY) cls.push('past');
+    const tag = s===HOY && i===ahora ? '<span class="tag">Ahora</span>' : s===HOY && i===ahora+1 ? '<span class="tag next">Luego</span>' : '';
+    return '<div class="'+cls.join(' ')+'"><span class="tm">'+x.t+'</span><span class="bar" style="background:var(--k-'+x.k+')"></span>'+
+      '<span class="tx">'+esc(x.txt)+tag+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+'</span></div>';
+  }).join('');
+
+  // Registro: arriba por la noche o si miras un día pasado; abajo el resto del día
+  const puede = s<=HOY && diff(s,HOY)<=3;
+  const tarde = s<HOY || new Date().getHours()>=21;
+  $('regTop').innerHTML = ''; $('regBottom').innerHTML = '';
+  if(puede) (tarde ? $('regTop') : $('regBottom')).appendChild(tarjetaRegistro(s));
+
+  pintarSemana();
 }
 
-function saveSleep(dateStr, hours, quality, note){
-  setSync('syncing');
-  var body = { date: dateStr, hours: hours, quality: quality, note: note || '' };
-  return sb('POST','sleep_logs', body)
-    .then(function(res){
-      var r = Array.isArray(res) ? res[0] : res;
-      if(r) sleepCache[dateStr] = r;
-      // Si el sueño afecta el score del día siguiente, lo recalculamos
-      // (en realidad afecta el score del día del log, asumimos que las horas se reportan al día siguiente)
-      if(dailyCache[dateStr]){
-        dailyCache[dateStr].score_total = computeScore(dailyCache[dateStr], r);
-        sb('POST','daily_logs', dailyCache[dateStr]).catch(function(){});
-      }
-      setSync('ok');
-    }).catch(function(){ setSync('err'); });
-}
+function tarjetaRegistro(s){
+  const r = st.days[s], c = document.createElement('div');
+  c.className = 'card';
+  const yaHecho = registrado(s) && !st.editing;
+  const titulo = s===HOY ? 'Registro de hoy' : 'Registro del '+pd(s).getDate()+' de '+MESES[pd(s).getMonth()];
 
-function saveBet(weekKey, texto, meta){
-  setSync('syncing');
-  var body = { week_start: weekKey, texto: texto, meta_objetivo: meta, meta_progreso: 0 };
-  return sb('POST','weekly_bets', body)
-    .then(function(res){
-      var r = Array.isArray(res) ? res[0] : res;
-      if(r) betsCache[weekKey] = r;
-      setSync('ok');
-    }).catch(function(){ setSync('err'); });
-}
+  if(yaHecho){
+    const e = estado(s);
+    const celda = (l, v, k) => '<div class="c"><div class="l">'+l+'</div><div class="n '+(k==='ok'?'ok-t':k==='bad'?'bad-t':'neu-t')+'">'+v+'</div></div>';
+    c.innerHTML = '<div class="ct"><b>'+titulo+'</b><span>Hecho</span></div>'+
+      '<div class="chainnote">Móvil → luz → salida. Si falla uno, mira el de antes.</div>'+
+      '<div class="done">'+
+        celda('Móvil', fmtMov(r.screen_min), e.movil)+
+        celda('Luz', r.lights_off || '–', e.luz)+
+        (e.salida==='na' ? '' : celda('Salida', r.left_home || '–', e.salida))+
+      '</div><button class="link" id="edit">Corregir</button>';
+    c.querySelector('#edit').onclick = () => { st.editing = true; st.draft = null; pintar(); };
+    return c;
+  }
 
-function updateBetProgress(weekKey, delta){
-  var bet = betsCache[weekKey];
-  if(!bet) return Promise.resolve();
-  var newProgress = Math.max(0, Math.min(bet.meta_objetivo, bet.meta_progreso + delta));
-  bet.meta_progreso = newProgress;
-  return sb('PATCH','weekly_bets?week_start=eq.'+weekKey, { meta_progreso: newProgress })
-    .then(function(){ setSync('ok'); });
-}
+  // Borrador. Si el día no tiene registro, arranca con lo último que apuntaste en un día del mismo tipo
+  // (no con el objetivo), para que dejarlo tal cual no sea un acierto gratis.
+  if(!st.draft || st.draft.s!==s){
+    const o = objetivoLuz(s);
+    const previo = campo => { for(let i=1;i<=14;i++){ const p = add(s,-i), x = st.days[p]; if(x && x[campo] && (campo==='left_home' || !!objetivoLuz(p)===!!o)) return x[campo]; } return null; };
+    st.draft = {
+      s,
+      h: r && r.screen_min!=null ? Math.floor(r.screen_min/60) : '',
+      mi: r && r.screen_min!=null ? r.screen_min%60 : '',
+      luz: luzMin((r && r.lights_off) || previo('lights_off') || o || '00:00'),
+      sal: toMin((r && r.left_home) || previo('left_home') || OBJ.salida)
+    };
+  }
+  const D = st.draft, conSalida = laborable(s), oLuz = objetivoLuz(s);
 
-function saveReview(weekKey, solido, vendido, patron, mediaScore){
-  setSync('syncing');
-  var body = {
-    week_start: weekKey,
-    donde_solido: solido,
-    donde_vendido: vendido,
-    patron_que_frena: patron,
-    media_score: mediaScore
+  c.innerHTML = '<div class="ct"><b>'+titulo+'</b><span>Una vez al día</span></div>'+
+    '<div class="chainnote">Las tres cosas son la misma cadena: móvil por la noche → luz tarde → salir tarde.</div>'+
+    '<div class="row"><div class="q"><span>Móvil hoy, según Tiempo de uso</span><em id="vm"></em></div>'+
+      '<div class="hm"><input id="ih" inputmode="numeric" pattern="[0-9]*" placeholder="0"><span class="u">h</span>'+
+      '<input id="im" inputmode="numeric" pattern="[0-9]*" placeholder="0"><span class="u">min</span></div></div>'+
+    '<div class="row"><div class="q"><span>Anoche apagaste la luz a las</span><em id="vl"></em></div>'+
+      '<div class="step"><button id="lmenos">−</button><div class="v" id="lv"></div><button id="lmas">+</button></div></div>'+
+    (conSalida ? '<div class="row"><div class="q"><span>Hoy saliste de casa a las</span><em id="vs"></em></div>'+
+      '<div class="step"><button id="smenos">−</button><div class="v" id="sv"></div><button id="smas">+</button></div></div>' : '')+
+    '<button class="save" id="guardar">Guardar</button>';
+
+  const ih = c.querySelector('#ih'), im = c.querySelector('#im');
+  ih.value = D.h; im.value = D.mi;
+  const movil = () => { const h = parseInt(ih.value,10), m = parseInt(im.value,10); if(isNaN(h) && isNaN(m)) return null; return (isNaN(h)?0:h)*60 + (isNaN(m)?0:m); };
+  const verd = (el, ok, txtOk, txtBad) => { el.textContent = ok==null ? '' : ok ? txtOk : txtBad; el.className = ok==null ? 'neu-t' : ok ? 'ok-t' : 'bad-t'; };
+  const refrescar = () => {
+    D.h = ih.value; D.mi = im.value;
+    const mv = movil();
+    verd(c.querySelector('#vm'), mv==null ? null : mv <= OBJ.movil, 'Dentro', 'Por encima de 1 h 30');
+    c.querySelector('#lv').textContent = fmt(D.luz);
+    if(oLuz) verd(c.querySelector('#vl'), D.luz <= luzMin(oLuz), 'A tiempo', 'Tarde'); else { const e = c.querySelector('#vl'); e.textContent = 'Fin de semana'; e.className = 'neu-t'; }
+    if(conSalida){
+      c.querySelector('#sv').textContent = fmt(D.sal);
+      verd(c.querySelector('#vs'), D.sal <= toMin(OBJ.salida), 'A tiempo', 'Tarde');
+    }
+    c.querySelector('#guardar').disabled = mv==null;
   };
-  return sb('POST','weekly_reviews', body)
-    .then(function(res){
-      var r = Array.isArray(res) ? res[0] : res;
-      if(r) reviewsCache[weekKey] = r;
-      setSync('ok');
-    }).catch(function(){ setSync('err'); });
+  ih.oninput = refrescar; im.oninput = refrescar;
+  [ih, im].forEach(i => i.onfocus = () => i.select());
+  const paso = (id, campo, delta, min, max) => c.querySelector(id).onclick = () => { D[campo] = Math.min(max, Math.max(min, D[campo]+delta)); refrescar(); };
+  paso('#lmenos','luz',-5, 20*60, 27*60); paso('#lmas','luz',5, 20*60, 27*60);
+  if(conSalida){ paso('#smenos','sal',-5, 6*60, 10*60); paso('#smas','sal',5, 6*60, 10*60); }
+  c.querySelector('#guardar').onclick = () => guardar(s, movil(), fmt(D.luz), conSalida ? fmt(D.sal) : null);
+  refrescar();
+  return c;
 }
 
-// ════════════════════════════════════════════════════════════
-// SCORING
-// ════════════════════════════════════════════════════════════
-function computeScore(daily, sleep){
-  if(!daily) return 0;
-  // Base + mantenimiento (suma a la base, ±1 por hábito, max ±5)
-  var maintSum = 0;
-  MAINT.forEach(function(m){
-    var v = daily[m.id] || 0;
-    maintSum += (v > 0 ? 1 : v < 0 ? -1 : 0);
-  });
-  var s = BASE + maintSum; // rango 15..25
-  // Core systems con mapeo por puntos manual
-  CORE.forEach(function(c){
-    var v = daily[c.id] || 0;
-    var idx = c.scale.indexOf(v);
-    if(idx >= 0) s += c.pts[idx];
-  });
-  // Sueño (curva existente)
-  if(sleep && sleep.hours) s += scoreSueno(sleep.hours);
-  // Móvil (penalización)
-  s += scoreMovil(daily.movil_horas || 0);
-  // Clampear: mínimo 0, máximo 100
-  if(s < 0) s = 0;
-  if(s > 100) s = 100;
-  return s;
+async function guardar(s, mv, luz, sal){
+  const row = { date:s, screen_min:mv, lights_off:luz, left_home:sal, updated_at:new Date().toISOString() };
+  st.days[s] = row; st.editing = false; st.draft = null;
+  pintar(); toast('Registrado');
+  setSync('syncing');
+  try{ await upsert('tracker_days','date',row); setSync('ok'); }
+  catch(e){ console.error(e); setSync('err'); toast('No se ha guardado. Inténtalo otra vez'); }
 }
 
-function maxPossible(){ return 100; }
-
-function scoreClass(score){
-  if(score >= 70) return 's-hi';
-  if(score >= 40) return 's-mid';
-  return 's-lo';
+async function cambiarPartido(m){
+  const w = lunes(st.sel);
+  st.weeks[w] = m; pintar();
+  setSync('syncing');
+  try{ await upsert('tracker_weeks','week_start',{ week_start:w, match_day:m }); setSync('ok'); toast(m==='dom' ? 'Semana con partido el domingo' : 'Semana con partido el sábado'); }
+  catch(e){ console.error(e); setSync('err'); toast('No se ha guardado'); }
 }
 
-// ════════════════════════════════════════════════════════════
-// MEDIAS / COMPARATIVAS
-// ════════════════════════════════════════════════════════════
-function avgLastNDays(n, endDate){
-  endDate = endDate || today;
-  var sum = 0, count = 0;
-  for(var i=0;i<n;i++){
-    var d = new Date(endDate);
-    d.setDate(endDate.getDate() - i);
-    var k = dateKey(d);
-    if(dailyCache[k]){
-      sum += dailyCache[k].score_total || 0;
-      count++;
-    }
+function pintarSemana(){
+  const fin = st.sel > HOY ? HOY : st.sel;
+  let h = '';
+  for(let i=6; i>=0; i--){
+    const s = add(fin,-i), e = estado(s), d = pd(s);
+    const dot = k => '<i class="'+(['ok','bad','na','neu'].includes(k)?k:'')+'"></i>';
+    h += '<div class="wd'+(s===st.sel?' sel':'')+'" data-s="'+s+'"><div class="l">'+DIAS[d.getDay()].slice(0,3)+'</div><div class="n">'+d.getDate()+'</div>'+
+      '<div class="ds">'+dot(e.movil)+dot(e.luz)+dot(e.salida)+'</div></div>';
   }
-  return count > 0 ? sum / count : null;
+  $('week').innerHTML = h;
+  [...$('week').children].forEach(x => x.onclick = () => { st.sel = x.dataset.s; st.editing = false; st.draft = null; pintar(); });
+
+  // Regla para añadir el siguiente hábito: 4 semanas seguidas registrando 6 de 7 días
+  const semActual = lunes(HOY);
+  let racha = 0;
+  for(let w = add(semActual,-7); ; w = add(w,-7)){
+    let n = 0; for(let i=0;i<7;i++) if(registrado(add(w,i))) n++;
+    if(n>=6) racha++; else break;
+    if(racha>=8) break;
+  }
+  let esta = 0; for(let i=0;i<7;i++){ const s = add(semActual,i); if(s<=HOY && registrado(s)) esta++; }
+  const prog = Math.min(racha,4);
+  $('rule').innerHTML = 'Esta semana llevas <b>'+esta+' de 7</b> días registrados. '+
+    (prog>=4 ? '<b>Cuatro semanas seguidas con 6 de 7: toca añadir el siguiente hábito.</b>'
+             : 'Semanas seguidas con 6 de 7: <b>'+prog+' de 4</b>. Cuando llegues a cuatro, entra el siguiente hábito. Cuenta registrar, no acertar.')+
+    '<div class="prog">'+[0,1,2,3].map(i => '<i class="'+(i<prog?'on':'')+'"></i>').join('')+'</div>';
 }
 
-function avgWeek(weeksAgo){
-  // weeksAgo=0 -> esta semana; 1 -> pasada; etc
-  var monday = weekStart(today);
-  monday.setDate(monday.getDate() - 7*weeksAgo);
-  var sum = 0, count = 0;
-  for(var i=0;i<7;i++){
-    var d = new Date(monday);
-    d.setDate(monday.getDate()+i);
-    if(d > today) break;
-    var k = dateKey(d);
-    if(dailyCache[k]){
-      sum += dailyCache[k].score_total || 0;
-      count++;
-    }
-  }
-  return count > 0 ? sum / count : null;
-}
-
-// ════════════════════════════════════════════════════════════
-// RENDER HOY
-// ════════════════════════════════════════════════════════════
-function renderStreaks(){
-  var bar = document.getElementById('streaks-bar');
-  if(!bar) return;
-  bar.innerHTML = '';
-  TRUNK.forEach(function(t){
-    var streak = computeTrunkStreak(t.id);
-    var brokenRecently = trunkBrokenRecently(t.id);
-    var alive = streak.count > 0;
-    var card = document.createElement('div');
-    var cls = 'streak-card';
-    if(alive) cls += ' alive';
-    else if(brokenRecently) cls += ' broken';
-    else cls += ' zero';
-    card.className = cls;
-
-    var subText = '';
-    if(brokenRecently && streak.count === 0){
-      subText = 'Empieza de nuevo';
-    } else {
-      subText = t.desc;
-    }
-
-    card.innerHTML =
-      '<div class="streak-name">' + t.name + '</div>' +
-      '<div><span class="streak-count">' + streak.count + '</span><span class="streak-unit">días</span></div>' +
-      '<div class="streak-sub">' + subText + '</div>';
-    bar.appendChild(card);
-  });
-}
-
-function renderHero(){
-  var todayKey = dateKey(today);
-  var todayDaily = dailyCache[todayKey];
-  var score = todayDaily ? todayDaily.score_total : 0;
-  var scoreEl = document.getElementById('score-num');
-  scoreEl.textContent = score;
-  scoreEl.className = 'score-num' + (score < 0 ? ' neg' : '');
-
-  // Media 7d
-  var avg7 = avgLastNDays(7);
-  document.getElementById('score-7d').textContent = avg7 !== null ? Math.round(avg7) : '—';
-
-  // vs semana pasada (esta sem media vs sem-1 media)
-  var thisWk = avgWeek(0);
-  var lastWk = avgWeek(1);
-  var fourWk = avgWeek(4);
-
-  function setCompare(elId, current, past){
-    var el = document.getElementById(elId);
-    if(current === null || past === null){
-      el.innerHTML = '<span class="eq">—</span>';
-      return;
-    }
-    var diff = Math.round(current - past);
-    if(diff > 0) el.innerHTML = '<span class="up">+'+diff+'</span>';
-    else if(diff < 0) el.innerHTML = '<span class="down">'+diff+'</span>';
-    else el.innerHTML = '<span class="eq">=</span>';
-  }
-  setCompare('cmp-1w', thisWk, lastWk);
-  setCompare('cmp-4w', thisWk, fourWk);
-}
-
-function renderBet(){
-  var wk = weekStartKey(today);
-  var bet = betsCache[wk];
-  var card = document.getElementById('bet-card');
-  if(!bet){
-    card.classList.add('empty');
-    document.getElementById('bet-progress-text').textContent = '';
-    document.getElementById('bet-text').className = 'bet-text placeholder';
-    document.getElementById('bet-text').textContent = 'Toca para definir tu apuesta de esta semana';
-    document.getElementById('bet-bar-fg').style.width = '0%';
-    card.onclick = function(){ openBetModal(); };
-    return;
-  }
-  card.classList.remove('empty');
-  document.getElementById('bet-progress-text').textContent = bet.meta_progreso + ' / ' + bet.meta_objetivo;
-  document.getElementById('bet-text').className = 'bet-text';
-  document.getElementById('bet-text').textContent = bet.texto;
-  var pct = Math.min(100, Math.round(bet.meta_progreso / bet.meta_objetivo * 100));
-  document.getElementById('bet-bar-fg').style.width = pct + '%';
-  card.onclick = function(){
-    // Toque incrementa progreso (long press para decrementar mejor en futuro)
-    if(bet.meta_progreso < bet.meta_objetivo){
-      updateBetProgress(wk, 1).then(function(){ renderBet(); });
-      showToast('+1 progreso');
-    } else {
-      // Si está completa, permite resetear o bajar
-      if(confirm('Apuesta completada. ¿Quitar 1 al progreso?')){
-        updateBetProgress(wk, -1).then(function(){ renderBet(); });
-      }
-    }
-  };
-}
-
-function renderWeekNav(){
-  var nav = document.getElementById('week-nav');
-  if(!nav){
-    nav = document.createElement('div');
-    nav.className = 'week-nav';
-    nav.id = 'week-nav';
-    document.getElementById('view-hoy').prepend(nav);
-  }
-  // Etiqueta de la semana
-  var monday = weekStart(today);
-  monday.setDate(monday.getDate() + 7*weekOffset);
-  var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
-  var rangeStr;
-  if(weekOffset === 0){
-    rangeStr = 'Esta semana';
-  } else {
-    rangeStr = monday.getDate() + ' ' + monday.toLocaleDateString('es-ES',{month:'short'}) +
-               ' — ' + sunday.getDate() + ' ' + sunday.toLocaleDateString('es-ES',{month:'short'});
-  }
-  // Determinar si se puede ir más atrás. Solo dejamos ir tan atrás como MAX_DAYS_BACK lo permita.
-  // El lunes de la semana actual está a (today.getDay()+6)%7 días atrás.
-  // Si vamos a la semana anterior, el último editable es el domingo de esa semana = 1 día antes del lunes actual.
-  // Para ir más atrás de eso, hay que comprobar que algún día de esa semana sigue siendo editable.
-  var prevMon = new Date(monday); prevMon.setDate(monday.getDate()-7);
-  var prevSun = new Date(prevMon); prevSun.setDate(prevMon.getDate()+6);
-  var canGoBack = isDateEditable(prevSun); // si el último día de la semana anterior aún es editable
-  var canGoForward = weekOffset < 0;
-
-  nav.innerHTML =
-    '<button class="week-nav-arrow" id="week-prev"' + (canGoBack ? '' : ' disabled') + '>←</button>' +
-    '<span class="week-nav-label' + (weekOffset < 0 ? ' past' : '') + '">' + rangeStr + '</span>' +
-    '<button class="week-nav-arrow" id="week-next"' + (canGoForward ? '' : ' disabled') + '>→</button>';
-
-  document.getElementById('week-prev').addEventListener('click', function(){
-    if(!canGoBack) return;
-    weekOffset--;
-    currentDow = 0; // domingo
-    renderHoy();
-  });
-  document.getElementById('week-next').addEventListener('click', function(){
-    if(!canGoForward) return;
-    weekOffset++;
-    // Al volver a la semana actual seleccionamos hoy. Si vamos a una semana intermedia, domingo.
-    if(weekOffset === 0){
-      currentDow = today.getDay();
-    } else {
-      currentDow = 0; // domingo
-    }
-    renderHoy();
-  });
-}
-
-function renderDayNav(){
-  var nav = document.getElementById('days-nav');
-  if(!nav){
-    nav = document.createElement('div');
-    nav.className = 'days-nav';
-    nav.id = 'days-nav';
-    document.getElementById('view-hoy').appendChild(nav);
-  }
-  nav.innerHTML = '';
-  var daysOfWeek = getWeekDaysWithOffset(weekOffset);
-  daysOfWeek.forEach(function(d){
-    var dow = d.getDay();
-    var k = dateKey(d);
-    var daily = dailyCache[k];
-    var btn = document.createElement('div');
-    var isFuture = d > today && dateKey(d) !== dateKey(today);
-    btn.className = 'day-btn' + (dow === currentDow ? ' active' : '');
-    if(isFuture) btn.style.opacity = '0.4';
-    var sCls = '';
-    if(daily){
-      var sc = daily.score_total;
-      sCls = sc >= 70 ? 's-hi' : sc >= 40 ? 's-mid' : 's-lo';
-    }
-    btn.innerHTML =
-      '<span class="dn">' + DAYS_LABEL[dow] + '</span>' +
-      '<span class="dd">' + d.getDate() + '</span>' +
-      '<span class="ds ' + sCls + '">' + (daily ? daily.score_total : '·') + '</span>';
-    btn.addEventListener('click', function(){
-      if(isFuture) return; // No se selecciona el futuro
-      currentDow = dow;
-      renderHoy();
-    });
-    nav.appendChild(btn);
-  });
-}
-
-function renderCoreSystems(){
-  var dayDate = getDateForDow(currentDow);
-  var dateStr = dateKey(dayDate);
-  var daily = dailyCache[dateStr] || {};
-  var sleep = sleepCache[dateStr];
-  var editable = isDateEditable(dayDate);
-
-  var container = document.createElement('div');
-  container.id = 'core-container';
-  document.getElementById('view-hoy').appendChild(container);
-
-  // Sección core
-  var lbl = document.createElement('div');
-  lbl.className = 'section-label';
-  lbl.textContent = 'Core systems';
-  container.appendChild(lbl);
-
-  CORE.forEach(function(c){
-    var v = daily[c.id] || 0;
-    var idx = c.scale.indexOf(v);
-    var pts = idx >= 0 ? c.pts[idx] : 0;
-    var div = document.createElement('div');
-    div.className = 'core-item';
-    var ptsCls = pts > 0 ? 'has-pts' : '';
-
-    // Frecuencia X/7 últimos días con umbral según core
-    var threshold = c.scale.length === 4 ? 2 : 1; // ≥2 para estudio/cuerpo/orden, ≥1 para puntualidad
-    var freq = lastNFrequency(c.id, threshold, 7);
-    var freqCls = freq.ok >= 5 ? 'ok' : freq.ok >= 3 ? 'warn' : '';
-    var freqLabel = '· ' + freq.ok + '/7';
-
-    div.innerHTML = '<div class="core-top"><span class="core-name">' + c.name +
-      '<span class="core-freq ' + freqCls + '">' + freqLabel + '</span></span>' +
-      '<span class="core-points ' + ptsCls + '">' + (pts > 0 ? '+' + pts : '0') + ' / ' + c.max + '</span></div>';
-    var row = document.createElement('div');
-    row.className = 'scale-row';
-    c.scale.forEach(function(sv, sidx){
-      var b = document.createElement('div');
-      var selClass = '';
-      if(v === sv){
-        if(c.scale.length === 4){ selClass = ' sel-' + sv; }
-        else if(c.scale.length === 3){ selClass = sv === 0 ? ' sel-0' : sv === 1 ? ' sel-1' : ' sel-2x'; }
-      }
-      b.className = 'scale-btn' + selClass + (editable ? '' : ' locked');
-      b.innerHTML = '<span class="sv">' + sv + '</span><span class="sl">' + c.labels[sidx] + '</span>';
-      b.addEventListener('click', function(){
-        if(!editable) return;
-        var partial = {};
-        partial[c.id] = sv;
-        saveDaily(dateStr, partial).then(function(){ renderHoy(); });
-      });
-      row.appendChild(b);
-    });
-    div.appendChild(row);
-    container.appendChild(div);
-  });
-
-  // Sueño (referencia, no editable aquí)
-  var sleepDiv = document.createElement('div');
-  sleepDiv.className = 'core-item';
-  var sleepPts = sleep && sleep.hours ? scoreSueno(sleep.hours) : 0;
-  var sptsCls = sleepPts > 0 ? 'has-pts' : '';
-  sleepDiv.innerHTML =
-    '<div class="core-top"><span class="core-name">Sueño</span>' +
-    '<span class="core-points ' + sptsCls + '">' + (sleepPts > 0 ? '+' + sleepPts : '0') + ' / 18</span></div>' +
-    '<div class="sleep-ref">' +
-      (sleep && sleep.hours ? 'Anoche: <b>' + fmtHours(sleep.hours) + '</b>' : 'Sin registrar') +
-      '<a href="#" id="sleep-link">Pestaña Sueño →</a>' +
-    '</div>';
-  container.appendChild(sleepDiv);
-  document.getElementById('sleep-link').addEventListener('click', function(e){
-    e.preventDefault();
-    goTab('sue');
-  });
-
-  // Penalizaciones
-  var pLbl = document.createElement('div');
-  pLbl.className = 'section-label';
-  pLbl.textContent = 'Penalización móvil';
-  container.appendChild(pLbl);
-
-  // Móvil
-  var movilDiv = document.createElement('div');
-  movilDiv.className = 'core-item';
-  var movilH = daily.movil_horas || 0;
-  var movilPts = scoreMovil(movilH);
-  var movilCls = movilPts < 0 ? 'neg-pts' : '';
-  var movilValCls = movilH <= 1.5 ? '' : movilH <= 3 ? 'warn' : 'bad';
-  movilDiv.innerHTML =
-    '<div class="core-top"><span class="core-name">Móvil hoy</span>' +
-    '<span class="core-points ' + movilCls + '">' + (movilPts < 0 ? movilPts : '0') + ' / -20</span></div>' +
-    '<div class="movil-row">' +
-      '<div class="movil-val ' + movilValCls + '" id="movil-val">' + fmtHours(movilH) + '</div>' +
-      '<input type="range" class="movil-slider" id="movil-slider" min="0" max="6" step="0.25" value="' + movilH + '"' + (editable ? '' : ' disabled') + '>' +
-    '</div>' +
-    '<div class="movil-info"><span>Sin penalizar: ≤1h30</span><span>Tope -20: ≥4h</span></div>';
-  container.appendChild(movilDiv);
-  var slider = document.getElementById('movil-slider');
-  var valEl = document.getElementById('movil-val');
-  slider.addEventListener('input', function(){
-    var h = parseFloat(slider.value);
-    valEl.textContent = fmtHours(h);
-    valEl.className = 'movil-val ' + (h <= 1.5 ? '' : h <= 3 ? 'warn' : 'bad');
-  });
-  slider.addEventListener('change', function(){
-    var h = parseFloat(slider.value);
-    saveDaily(dateStr, { movil_horas: h }).then(function(){ renderHoy(); });
-  });
-
-  // Mantenimiento (tri-estado)
-  var mLbl = document.createElement('div');
-  mLbl.className = 'section-label';
-  mLbl.textContent = 'Mantenimiento · ±1 cada uno';
-  container.appendChild(mLbl);
-
-  var mGrid = document.createElement('div');
-  mGrid.className = 'maint-grid';
-  MAINT.forEach(function(m){
-    var state = daily[m.id] || 0; // 0=sin marcar, 1=hecho, -1=no hecho
-    var item = document.createElement('div');
-    var cls = 'maint-item';
-    if(state === 1) cls += ' done';
-    else if(state === -1) cls += ' fail';
-    if(!editable) cls += ' locked';
-    item.className = cls;
-    item.innerHTML =
-      '<div class="maint-check"><svg viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,9 9.5,2.5" stroke="#C0DD97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
-      '<span class="maint-text">' + m.name + '</span>';
-    item.addEventListener('click', function(){
-      if(!editable) return;
-      // Ciclo: 0 (sin marcar) → 1 (hecho) → -1 (no hecho) → 0
-      var next;
-      if(state === 0) next = 1;
-      else if(state === 1) next = -1;
-      else next = 0;
-      var partial = {};
-      partial[m.id] = next;
-      saveDaily(dateStr, partial).then(function(){ renderHoy(); });
-    });
-    mGrid.appendChild(item);
-  });
-  container.appendChild(mGrid);
-
-  // Botón review (solo si es domingo o si la semana pasada no tiene review)
-  renderReviewButton(container);
-}
-
-function renderReviewButton(container){
-  // Mostrar botón si hoy es domingo, o si la semana pasada no tiene review
-  var isSunday = today.getDay() === 0;
-  var lastWk = new Date(today);
-  lastWk.setDate(today.getDate() - 7);
-  var lastWkKey = weekStartKey(lastWk);
-  var hasLastReview = !!reviewsCache[lastWkKey];
-
-  if(isSunday){
-    var thisWkKey = weekStartKey(today);
-    var hasThisReview = !!reviewsCache[thisWkKey];
-    if(!hasThisReview){
-      var banner = document.createElement('div');
-      banner.className = 'sunday-banner';
-      banner.innerHTML =
-        '<div class="sunday-banner-top"><span class="sunday-label">Domingo · Toca review</span><span class="sunday-arrow">→</span></div>' +
-        '<div class="sunday-text">Cierra la semana, revisa qué ha pasado y define la apuesta de la siguiente.</div>';
-      banner.addEventListener('click', function(){ openReviewModal(thisWkKey); });
-      container.appendChild(banner);
-      return;
-    }
-  }
-
-  if(!hasLastReview){
-    var btn = document.createElement('button');
-    btn.className = 'review-btn';
-    btn.textContent = 'Hacer review de la semana pasada';
-    btn.addEventListener('click', function(){ openReviewModal(lastWkKey); });
-    container.appendChild(btn);
-  }
-}
-
-function renderHoy(){
-  // Header date
-  var d = getDateForDow(currentDow);
-  var isToday = dateKey(d) === dateKey(today);
-  document.getElementById('header-date').textContent = isToday
-    ? 'Hoy · ' + d.toLocaleDateString('es-ES',{day:'numeric',month:'long'})
-    : d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
-
-  renderHero();
-  renderStreaks();
-  renderBet();
-
-  // Limpiamos completamente el view de Hoy y lo construimos en orden:
-  // 1. Week nav (← Esta semana →)
-  // 2. Days nav (Lun..Dom)
-  // 3. Banner de día no editable (si aplica)
-  // 4. Core container
-  var view = document.getElementById('view-hoy');
-  view.innerHTML = '';
-  renderWeekNav();
-  renderDayNav();
-
-  // Banner si día no editable
-  var dateStr = dateKey(d);
-  var editable = isDateEditable(d);
-  if(!editable){
-    var banner = document.createElement('div');
-    banner.className = 'locked-banner';
-    var dMid = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
-    var todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0);
-    var diff = Math.round((todayMid - dMid) / 86400000);
-    if(diff > MAX_DAYS_BACK){
-      banner.textContent = 'Este día tiene más de ' + MAX_DAYS_BACK + ' días — solo lectura';
-    } else if(diff < 0){
-      banner.textContent = 'Día en el futuro — no se puede editar';
-    }
-    view.appendChild(banner);
-  }
-
-  renderCoreSystems();
-}
-
-// ════════════════════════════════════════════════════════════
-// RENDER SUEÑO (reutilizado de tu app actual)
-// ════════════════════════════════════════════════════════════
-function renderSueno(){
-  var view = document.getElementById('view-sue');
-  view.innerHTML = '';
-
-  var logs = Object.values(sleepCache);
-  var avgHrs = logs.length ? logs.reduce(function(s,r){return s+r.hours;},0)/logs.length : 0;
-  var avgQ = logs.length ? logs.reduce(function(s,r){return s+r.quality;},0)/logs.length : 0;
-  var over7 = logs.filter(function(r){return r.hours>=7;}).length;
-  var pctOver7 = logs.length ? Math.round(over7/logs.length*100) : 0;
-
-  var avgRow = document.createElement('div');
-  avgRow.className = 'sleep-avg-row';
-  avgRow.innerHTML =
-    '<div class="sleep-avg-card"><div class="sleep-avg-label">Media h.</div><div class="sleep-avg-val">' + avgHrs.toFixed(1) + 'h</div></div>' +
-    '<div class="sleep-avg-card"><div class="sleep-avg-label">Calidad</div><div class="sleep-avg-val">' + avgQ.toFixed(1) + '/4</div></div>' +
-    '<div class="sleep-avg-card"><div class="sleep-avg-label">Días +7h</div><div class="sleep-avg-val">' + pctOver7 + '%</div></div>';
-  view.appendChild(avgRow);
-
-  // Si no hay fecha seleccionada, usar hoy
-  if(!sleepEditDate) sleepEditDate = dateKey(today);
-  var editingLog = sleepCache[sleepEditDate];
-  var editingDate = parseLocalDate(sleepEditDate);
-  var isEditingToday = sleepEditDate === dateKey(today);
-
-  var card = document.createElement('div');
-  card.className = 'sleep-card';
-  var titleText = isEditingToday ? 'Registrar sueño de anoche' :
-                  'Editar sueño · ' + editingDate.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'});
-  card.innerHTML = '<div class="sleep-title">' + titleText + '</div>';
-
-  // Selector de fecha — últimos 7 días
-  var dateLbl = document.createElement('div');
-  dateLbl.className = 'sleep-date-label';
-  dateLbl.textContent = 'Día que registrar';
-  card.appendChild(dateLbl);
-  var dateChips = document.createElement('div');
-  dateChips.className = 'sleep-date-chips';
-  for(var i=0;i<=MAX_DAYS_BACK;i++){
-    var dd = new Date(today); dd.setDate(today.getDate() - i);
-    var ddKey = dateKey(dd);
-    var chip = document.createElement('div');
-    var hasData = !!sleepCache[ddKey];
-    var isActive = ddKey === sleepEditDate;
-    chip.className = 'sleep-date-chip' + (isActive ? ' active' : '') + (hasData ? ' has-data' : '');
-    var chipLabel;
-    if(i === 0) chipLabel = 'Hoy';
-    else if(i === 1) chipLabel = 'Ayer';
-    else chipLabel = dd.toLocaleDateString('es-ES',{weekday:'short',day:'numeric'});
-    chip.textContent = chipLabel;
-    (function(k){
-      chip.addEventListener('click', function(){
-        sleepEditDate = k;
-        renderSueno();
-      });
-    })(ddKey);
-    dateChips.appendChild(chip);
-  }
-  card.appendChild(dateChips);
-  // Espaciado para separar selector del slider
-  var spacer = document.createElement('div');
-  spacer.style.cssText = 'height:8px';
-  card.appendChild(spacer);
-
-  // Hours slider
-  var hrsRow = document.createElement('div');
-  hrsRow.className = 'sleep-hours-row';
-  var hrsLabel = document.createElement('div'); hrsLabel.className='sleep-hours-label'; hrsLabel.textContent='Horas';
-  var hrsVal = document.createElement('div'); hrsVal.className='sleep-hours-val';
-  var initialHours = editingLog ? editingLog.hours : selectedHours;
-  hrsVal.textContent = fmtHours(initialHours);
-  var slider = document.createElement('input');
-  slider.type = 'range'; slider.className='sleep-slider';
-  slider.min='3'; slider.max='10'; slider.step='0.25';
-  slider.value = initialHours;
-  // Variable local para registrar lo que está editando ahora
-  var currentHours = initialHours;
-  var currentQuality = editingLog ? editingLog.quality : selectedQuality;
-  slider.addEventListener('input', function(){
-    currentHours = parseFloat(slider.value);
-    selectedHours = currentHours;
-    hrsVal.textContent = fmtHours(currentHours);
-  });
-  hrsRow.appendChild(hrsLabel); hrsRow.appendChild(hrsVal); hrsRow.appendChild(slider);
-  card.appendChild(hrsRow);
-
-  var qLabel = document.createElement('div');
-  qLabel.style.cssText = 'font-size:11px;color:#888;margin-bottom:6px';
-  qLabel.textContent = 'Calidad';
-  card.appendChild(qLabel);
-  var qRow = document.createElement('div'); qRow.className='quality-row';
-  var qualities = [{v:1,icon:'😩',label:'Malo'},{v:2,icon:'😐',label:'Regular'},{v:3,icon:'😊',label:'Bueno'},{v:4,icon:'😴',label:'Genial'}];
-  qualities.forEach(function(q){
-    var btn = document.createElement('div');
-    btn.className = 'q-btn' + (currentQuality === q.v ? ' sel-' + q.v : '');
-    btn.innerHTML = '<span class="q-icon">'+q.icon+'</span>'+q.label;
-    btn.addEventListener('click', function(){
-      currentQuality = q.v;
-      selectedQuality = q.v;
-      qRow.querySelectorAll('.q-btn').forEach(function(b,i){
-        b.className = 'q-btn' + (i+1 === q.v ? ' sel-' + q.v : '');
-      });
-    });
-    qRow.appendChild(btn);
-  });
-  card.appendChild(qRow);
-
-  var note = document.createElement('textarea');
-  note.className = 'sleep-note';
-  note.placeholder = 'Nota opcional';
-  note.rows = 2;
-  if(editingLog && editingLog.note) note.value = editingLog.note;
-  card.appendChild(note);
-
-  var saveBtn = document.createElement('button');
-  saveBtn.className = 'sleep-save';
-  saveBtn.textContent = editingLog ? 'Actualizar registro' : 'Guardar';
-  saveBtn.addEventListener('click', function(){
-    saveSleep(sleepEditDate, currentHours, currentQuality, note.value.trim())
-      .then(function(){
-        renderSueno();
-        renderHoy();
-        showToast(isEditingToday ? 'Sueño registrado' : 'Sueño actualizado');
-      });
-  });
-  card.appendChild(saveBtn);
-  view.appendChild(card);
-
-  if(Object.keys(sleepCache).length){
-    var hl = document.createElement('div');
-    hl.className = 'section-label';
-    hl.style.margin = '14px 0 6px';
-    hl.textContent = 'Historial';
-    view.appendChild(hl);
-
-    var qIcons = ['','😩','😐','😊','😴'];
-    var sorted = Object.values(sleepCache).sort(function(a,b){return b.date.localeCompare(a.date);});
-    sorted.forEach(function(r){
-      var pct = Math.min(100, Math.round((r.hours/9)*100));
-      var barColor = r.hours>=7 ? '#185FA5' : r.hours>=6 ? '#BA7517' : '#A32D2D';
-      var item = document.createElement('div'); item.className='sleep-hist-item';
-      var d = parseLocalDate(r.date);
-      var dateLabel = d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
-      item.innerHTML =
-        '<div class="sleep-hist-date">' + dateLabel + '</div>' +
-        '<div class="sleep-hist-bar-wrap">' +
-          '<div class="sleep-hist-bar-bg"><div class="sleep-hist-bar-fg" style="width:'+pct+'%;background:'+barColor+'"></div></div>' +
-          '<div class="sleep-hist-label">' + (r.note||'') + '</div>' +
-        '</div>' +
-        '<div class="sleep-hist-right">' +
-          '<div class="sleep-hist-hrs">' + r.hours.toFixed(1) + 'h</div>' +
-          '<div class="sleep-hist-q">' + (qIcons[r.quality]||'') + '</div>' +
-        '</div>';
-      view.appendChild(item);
-    });
-  }
-}
-
-// ════════════════════════════════════════════════════════════
-// RENDER HISTORIAL
-// ════════════════════════════════════════════════════════════
-function renderHistorial(){
-  var view = document.getElementById('view-his');
-  view.innerHTML = '';
-
-  // Récords
-  var allDays = Object.values(dailyCache);
-  var allBets = Object.values(betsCache);
-  var bestDay = allDays.length ? Math.max.apply(null, allDays.map(function(d){return d.score_total||0;})) : 0;
-
-  // Mejor semana (media)
-  var weeks = {};
-  allDays.forEach(function(d){
-    var wk = weekStartKey(parseLocalDate(d.date));
-    if(!weeks[wk]) weeks[wk] = [];
-    weeks[wk].push(d.score_total || 0);
-  });
-  var bestWeekAvg = 0;
-  Object.values(weeks).forEach(function(arr){
-    var avg = arr.reduce(function(s,v){return s+v;},0) / arr.length;
-    if(avg > bestWeekAvg) bestWeekAvg = avg;
-  });
-
-  var betsCumplidas = allBets.filter(function(b){return b.cumplida===true;}).length;
-  var betsTotales = allBets.filter(function(b){return b.cumplida !== null;}).length;
-
-  var rec = document.createElement('div');
-  rec.className = 'records-grid';
-  rec.innerHTML =
-    '<div class="record-card"><div class="record-label">Mejor día</div><div class="record-val">' + bestDay + '</div></div>' +
-    '<div class="record-card"><div class="record-label">Mejor sem (media)</div><div class="record-val">' + Math.round(bestWeekAvg) + '</div></div>' +
-    '<div class="record-card"><div class="record-label">Apuestas cumplidas</div><div class="record-val">' + betsCumplidas + '<span class="record-sub"> / ' + betsTotales + '</span></div></div>' +
-    '<div class="record-card"><div class="record-label">Días registrados</div><div class="record-val">' + allDays.length + '</div></div>';
-  view.appendChild(rec);
-
-  // Lista de semanas
-  var lbl = document.createElement('div');
-  lbl.className = 'section-label';
-  lbl.textContent = 'Semanas';
-  view.appendChild(lbl);
-
-  // Generar últimas 8 semanas
-  var weekKeys = [];
-  for(var i=0;i<8;i++){
-    var d = new Date(today);
-    d.setDate(today.getDate() - 7*i);
-    weekKeys.push(weekStartKey(d));
-  }
-
-  weekKeys.forEach(function(wk){
-    var monday = parseLocalDate(wk);
-    var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
-    var rangeStr = monday.getDate() + ' ' + monday.toLocaleDateString('es-ES',{month:'short'}) + ' — ' + sunday.getDate() + ' ' + sunday.toLocaleDateString('es-ES',{month:'short'});
-
-    var scores = [];
-    for(var i=0;i<7;i++){
-      var d = new Date(monday);
-      d.setDate(monday.getDate()+i);
-      var k = dateKey(d);
-      if(d <= today) scores.push(dailyCache[k] ? dailyCache[k].score_total : null);
-      else scores.push(null);
-    }
-    var validScores = scores.filter(function(s){return s !== null;});
-    var avg = validScores.length ? validScores.reduce(function(s,v){return s+v;},0) / validScores.length : 0;
-
-    var bet = betsCache[wk];
-    var review = reviewsCache[wk];
-
-    var card = document.createElement('div');
-    card.className = 'history-week';
-
-    var top = '<div class="hw-top"><span class="hw-range">' + rangeStr + '</span>' +
-      '<span class="hw-avg">' + Math.round(avg) + '</span></div>';
-
-    var daysHtml = '<div class="hw-days">';
-    scores.forEach(function(s, idx){
-      var cls = s === null ? '' : s >= 70 ? 's-hi' : s >= 40 ? 's-mid' : 's-lo';
-      daysHtml += '<div class="hw-day ' + cls + '">' + (s !== null ? s : '·') + '</div>';
-    });
-    daysHtml += '</div>';
-
-    var betHtml = '';
-    if(bet){
-      var cmp = bet.cumplida === true ? '<span class="ok">✓ cumplida</span>'
-              : bet.cumplida === false ? '<span class="ko">✗ fallada</span>'
-              : '<span>en curso · ' + bet.meta_progreso + '/' + bet.meta_objetivo + '</span>';
-      betHtml = '<div class="hw-bet"><b>Apuesta:</b> ' + bet.texto + ' — ' + cmp + '</div>';
-    }
-
-    card.innerHTML = top + daysHtml + betHtml;
-    view.appendChild(card);
-  });
-
-  if(!allDays.length){
-    var emp = document.createElement('div');
-    emp.className = 'empty';
-    emp.textContent = 'Empieza a registrar tus días y aquí verás el histórico.';
-    view.appendChild(emp);
-  }
-}
-
-// ════════════════════════════════════════════════════════════
-// MODALES
-// ════════════════════════════════════════════════════════════
-function openBetModal(){
-  document.getElementById('bet-input-text').value = '';
-  document.getElementById('bet-input-meta').value = 5;
-  document.getElementById('ov-bet').classList.add('open');
-}
-
-function openReviewModal(weekKey){
-  var monday = parseLocalDate(weekKey);
-  var sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
-  document.getElementById('review-week-range').textContent =
-    'Semana del ' + monday.getDate() + ' ' + monday.toLocaleDateString('es-ES',{month:'short'}) +
-    ' al ' + sunday.getDate() + ' ' + sunday.toLocaleDateString('es-ES',{month:'short'});
-
-  // Cerrar apuesta de esa semana si existía
-  var bet = betsCache[weekKey];
-  if(bet && bet.cumplida === null){
-    var cumplida = bet.meta_progreso >= bet.meta_objetivo;
-    sb('PATCH','weekly_bets?week_start=eq.'+weekKey, { cumplida: cumplida }).catch(function(){});
-    bet.cumplida = cumplida;
-  }
-
-  document.getElementById('rv-solido').value = '';
-  document.getElementById('rv-vendido').value = '';
-  document.getElementById('rv-patron').value = '';
-  document.getElementById('rv-bet-text').value = '';
-  document.getElementById('rv-bet-meta').value = 5;
-
-  document.getElementById('ov-review').classList.add('open');
-  document.getElementById('ov-review').dataset.weekKey = weekKey;
-}
-
-document.getElementById('bet-cancel').addEventListener('click', function(){
-  document.getElementById('ov-bet').classList.remove('open');
+// ═══ EVENTOS ════════════════════════════════════════════════
+$('prev').onclick = () => { st.sel = add(st.sel,-1); st.editing = false; st.draft = null; pintar(); };
+$('next').onclick = () => { st.sel = add(st.sel, 1); st.editing = false; st.draft = null; pintar(); };
+$('match').onclick = e => { const m = e.target.dataset.m; if(m && m!==partidoDe(st.sel)) cambiarPartido(m); };
+
+let tt;
+function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1600); }
+
+// Si vuelves a la app otro día, se recarga sola; si es el mismo día, se repinta para mover el "Ahora"
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden) return;
+  if(!q && ds(new Date())!==HOY) location.reload(); else pintar();
 });
-document.getElementById('bet-save').addEventListener('click', function(){
-  var txt = document.getElementById('bet-input-text').value.trim();
-  var meta = parseInt(document.getElementById('bet-input-meta').value, 10);
-  if(!txt || !meta){ showToast('Completa los dos campos'); return; }
-  var wk = weekStartKey(today);
-  saveBet(wk, txt, meta).then(function(){
-    document.getElementById('ov-bet').classList.remove('open');
-    renderHoy();
-    showToast('Apuesta guardada');
-  });
-});
-document.getElementById('rv-cancel').addEventListener('click', function(){
-  document.getElementById('ov-review').classList.remove('open');
-});
-document.getElementById('rv-save').addEventListener('click', function(){
-  var weekKey = document.getElementById('ov-review').dataset.weekKey;
-  var solido = document.getElementById('rv-solido').value.trim();
-  var vendido = document.getElementById('rv-vendido').value.trim();
-  var patron = document.getElementById('rv-patron').value.trim();
-  var betText = document.getElementById('rv-bet-text').value.trim();
-  var betMeta = parseInt(document.getElementById('rv-bet-meta').value, 10);
+setInterval(() => { const a = document.activeElement; if(!document.hidden && !(a && a.tagName==='INPUT')) pintar(); }, 5*60*1000);
 
-  if(!solido || !vendido){ showToast('Mínimo: sólido y vendido'); return; }
-
-  // Calcular media de la semana
-  var monday = parseLocalDate(weekKey);
-  var sum = 0, count = 0;
-  for(var i=0;i<7;i++){
-    var d = new Date(monday); d.setDate(monday.getDate()+i);
-    var k = dateKey(d);
-    if(dailyCache[k]){ sum += dailyCache[k].score_total || 0; count++; }
-  }
-  var media = count > 0 ? sum/count : 0;
-
-  saveReview(weekKey, solido, vendido, patron, media).then(function(){
-    if(betText && betMeta){
-      // Apuesta para la semana SIGUIENTE a la del review
-      var next = parseLocalDate(weekKey);
-      next.setDate(next.getDate() + 7);
-      var nextKey = dateKey(next);
-      return saveBet(nextKey, betText, betMeta);
-    }
-  }).then(function(){
-    document.getElementById('ov-review').classList.remove('open');
-    renderHoy();
-    showToast('Review guardada');
-  });
-});
-
-document.querySelectorAll('.overlay').forEach(function(el){
-  el.addEventListener('click', function(e){
-    if(e.target === el) el.classList.remove('open');
-  });
-});
-
-// ════════════════════════════════════════════════════════════
-// TABS
-// ════════════════════════════════════════════════════════════
-function goTab(t){
-  currentTab = t;
-  ['hoy','sue','his'].forEach(function(x){
-    document.getElementById('view-'+x).style.display = x === t ? 'block' : 'none';
-    document.getElementById('tab-'+x).classList.remove('active');
-  });
-  document.getElementById('tab-'+t).classList.add('active');
-  if(t === 'hoy') renderHoy();
-  if(t === 'sue') renderSueno();
-  if(t === 'his') renderHistorial();
-}
-document.getElementById('tab-hoy').addEventListener('click', function(){ goTab('hoy'); });
-document.getElementById('tab-sue').addEventListener('click', function(){ goTab('sue'); });
-document.getElementById('tab-his').addEventListener('click', function(){ goTab('his'); });
-
-// ════════════════════════════════════════════════════════════
-// TOAST
-// ════════════════════════════════════════════════════════════
-var toastT;
-function showToast(msg){
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastT);
-  toastT = setTimeout(function(){ t.classList.remove('show'); }, 1400);
-}
-
-// ════════════════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════════════════
-weekDays = getWeekDays();
-currentDow = today.getDay();
-setSync('syncing');
-
-// Cargar últimos 60 días
-var loadDates = [];
-for(var i=0;i<60;i++){
-  var d = new Date(today); d.setDate(today.getDate() - i);
-  loadDates.push(dateKey(d));
-}
-
-Promise.all([
-  loadDaily(loadDates),
-  loadSleep(loadDates),
-  loadBets(),
-  loadReviews()
-]).then(function(){
-  setSync('ok');
-  goTab('hoy');
-});
+pintar();
+cargar().then(() => { st.draft = null; pintar(); });
 </script>
 </body>
 </html>
