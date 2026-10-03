@@ -142,38 +142,42 @@ button{font-family:inherit}
 var SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
 var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 
-// ── RUTINA (del PDF) ────────────────────────────────────
-// type: 'kg' = kg + reps · 'time' = kg + segundos · 'reps' = solo reps
+// ── RUTINA ─────────────────────────────────────────────
+// type: 'kg' = kg + reps · 'assist' = kg de ayuda + reps (progresar es bajar la ayuda) · 'reps' = solo reps
+// Un ejercicio que se repite en varios días lleva el mismo id, así comparte historial.
 var SESSIONS = {
+  tir:{label:'Tirón', day:'Martes', title:'Martes, tirón y pierna', exercises:[
+    {id:'dominadas_asist', name:'Dominadas asistidas', sets:4, reps:'6-10', type:'assist', rir:'1-2', rest:'2-3 min', note:'Los kg son la ayuda: progresar es bajarlos. Desde colgado del todo hasta la barbilla por encima de la barra.'},
+    {id:'remo_polea', name:'Remo en polea sentado', sets:3, reps:'8-12', type:'kg', rir:'1-2', rest:'2 min'},
+    {id:'rdl_barra', name:'Peso muerto rumano con barra', sets:3, reps:'8', type:'kg', rir:'3', rest:'2 min', note:'Rodillas fijas, cadera atrás y barra rozando las piernas.'},
+    {id:'prensa', name:'Prensa de piernas', sets:2, reps:'10-12', type:'kg', rir:'3', rest:'2 min', note:'Si el miércoles llegas con las piernas pesadas, la semana siguiente baja a una serie.'},
+    {id:'face_pull', name:'Face pull', sets:3, reps:'12-15', type:'kg', rir:'1', rest:'1 min por ronda', note:'Superserie con el curl: una serie de cada, sin descanso entre medias.'},
+    {id:'curl_z', name:'Curl con barra Z', sets:3, reps:'10-12', type:'kg', rir:'1', rest:'1 min por ronda'},
+    {id:'nordicos', name:'Nórdicos', sets:2, reps:'4-6', type:'reps', noProg:true, rir:'bajada lenta', rest:'2 min', note:'Semanas 1 y 2: 2 × 3 con recorrido parcial.'}
+  ]},
   emp:{label:'Empuje', day:'Viernes', title:'Viernes, empuje', exercises:[
-    {id:'press_banca', name:'Press banca', sets:4, reps:'6-8', type:'kg', heavy:true, alts:['Barra','Mancuernas']},
-    {id:'press_militar_mc', name:'Press militar con mancuernas', sets:3, reps:'8-10', type:'kg', heavy:true},
-    {id:'fondos_inclinado', name:'Fondos en paralelas o press inclinado', sets:3, reps:'8-10', type:'kg', heavy:true, alts:['Fondos','Press inclinado'], note:'En fondos, los kg son el lastre. Déjalo vacío si vas sin lastre.'},
-    {id:'rdl_mc', name:'Peso muerto rumano con mancuernas', sets:3, reps:'10', type:'kg', note:'Suave. Nunca al fallo.'},
-    {id:'laterales', name:'Elevaciones laterales', sets:3, reps:'12-15', type:'kg'},
-    {id:'plancha', name:'Plancha con peso', sets:3, reps:'40', spec:'3 × 40 s', type:'time'}
+    {id:'press_incl_mp', name:'Press inclinado en multipower', sets:4, reps:'6-10', type:'kg', rir:'1-2', rest:'2-3 min', note:'Banco a 30°, barra a la parte alta del pecho, escápulas juntas.'},
+    {id:'press_militar_mc', name:'Press militar con mancuernas, sentado', sets:3, reps:'8-10', type:'kg', rir:'1-2', rest:'2 min'},
+    {id:'press_maquina', name:'Press de pecho en máquina', sets:3, reps:'8-12', type:'kg', rir:'1-2', rest:'2 min'},
+    {id:'laterales', name:'Elevaciones laterales', sets:3, reps:'12-15', type:'kg', rir:'1', rest:'1 min por ronda', note:'Superserie con el tríceps: una serie de cada, sin descanso entre medias.'},
+    {id:'triceps_polea', name:'Extensión de tríceps en polea', sets:3, reps:'10-12', type:'kg', rir:'1', rest:'1 min por ronda'}
   ]},
-  tir:{label:'Tirón', day:'Martes', title:'Martes, tirón', exercises:[
-    {id:'dominadas_gym', name:'Dominadas estrictas', sets:4, reps:'2-3', type:'reps', heavy:true, noProg:true, note:'Sin llegar al fallo. Nada de lastre hasta pasar de diez.'},
-    {id:'negativas', name:'Negativas de 5 segundos', sets:1, reps:'3', spec:'3 reps', type:'reps', noProg:true},
-    {id:'remo_barra', name:'Remo con barra', sets:4, reps:'8-10', type:'kg', heavy:true},
-    {id:'remo_mc', name:'Remo con mancuerna a una mano', sets:3, reps:'10', spec:'3 × 10 por lado', type:'kg'},
-    {id:'curl_femoral', name:'Curl femoral tumbado', sets:4, reps:'8', type:'kg', note:'Bajada controlada de tres segundos.'},
-    {id:'face_pull', name:'Face pull', sets:3, reps:'15', type:'kg'},
-    {id:'curl_z', name:'Curl de bíceps con barra Z', sets:3, reps:'10', type:'kg'}
-  ]},
-  fds:{label:'Finde', day:'Sáb o dom', title:'Finde, tren superior y core', exercises:[
-    {id:'fds_press', name:'Press militar o press inclinado', sets:4, reps:'8', type:'kg', heavy:true, alts:['Militar','Inclinado']},
-    {id:'jalon_neutro', name:'Jalón agarre neutro', sets:4, reps:'10', type:'kg', heavy:true},
-    {id:'fds_fondos', name:'Fondos o press francés', sets:3, reps:'12', type:'kg', alts:['Fondos','Press francés']},
-    {id:'fds_remo', name:'Remo en máquina o pájaros', sets:3, reps:'12', type:'kg', alts:['Remo máquina','Pájaros']},
-    {id:'gemelo', name:'Elevación de gemelo', sets:3, reps:'15', type:'kg'},
-    {id:'rueda', name:'Rueda abdominal', sets:3, reps:'10', type:'reps'}
+  fds:{label:'Finde', day:'Sáb o dom', title:'Finde, mixto sin piernas', exercises:[
+    {id:'press_incl_mp', name:'Press inclinado en multipower', sets:3, reps:'6-10', type:'kg', rir:'1-2', rest:'2-3 min'},
+    {id:'dominadas_asist', name:'Dominadas asistidas', sets:3, reps:'6-10', type:'assist', rir:'1-2', rest:'2-3 min', note:'Los kg son la ayuda: progresar es bajarlos.'},
+    {id:'remo_polea', name:'Remo en polea sentado', sets:3, reps:'8-12', type:'kg', rir:'1-2', rest:'2 min'},
+    {id:'aperturas', name:'Aperturas en máquina', sets:3, reps:'12-15', type:'kg', rir:'1', rest:'1,5 min'},
+    {id:'laterales', name:'Elevaciones laterales', sets:3, reps:'12-15', type:'kg', rir:'1', rest:'1 min'},
+    {id:'curl_z', name:'Curl con barra Z', sets:2, reps:'10-12', type:'kg', rir:'1', rest:'1 min por ronda', note:'Superserie con el tríceps: una serie de cada, sin descanso entre medias.'},
+    {id:'triceps_polea', name:'Extensión de tríceps en polea', sets:2, reps:'10-12', type:'kg', rir:'1', rest:'1 min por ronda'},
+    {id:'rueda', name:'Rueda abdominal', sets:3, reps:'8-10', type:'reps', rest:'1,5 min'}
   ]}
 };
 var SESSION_ORDER = ['tir','emp','fds'];
 var DEFAULT_BY_DOW = ['fds','tir','tir','emp','emp','emp','fds'];
-var PULL_SETS_DAY = 5;               // 5 series al día → 70 reps/semana con series de 2
+var PULL_SETS_HOME = 5;              // series en casa un día normal
+var PULL_SETS_GYMDAY = 3;            // series en casa los días con dominadas en el gimnasio
+var PULL_WEEK_SETS = 5*PULL_SETS_HOME + 2*PULL_SETS_GYMDAY;  // 31 series a la semana
 var GAIN_MIN = 300, GAIN_MAX = 500;  // g/mes
 var WAIST_TOL = 1;                   // cm que cuentan como "casi no se mueve"
 
@@ -243,7 +247,7 @@ function loadAll(){
     sb('GET','pullup_tests?select=*&order=date.asc'),
     sb('GET','body_logs?select=*')
   ]).then(function(r){
-    gymLogs=r[0]||[];
+    gymLogs=r[0]||[];sortLogs();
     pullLogs={};(r[1]||[]).forEach(function(x){pullLogs[x.date]=x;});
     pullTests=r[2]||[];
     bodyLogs={};(r[3]||[]).forEach(function(x){bodyLogs[x.date]=x;});
@@ -308,8 +312,8 @@ function autoSession(date){
 function getDraft(ex){
   var k=gymDate+'|'+ex.id;
   if(!drafts[k]){
-    var log=findLog(gymDate,ex.id),sets=[];
-    for(var i=0;i<ex.sets;i++){var s=log&&log.sets&&log.sets[i];sets.push({kg:s?s.kg:null,reps:s?s.reps:null});}
+    var log=findLog(gymDate,ex.id),sets=[],n=Math.max(ex.sets,log&&log.sets?log.sets.length:0);
+    for(var i=0;i<n;i++){var s=log&&log.sets&&log.sets[i];sets.push({kg:s?s.kg:null,reps:s?s.reps:null});}
     var variant=null;
     if(ex.alts){
       if(log&&log.variant)variant=log.variant;
@@ -317,12 +321,19 @@ function getDraft(ex){
     }
     drafts[k]={variant:variant,sets:sets};
   }
+  while(drafts[k].sets.length<ex.sets)drafts[k].sets.push({kg:null,reps:null});
   return drafts[k];
 }
 function isDone(ex,d){return repsDone(d.sets)>=ex.sets;}
+function setsIn(session,id,fallback){
+  var S=SESSIONS[session];
+  if(S)for(var i=0;i<S.exercises.length;i++)if(S.exercises[i].id===id)return S.exercises[i].sets;
+  return fallback;
+}
 function setsStr(ex,sets){
   return (sets||[]).filter(function(s){return s&&(s.kg!=null||s.reps!=null);}).map(function(s){
-    var r=s.reps!=null?s.reps+(ex.type==='time'?'s':''):'?';
+    var r=s.reps!=null?String(s.reps):'?';
+    if(ex.type==='assist')return s.kg?'−'+fnum(s.kg)+'×'+r:r;
     return (ex.type!=='reps'&&s.kg!=null)?fnum(s.kg)+'×'+r:r;
   }).join(' · ');
 }
@@ -365,7 +376,7 @@ function renderGym(){
   var S=SESSIONS[gymSession];
   v.appendChild(el('div','sess-head','<span class="sess-title">'+S.title+'</span><span class="sess-prog" id="sess-prog"></span>'));
   S.exercises.forEach(function(ex){v.appendChild(exCard(ex));});
-  v.appendChild(el('div','hint','Descanso de 2 minutos en lo pesado y 1 en lo accesorio. Cuando llegas al tope de repeticiones en todas las series, subes peso. Los números en gris son lo que hiciste la última vez.'));
+  v.appendChild(el('div','hint','Cuando llegas al tope del rango en todas las series, subes peso (en las asistidas, quitas ayuda). Semanas 1 y 2: deja 3 reps en reserva en todo. En gris, lo que hiciste la última vez.'));
   updateProg();
 }
 function updateProg(){
@@ -375,11 +386,14 @@ function updateProg(){
 function exCard(ex){
   var d=getDraft(ex),last=lastLog(ex.id,gymDate,d.variant),rm=repMax(ex);
   var card=el('div','ex'+(isDone(ex,d)?' done':''));
-  var prog=!ex.noProg&&ex.type!=='reps'&&last&&repsDone(last.sets)>=ex.sets&&
-    last.sets.slice(0,ex.sets).every(function(s){return s&&s.reps!=null&&s.reps>=rm;});
-  var spec=ex.spec||(ex.sets+' × '+ex.reps);
-  var h='<div class="ex-top"><div class="ex-main"><div class="ex-name">'+ex.name+'</div><div class="ex-spec">'+spec+', descanso '+(ex.heavy?'2':'1')+' min</div></div>'+
-    (prog?'<span class="badge">↑ Sube peso</span>':'')+'</div>';
+  var done=last?last.sets.filter(function(s){return s&&s.reps!=null;}):[];
+  var prog=!ex.noProg&&ex.type!=='reps'&&last&&done.length>=setsIn(last.session,ex.id,ex.sets)&&
+    done.every(function(s){return s.reps>=rm;});
+  var meta=[ex.spec||(ex.sets+' × '+ex.reps)];
+  if(ex.rir)meta.push(/\d/.test(ex.rir)?ex.rir+' en reserva':ex.rir);
+  if(ex.rest)meta.push('descanso '+ex.rest);
+  var h='<div class="ex-top"><div class="ex-main"><div class="ex-name">'+ex.name+'</div><div class="ex-spec">'+meta.join(' · ')+'</div></div>'+
+    (prog?'<span class="badge">'+(ex.type==='assist'?'↓ Quita ayuda':'↑ Sube peso')+'</span>':'')+'</div>';
   if(ex.note)h+='<div class="ex-note">'+ex.note+'</div>';
   card.innerHTML=h;
 
@@ -406,14 +420,14 @@ function exCard(ex){
   var g=el('div','grid');g.style.gridTemplateColumns='34px repeat('+ex.sets+',1fr)';
   g.appendChild(el('div',''));
   for(var i=0;i<ex.sets;i++)g.appendChild(el('div','g-h','S'+(i+1)));
-  if(hasKg){g.appendChild(el('div','g-l','kg'));for(i=0;i<ex.sets;i++)g.appendChild(setInput(ex,d,card,i,'kg',last));}
-  g.appendChild(el('div','g-l',ex.type==='time'?'seg':'reps'));
+  if(hasKg){g.appendChild(el('div','g-l',ex.type==='assist'?'ayuda':'kg'));for(i=0;i<ex.sets;i++)g.appendChild(setInput(ex,d,card,i,'kg',last));}
+  g.appendChild(el('div','g-l','reps'));
   for(i=0;i<ex.sets;i++)g.appendChild(setInput(ex,d,card,i,'reps',last));
   card.appendChild(g);
 
   var foot=el('div','ex-foot');
   if(hasKg&&last&&last.sets.some(function(s){return s&&s.kg!=null;})){
-    var cp=el('button','mini','Copiar kg de la última');
+    var cp=el('button','mini',ex.type==='assist'?'Copiar ayuda de la última':'Copiar kg de la última');
     cp.addEventListener('click',function(){
       for(var j=0;j<ex.sets;j++){
         if(d.sets[j].kg!=null)continue;
@@ -454,10 +468,12 @@ function fillHist(p,ex){
   var metric=function(r){
     var v=r.sets.map(function(s){return s?(ex.type==='reps'?s.reps:s.kg):null;}).filter(function(x){return x!=null;});
     if(!v.length)return null;
-    return ex.type==='reps'?v.reduce(function(a,b){return a+b;},0):Math.max.apply(null,v);
+    if(ex.type==='reps')return v.reduce(function(a,b){return a+b;},0);
+    return ex.type==='assist'?Math.min.apply(null,v):Math.max.apply(null,v);
   };
   var vals=logs.slice(0,12).reverse().map(metric).filter(function(x){return x!=null;});
-  if(vals.length>=2)p.insertAdjacentHTML('beforeend',sparkHTML(vals,'#F0997B',ex.type==='reps'?'Reps totales por sesión':'Kg máximos por sesión',fnum(vals[0])+' → '+fnum(vals[vals.length-1])));
+  var lbl=ex.type==='reps'?'Reps totales por sesión':ex.type==='assist'?'Ayuda mínima por sesión (kg, menos es mejor)':'Kg máximos por sesión';
+  if(vals.length>=2)p.insertAdjacentHTML('beforeend',sparkHTML(vals,'#F0997B',lbl,fnum(vals[0])+' → '+fnum(vals[vals.length-1])));
   logs.slice(0,8).forEach(function(r){
     p.appendChild(el('div','hist-row','<span class="hd">'+fmtDate(r.date)+(ex.alts&&r.variant?'<br>'+r.variant:'')+'</span><span>'+setsStr(ex,r.sets)+'</span>'));
   });
@@ -467,6 +483,10 @@ function fillHist(p,ex){
 function testOn(date){var t=null;pullTests.forEach(function(x){if(x.date<=date)t=x;});return t;}
 function sizeFrom(t){return t?Math.max(1,Math.floor(t.max_reps/2)):2;}
 function curSize(){return sizeFrom(testOn(TODAY));}
+function gymPullDay(date){
+  if(pd(date).getDay()===2)return true;
+  return gymLogs.some(function(r){return r.date===date&&r.exercise_id==='dominadas_asist'&&hasData(r.sets);});
+}
 function dayReps(date){var r=pullLogs[date];return r?(r.sets||0)*(r.reps_per_set||0):0;}
 
 function savePull(date,patch){
@@ -492,7 +512,7 @@ function renderDom(){
   var sets=row?row.sets:0,mob=!!(row&&row.mobility);
   var c=el('div','card');
   c.innerHTML='<div class="card-t"><span>Barra en casa</span><span class="pill">Series de '+size+'</span></div>'+
-    '<div class="big">'+sets+'</div><div class="big-sub">'+(sets===1?'serie':'series')+', '+(sets*size)+' reps. Objetivo: 5 o 6 repartidas por el día</div>';
+    '<div class="big">'+sets+'</div><div class="big-sub">'+(sets===1?'serie':'series')+', '+(sets*size)+' reps. '+(gymPullDay(domDate)?'Objetivo: '+PULL_SETS_GYMDAY+', hoy hay dominadas en el gimnasio':'Objetivo: '+PULL_SETS_HOME+' o 6 repartidas por el día')+'</div>';
   var br=el('div','btn-row'),mi=el('button','btn btn-g','−'),pl=el('button','btn btn-p','+ Serie de '+size);
   mi.addEventListener('click',function(){if(sets>0)savePull(domDate,{sets:sets-1});});
   pl.addEventListener('click',function(){savePull(domDate,{sets:sets+1});});
@@ -505,18 +525,30 @@ function renderDom(){
 
   var ws=weekStart(domDate),wr=0;
   for(var i=0;i<7;i++)wr+=dayReps(addDays(ws,i));
-  var tgt=7*PULL_SETS_DAY*size;
+  var tgt=PULL_WEEK_SETS*size;
   var wc=el('div','card');
   wc.innerHTML='<div class="card-t"><span>Semana</span><span class="pill">'+fmtDate(ws)+' a '+fmtDate(addDays(ws,6))+'</span></div>'+
     '<div class="row-sb"><span>Repeticiones limpias</span><span><b>'+wr+'</b> de '+tgt+'</span></div>'+
     '<div class="bar-bg"><div class="bar-fg" style="width:'+Math.min(100,Math.round(wr/tgt*100))+'%"></div></div>';
+  // Asistidas del gimnasio esa semana: se enseñan aparte, no suman al total de casa
+  var we=addDays(ws,6),gr=0,gmin=null;
+  gymLogs.forEach(function(r){
+    if(r.exercise_id!=='dominadas_asist'||r.date<ws||r.date>we)return;
+    (r.sets||[]).forEach(function(s){
+      if(!s||s.reps==null)return;
+      gr+=s.reps;
+      if(s.kg!=null&&(gmin==null||s.kg<gmin))gmin=s.kg;
+    });
+  });
+  var gtxt=gr?gr+' reps asistidas'+(gmin==null||gmin===0?', sin ayuda':', ayuda mínima '+fnum(gmin)+' kg'):'Nada registrado esta semana';
+  wc.insertAdjacentHTML('beforeend','<div class="row-sb" style="margin-top:12px"><span>En el gimnasio</span><span style="color:#aaa">'+gtxt+'</span></div>');
   var days=el('div','days'),vals=[],mx=size*6;
   for(i=13;i>=0;i--){var dd=addDays(domDate,-i),r=dayReps(dd);vals.push({d:dd,r:r});if(r>mx)mx=r;}
   vals.forEach(function(x){
     days.appendChild(el('div','dcol'+(x.d===domDate?' sel':''),'<i class="'+(x.r?'':'zero')+'" style="height:'+Math.max(3,Math.round(x.r/mx*48))+'px"></i><span>'+pd(x.d).getDate()+'</span>'));
   });
   wc.appendChild(days);
-  wc.appendChild(el('div','hint','Repeticiones por día en las dos últimas semanas.'));
+  wc.appendChild(el('div','hint','Repeticiones de casa por día en las dos últimas semanas. Las del gimnasio van aparte y no suman al total.'));
   v.appendChild(wc);
   v.appendChild(testCard());
 }
@@ -675,7 +707,7 @@ function renderStats(){
   var reps=0;for(var i=0;i<7;i++)reps+=dayReps(addDays(ws,i));
   var w=weights();
   document.getElementById('st-gym').textContent=Object.keys(dates).length+' / 3';
-  document.getElementById('st-dom').textContent=reps+' / '+(7*PULL_SETS_DAY*curSize());
+  document.getElementById('st-dom').textContent=reps+' / '+(PULL_WEEK_SETS*curSize());
   document.getElementById('st-peso').textContent=w.length?fnum(w[w.length-1].w)+' kg':'–';
 }
 function goTab(t){
