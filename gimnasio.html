@@ -146,14 +146,12 @@ var SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 // type: 'kg' = kg + reps · 'assist' = kg de ayuda + reps (progresar es bajar la ayuda) · 'reps' = solo reps
 // Un ejercicio que se repite en varios días lleva el mismo id, así comparte historial.
 var SESSIONS = {
-  tir:{label:'Tirón', day:'Martes', title:'Martes, tirón y pierna', exercises:[
+  tir:{label:'Tirón', day:'Martes', title:'Martes, tirón', exercises:[
     {id:'dominadas_asist', name:'Dominadas asistidas', sets:4, reps:'6-10', type:'assist', rir:'1-2', rest:'2-3 min', note:'Los kg son la ayuda: progresar es bajarlos. Desde colgado del todo hasta la barbilla por encima de la barra.'},
     {id:'remo_polea', name:'Remo en polea sentado', sets:3, reps:'8-12', type:'kg', rir:'1-2', rest:'2 min'},
-    {id:'rdl_barra', name:'Peso muerto rumano con barra', sets:3, reps:'8', type:'kg', rir:'3', rest:'2 min', note:'Rodillas fijas, cadera atrás y barra rozando las piernas.'},
-    {id:'prensa', name:'Prensa de piernas', sets:2, reps:'10-12', type:'kg', rir:'3', rest:'2 min', note:'Si el miércoles llegas con las piernas pesadas, la semana siguiente baja a una serie.'},
+    {id:'rdl_barra', name:'Peso muerto rumano con barra', sets:3, reps:'8', type:'kg', rir:'3', rest:'2 min', note:'Rodillas fijas, cadera atrás y barra rozando las piernas. Es la única pierna del martes: la fuerza la pone el PF a las 19:00, así que aquí nunca cerca del fallo.'},
     {id:'face_pull', name:'Face pull', sets:3, reps:'12-15', type:'kg', rir:'1', rest:'1 min por ronda', note:'Superserie con el curl: una serie de cada, sin descanso entre medias.'},
-    {id:'curl_z', name:'Curl con barra Z', sets:3, reps:'10-12', type:'kg', rir:'1', rest:'1 min por ronda'},
-    {id:'nordicos', name:'Nórdicos', sets:2, reps:'4-6', type:'reps', noProg:true, rir:'bajada lenta', rest:'2 min', note:'Semanas 1 y 2: 2 × 3 con recorrido parcial.'}
+    {id:'curl_z', name:'Curl con barra Z', sets:3, reps:'10-12', type:'kg', rir:'1', rest:'1 min por ronda'}
   ]},
   emp:{label:'Empuje', day:'Viernes', title:'Viernes, empuje', exercises:[
     {id:'press_incl_mp', name:'Press inclinado en multipower', sets:4, reps:'6-10', type:'kg', rir:'1-2', rest:'2-3 min', note:'Banco a 30°, barra a la parte alta del pecho, escápulas juntas.'},
