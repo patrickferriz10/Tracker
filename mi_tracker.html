@@ -190,12 +190,14 @@ function plan(s, partido){
     P('09:00','Levantarse, como muy tarde','rutina','Desayuno tranquilo y 2 series de dominadas');
     P('10:00','Estudio: inglés','estudio','Hasta las 12:00');
     P('12:00','Batido + plátano','comida');
-    if(d===2) P('12:30','Gimnasio: tirón y pierna','gym');
+    if(d===2) P('12:30','Gimnasio: tirón','gym','Con el peso muerto rumano. La pierna la pone el PF');
     if(d===5) P('12:30','Gimnasio: empuje','gym');
     P('14:00','Comida','comida');
     P('16:00','Estudio: carrera o GEPR','estudio','Hasta las 17:30');
     P('18:00','Bocadillo','comida');
+    if(d===2) P('19:00','Entreno con el PF','futbol','Si hay entreno');
     if(d===3 || d===4) P('19:45','Fútbol','futbol','Si hay entreno');
+    if(d===5 && !B) P('19:30','Clase de inglés','clase','Si hay clase');
     P('21:30','Cena','comida');
   }
 
@@ -221,11 +223,13 @@ function plan(s, partido){
   }
   else if(d===2){
     P('14:30','Comida en el gimnasio','comida');
-    P('15:00','Gimnasio: tirón y pierna','gym');
-    P('16:30','Bocadillo','comida');
-    P('17:00','Estudio: electrónica de potencia','estudio','Hasta las 19:00');
-    P('19:00','Tanda de cocina mientras cenas','comida','40 min · la ración del sábado, al congelador');
-    P('20:30','Inglés','estudio','45 min');
+    P('15:00','Gimnasio: tirón','gym','Con el peso muerto rumano. La pierna la pone el PF');
+    P('16:15','Bocadillo al salir','comida');
+    P('16:30','Estudio: electrónica de potencia','estudio','Hasta las 18:30');
+    P('18:30','Plátano y salir hacia el PF','comida');
+    P('19:00','Entreno con el PF hasta las 20:00','futbol','Fuerza de pierna y aeróbico');
+    P('20:15','Ducha al llegar','rutina');
+    P('20:30','Cena y tanda de cocina a la vez','comida','40 min · macarrones, carne picada y patatas para el jueves y el viernes');
   }
   else if(d===3){
     P('13:45','Comida en el trabajo','comida');
@@ -255,8 +259,9 @@ function plan(s, partido){
       P('15:15','Gimnasio: empuje','gym');
       P('16:40','Bocadillo de camino','comida');
       P('17:00','Clase hasta las 19:00','clase');
-      P('19:45','Cena grande','comida','Hoy es la comida fuerte del día');
-      P('21:00','Noche libre','rutina');
+      P('19:30','Clase de inglés hasta las 20:30','clase','Con la profesora');
+      P('20:45','Cena grande','comida','Hoy es la comida fuerte del día');
+      P('21:30','Noche libre','rutina');
     } else {
       P('14:30','Comida','comida');
       P('15:15','Estudio: carrera o GEPR','estudio','Hasta las 16:45, en el hueco del gimnasio');
@@ -269,7 +274,7 @@ function plan(s, partido){
   if(d===6){
     if(!B){
       P('09:00','Levantarse, como muy tarde','rutina','Desayuno de tortitas');
-      P('10:00','Estudio: inglés','estudio','Hasta las 12:30');
+      P('10:00','Estudio: inglés','estudio','Hasta las 12:30. Primero, los deberes de la clase de ayer');
       P('12:30','Compra de la semana','rutina');
       P('13:30','Comida','comida','Casi tres horas antes de la convocatoria');
       P('15:30','Merienda ligera','comida');
@@ -277,11 +282,11 @@ function plan(s, partido){
       P('21:00','Cena al volver','comida');
     } else {
       P('09:00','Levantarse, como muy tarde','rutina','Desayuno de tortitas');
-      P('09:30','Estudio: inglés','estudio','Hasta las 11:00');
-      P('11:00','Gimnasio: mixto','gym');
+      P('10:00','Clase de inglés hasta las 11:00','clase','Con la profesora');
+      P('11:30','Gimnasio: mixto','gym');
       P('13:00','Compra de la semana y pan','rutina');
       P('14:00','Comida','comida');
-      P('16:30','Inglés','estudio','Hasta las 18:00');
+      P('16:30','Estudio: inglés','estudio','Hasta las 18:00. Primero, los deberes de la clase');
       P('18:00','Tanda grande','comida','Táperes y cinco bocadillos al congelador · 90 min');
       P('19:45','Cena','comida');
       P('20:30','Finanzas: cerrar la semana','rutina','10 min');
@@ -312,7 +317,7 @@ function plan(s, partido){
   // Noche
   const mañanaTrabajo = d>=0 && d<=4;
   if(mañanaTrabajo){
-    P('22:20','Ducha','rutina');
+    if(d!==2) P('22:20','Ducha','rutina');   // el martes, al volver del PF
     const ritualHecho = d===0; // domingo: ampliado a las 20:30 (A) o por la mañana (B)
     if(!ritualHecho){
       P('22:35','Ritual de la noche','rutina', 'Batido de mañana ('+BATIDO+'), plátano, '+(d===3?'los dos táperes del jueves':'táper si toca')+', ropa y móvil a cargar fuera');
