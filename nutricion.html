@@ -218,8 +218,9 @@ function menu(dow, B){
       M('des','07:00','En casa', DES.huevos),
       batOficina,
       M('com','14:30','En el gimnasio',{ ti:'Arroz con pollo y verdura', det:['Táper de la tanda del domingo','Con la salsa de soja y miel'], kcal:950 }),
-      M('mer','16:30','Al salir del gimnasio', bocadillo('lomo embuchado')),
-      M('cen','19:00','En casa, durante la tanda', cena('arroz'))
+      M('mer','16:15','Al salir del gimnasio', bocadillo('lomo embuchado')),
+      M('mer','18:30','Antes de salir hacia el PF',{ ti:'Un plátano', ic:'🍌', det:['Media hora antes del entreno, para no llegar vacío'], kcal:100 }),
+      M('cen','20:30','En casa, al volver del PF', cena('arroz', ['Mientras se hace la tanda del martes']))
     ];
     case 3: return [
       M('des','07:00','En casa', DES.avena),
@@ -243,7 +244,7 @@ function menu(dow, B){
         : M('com','14:30','En casa',{ ti:'Media ración de macarrones', det:['De la tanda del martes','En 45 minutos hay gimnasio'], kcal:450 }),
       M('mer', B?'19:00':'16:40', B?'Al salir de clase':'De camino a clase', bocadillo('jamón serrano')),
       B ? M('cen','21:45','En casa', cena('pasta'))
-        : M('cen','19:45','En casa',{ ti:'Cena grande: carne + plato lleno de pasta', det:['Hoy es la comida fuerte del día','Plato lleno, no medio, y pan'], kcal:1000 })
+        : M('cen','20:45','En casa, al volver de inglés',{ ti:'Cena grande: carne + plato lleno de pasta', det:['Hoy es la comida fuerte del día','Plato lleno, no medio, y pan'], kcal:1000 })
     ];
     case 6: return [
       M('des','09:00','En casa', DES.tortitas),
@@ -315,6 +316,7 @@ function pintarMenu(){
   h += '<div class="sum"><div class="top"><div class="big">≈ '+kfmt(total)+'<small>kcal'+(hayLibres?' + libres':'')+'</small></div>'+
        '<div class="obj">Objetivo<br><b style="color:var(--ink)">'+kfmt(OBJETIVO)+'</b></div></div>';
   if(B && (st.dia===4 || st.dia===5 || st.dia===6 || st.dia===0)) h += '<span class="tag">Semana con partido el domingo</span>';
+  if(st.dia===2) h += '<span class="tag">Gimnasio y PF: doble sesión</span>';
   if(st.dia===4) h += '<span class="tag">Futsal y fútbol: el día que más gastas</span>';
   h += '<div class="bar" id="bar">';
   comidas.forEach((c,i) => {
@@ -323,14 +325,14 @@ function pintarMenu(){
   });
   h += '<span class="tick" style="left:'+(OBJETIVO/ESCALA*100)+'%"></span></div>';
   h += '<div class="scale"><span style="left:'+(OBJETIVO/ESCALA*100)+'%">objetivo</span></div>';
-  h += '<div class="legend">'+conKcal.map(c => '<span><i style="background:'+TIPO[c.tipo].col+'"></i>'+TIPO[c.tipo].nom+(c.tipo==='com' && comidas.filter(x=>x.tipo==='com'&&!x.libre).length>1 ? ' '+c.hora : '')+' <b>'+c.kcal+'</b></span>').join('')+'</div>';
+  h += '<div class="legend">'+conKcal.map(c => '<span><i style="background:'+TIPO[c.tipo].col+'"></i>'+TIPO[c.tipo].nom+(comidas.filter(x=>x.tipo===c.tipo&&!x.libre).length>1 ? ' '+c.hora : '')+' <b>'+c.kcal+'</b></span>').join('')+'</div>';
   h += '<div class="tip">Es una estimación para que veas de dónde salen las calorías. La que manda es la báscula del martes.</div></div>';
 
   // Tarjetas de comida
   comidas.forEach((c,i) => {
     const t = TIPO[c.tipo];
     h += '<div class="meal'+(c.libre?' libre':'')+'" id="m'+i+'">'+
-      '<div class="ic" style="background:color-mix(in srgb, '+t.col+' 18%, transparent)">'+t.ic+'</div>'+
+      '<div class="ic" style="background:color-mix(in srgb, '+t.col+' 18%, transparent)">'+(c.ic||t.ic)+'</div>'+
       '<div class="bd"><div class="r1"><span class="ty" style="color:'+t.col+'">'+t.nom+' · '+c.hora+'</span>'+
       (c.kcal && !c.libre ? '<span class="kc">≈ '+c.kcal+' kcal</span>' : '')+'</div>'+
       '<div class="ti">'+esc(c.ti)+'</div>'+(c.donde?'<div class="wh">'+esc(c.donde)+'</div>':'')+
@@ -340,7 +342,7 @@ function pintarMenu(){
 
   // Aviso de tanda
   const tanda = (st.dia===0 && !B) || (st.dia===6 && B) ? 'domingo' : st.dia===2 ? 'martes' : null;
-  if(tanda) h += '<div class="card hoytoca" style="margin-top:12px"><h2>Hoy toca tanda'+(tanda==='domingo'?' grande':'')+'</h2><p>'+(tanda==='domingo'?'A las 18:00, unos 90 minutos.':'A las 19:00, unos 40 minutos, mientras cenas.')+' Los pasos están en la pestaña <b>Cocina</b>.</p></div>';
+  if(tanda) h += '<div class="card hoytoca" style="margin-top:12px"><h2>Hoy toca tanda'+(tanda==='domingo'?' grande':'')+'</h2><p>'+(tanda==='domingo'?'A las 18:00, unos 90 minutos.':'A las 20:30, al volver del PF: unos 40 minutos, mientras cenas.')+' Los pasos están en la pestaña <b>Cocina</b>.</p></div>';
 
   v.innerHTML = h;
   v.querySelectorAll('.days button').forEach(b => b.onclick = () => { st.dia = +b.dataset.d; pintarMenu(); });
@@ -387,7 +389,7 @@ function pintarCocina(){
     '</div></div>';
 
   h += '<div class="card'+(hoyMartes?' hoytoca':'')+'"><h2>Tanda del martes'+(hoyMartes?'<span class="badge">Hoy</span>':'')+'</h2>'+
-    '<div class="meta">Martes a las 19:00 · unos 40 min, mientras cenas</div>'+
+    '<div class="meta">Martes a las 20:30, al volver del PF · unos 40 min, mientras cenas</div>'+
     '<div class="need"><b>Lo que entra:</b> 500 g de pasta, 500 g de carne picada, un bote de tomate frito, una cebolla, 600 g de patatas y verdura.</div>'+
     '<div class="steps">'+
       step('0:00','Horno a 200º con las patatas en gajos. Agua a hervir')+
