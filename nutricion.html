@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E1216">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Dieta">
-<title>Dieta</title>
+<meta name="apple-mobile-web-app-title" content="Nutrition">
+<title>Nutrition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -146,15 +146,15 @@ button{background:none;border:none;padding:0;cursor:pointer}
 <body>
 <div class="wrap">
   <div class="head">
-    <div><h1>Dieta</h1><div class="sub" id="sub"></div></div>
+    <div><h1>Nutrition</h1><div class="sub" id="sub"></div></div>
     <span class="dot" id="sync"></span>
   </div>
 
   <div class="tabs" id="tabs">
-    <button data-v="menu" class="on">Menú</button>
-    <button data-v="cocina">Cocina</button>
-    <button data-v="compra">Compra</button>
-    <button data-v="reglas">Reglas</button>
+    <button data-v="menu" class="on">Menu</button>
+    <button data-v="cocina">Cooking</button>
+    <button data-v="compra">Shopping</button>
+    <button data-v="reglas">Rules</button>
   </div>
 
   <section id="v-menu"></section>
@@ -172,99 +172,99 @@ const OBJETIVO = 3400;   // kcal al día
 const ESCALA = 4200;     // tope de la barra
 
 // ═══ FECHAS ═════════════════════════════════════════════════
-const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-const CORTO = ['D','L','M','X','J','V','S'];
-const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const DIAS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const CORTO = ['S','M','T','W','T','F','S'];
+const MESES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const ds = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const pd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
 const add = (s,n) => { const d = pd(s); d.setDate(d.getDate()+n); return ds(d); };
 const q = new URLSearchParams(location.search).get('hoy');   // ?hoy=2026-10-06 para probar
 const HOY = q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? q : ds(new Date());
 const LUNES = add(HOY, -((pd(HOY).getDay()+6)%7));
-const kfmt = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const kfmt = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 // ═══ COMIDAS ════════════════════════════════════════════════
 const TIPO = {
-  des:{ nom:'Desayuno', ic:'🥣', col:'var(--c-des)' },
-  bat:{ nom:'Batido',   ic:'🥤', col:'var(--c-bat)' },
-  com:{ nom:'Comida',   ic:'🍱', col:'var(--c-com)' },
-  mer:{ nom:'Merienda', ic:'🥖', col:'var(--c-mer)' },
-  cen:{ nom:'Cena',     ic:'🍽️', col:'var(--c-cen)' }
+  des:{ nom:'Breakfast', ic:'🥣', col:'var(--c-des)' },
+  bat:{ nom:'Shake',     ic:'🥤', col:'var(--c-bat)' },
+  com:{ nom:'Lunch',     ic:'🍱', col:'var(--c-com)' },
+  mer:{ nom:'Afternoon snack', ic:'🥖', col:'var(--c-mer)' },
+  cen:{ nom:'Dinner',    ic:'🍽️', col:'var(--c-cen)' }
 };
 
 const DES = {
-  avena:   { ti:'Avena', det:['40 g de avena con 300 ml de leche entera','Un plátano y una cucharada de crema de cacahuete'], kcal:540 },
-  huevos:  { ti:'Huevos revueltos', det:['Tres huevos y dos tostadas con aceite','Una pieza de fruta'], kcal:520 },
-  yogur:   { ti:'Yogur griego', det:['Dos yogures griegos con granola, miel y nueces','Una tostada con jamón'], kcal:600 },
-  tortitas:{ ti:'Tortitas', det:['40 g de avena, dos huevos y un plátano a la batidora y a la sartén','Con miel y crema de cacahuete'], kcal:520 }
+  avena:   { ti:'Oats', det:['40 g of oats with 300 ml of whole milk','A banana and a spoonful of peanut butter'], kcal:540 },
+  huevos:  { ti:'Scrambled eggs', det:['Three eggs and two slices of toast with oil','A piece of fruit'], kcal:520 },
+  yogur:   { ti:'Greek yoghurt', det:['Two Greek yoghurts with granola, honey and walnuts','A slice of toast with ham'], kcal:600 },
+  tortitas:{ ti:'Pancakes', det:['40 g of oats, two eggs and a banana, blended and into the frying pan','With honey and peanut butter'], kcal:520 }
 };
-const BATIDO_DET = ['Hecho la noche antes: 400 ml de leche entera, 50 g de avena en polvo, 30 g de whey y la creatina','El plátano, entero y aparte'];
-const bocadillo = relleno => ({ ti:'Bocadillo de '+relleno+' y queso', det:['Media chapata del congelador, con un chorrito de aceite','Un puñado pequeño de frutos secos al lado'], kcal:700 });
-const cena = (guarn, extra) => ({ ti:'Carne de casa + '+guarn, det:['La carne la pone la casa: tú pones medio plato de '+guarn+' y pan'].concat(extra||[]), kcal:800 });
+const BATIDO_DET = ['Made the night before: 400 ml of whole milk, 50 g of oat flour, 30 g of whey and the creatine','The banana whole, on the side'];
+const bocadillo = relleno => ({ ti:relleno+' and cheese sandwich', det:['Half a ciabatta from the freezer, with a drizzle of oil','A small handful of nuts on the side'], kcal:700 });
+const cena = (guarn, extra) => ({ ti:'Home-cooked meat + '+guarn, det:['The meat is cooked at home: you add half a plate of '+guarn+' and bread'].concat(extra||[]), kcal:800 });
 
 // Cada día: lista de comidas. B = semana con partido el domingo.
 function menu(dow, B){
   const M = (tipo, hora, donde, o, libre) => Object.assign({ tipo, hora, donde, libre:!!libre }, o);
-  const batOficina = M('bat','11:00','En la oficina',{ ti:'Batido + plátano', det:BATIDO_DET, kcal:670 });
+  const batOficina = M('bat','11:00','At the office',{ ti:'Shake + banana', det:BATIDO_DET, kcal:670 });
   switch(dow){
     case 1: return [
-      M('des','07:00','En casa', DES.avena),
+      M('des','07:00','At home', DES.avena),
       batOficina,
-      M('com','13:45','En el trabajo',{ ti:'Arroz con pollo y verdura', det:['Táper de la tanda del domingo','Con la salsa de yogur y ajo'], kcal:950 }),
-      M('mer','18:00','En el descanso de clase', bocadillo('jamón serrano')),
-      M('cen','21:30','En casa', cena('patata asada'))
+      M('com','13:45','At work',{ ti:'Rice with chicken and veg', det:['Lunchbox from Sunday’s big batch cook','With the yoghurt and garlic sauce'], kcal:950 }),
+      M('mer','18:00','During the class break', bocadillo('Serrano ham')),
+      M('cen','21:30','At home', cena('roast potatoes'))
     ];
     case 2: return [
-      M('des','07:00','En casa', DES.huevos),
+      M('des','07:00','At home', DES.huevos),
       batOficina,
-      M('com','14:30','En el gimnasio',{ ti:'Arroz con pollo y verdura', det:['Táper de la tanda del domingo','Con la salsa de soja y miel'], kcal:950 }),
-      M('mer','16:15','Al salir del gimnasio', bocadillo('lomo embuchado')),
-      M('mer','18:30','Antes de salir hacia el PF',{ ti:'Un plátano', ic:'🍌', det:['Media hora antes del entreno, para no llegar vacío'], kcal:100 }),
-      M('cen','20:30','En casa, al volver del PF', cena('arroz', ['Mientras se hace la tanda del martes']))
+      M('com','14:30','At the gym',{ ti:'Rice with chicken and veg', det:['Lunchbox from Sunday’s big batch cook','With the soy and honey sauce'], kcal:950 }),
+      M('mer','16:15','After the gym', bocadillo('Cured pork loin')),
+      M('mer','18:30','Before heading to the fitness coach',{ ti:'A banana', ic:'🍌', det:['Half an hour before training, so you don’t arrive on empty'], kcal:100 }),
+      M('cen','20:30','At home, back from the fitness coach', cena('rice', ['While the Tuesday batch is cooking']))
     ];
     case 3: return [
-      M('des','07:00','En casa', DES.avena),
+      M('des','07:00','At home', DES.avena),
       batOficina,
-      M('com','13:45','En el trabajo',{ ti:'Pollo con patata asada y verdura', det:['Último táper de la tanda del domingo'], kcal:850 }),
-      M('mer','18:00','En el descanso de clase', bocadillo('jamón serrano')),
-      M('cen','21:45','En casa', cena('pasta', ['Esta noche, los dos táperes del jueves']))
+      M('com','13:45','At work',{ ti:'Chicken with roast potatoes and veg', det:['Last lunchbox from Sunday’s big batch cook'], kcal:850 }),
+      M('mer','18:00','During the class break', bocadillo('Serrano ham')),
+      M('cen','21:45','At home', cena('pasta', ['Tonight, pack Thursday’s two lunchboxes']))
     ];
     case 4: return [
-      M('des','07:00','En casa', DES.yogur),
+      M('des','07:00','At home', DES.yogur),
       batOficina,
-      M('com','13:45','En el trabajo',{ ti:'Comida ligera', det:['Fruta y pan con jamón','A las 15:00 hay futsal: hoy no toca plato'], kcal:360 }),
-      M('com','16:30','Al volver del futsal',{ ti:'Macarrones con carne picada', det:['El segundo táper, de la tanda del martes'], kcal:850 }),
-      M('mer', B?'19:30':'18:30', B?'Al salir del gimnasio':'Antes del entreno', bocadillo('lomo embuchado')),
-      M('cen', B?'21:00':'21:45','En casa', cena('patata asada'))
+      M('com','13:45','At work',{ ti:'Light lunch', det:['Fruit and bread with ham','Futsal at 15:00: no full plate today'], kcal:360 }),
+      M('com','16:30','Back from futsal',{ ti:'Macaroni with mince', det:['The second lunchbox, from the Tuesday batch'], kcal:850 }),
+      M('mer', B?'19:30':'18:30', B?'After the gym':'Before training', bocadillo('Cured pork loin')),
+      M('cen', B?'21:00':'21:45','At home', cena('roast potatoes'))
     ];
     case 5: return [
-      M('des','07:00','En casa', DES.huevos),
-      B ? batOficina : M('bat','11:00','En la oficina',{ ti:'Batido + plátano + yogur griego', det:['El batido de siempre y un yogur','Hoy la comida es ligera, así que la media mañana va más cargada'], kcal:770 }),
-      B ? M('com','14:30','En casa',{ ti:'Macarrones con carne picada', det:['Ración entera: esta tarde no hay gimnasio'], kcal:850 })
-        : M('com','14:30','En casa',{ ti:'Media ración de macarrones', det:['De la tanda del martes','En 45 minutos hay gimnasio'], kcal:450 }),
-      M('mer', B?'19:00':'16:40', B?'Al salir de clase':'De camino a clase', bocadillo('jamón serrano')),
-      B ? M('cen','21:45','En casa', cena('pasta'))
-        : M('cen','20:45','En casa, al volver de inglés',{ ti:'Cena grande: carne + plato lleno de pasta', det:['Hoy es la comida fuerte del día','Plato lleno, no medio, y pan'], kcal:1000 })
+      M('des','07:00','At home', DES.huevos),
+      B ? batOficina : M('bat','11:00','At the office',{ ti:'Shake + banana + Greek yoghurt', det:['The usual shake and a yoghurt','Lunch is light today, so mid-morning is bigger'], kcal:770 }),
+      B ? M('com','14:30','At home',{ ti:'Macaroni with mince', det:['Full portion: no gym this afternoon'], kcal:850 })
+        : M('com','14:30','At home',{ ti:'Half a portion of macaroni', det:['From the Tuesday batch','Gym in 45 minutes'], kcal:450 }),
+      M('mer', B?'19:00':'16:40', B?'After class':'On the way to class', bocadillo('Serrano ham')),
+      B ? M('cen','21:45','At home', cena('pasta'))
+        : M('cen','20:45','At home, back from English class',{ ti:'Big dinner: meat + a full plate of pasta', det:['Today it’s the main meal of the day','A full plate, not half, and bread'], kcal:1000 })
     ];
     case 6: return [
-      M('des','09:00','En casa', DES.tortitas),
-      M('bat', B?'12:30':'11:30', B?'Después del gimnasio':'A media mañana',{ ti:'Batido', det:['En casa puedes usar batidora y meter el plátano dentro'], kcal:670 }),
-      M('com', B?'14:00':'13:30','',{ ti:'Comida libre', det:[] }, true),
-      M('mer', B?'17:30':'15:30', B?'En casa':'Antes de la convocatoria',{ ti:'Yogur y fruta', det:['Ligero', ].concat(B?[]:['El partido es a las 18:45']), kcal:250 }),
-      M('cen','21:00','',{ ti:'Cena fuera', det:[] }, true)
+      M('des','09:00','At home', DES.tortitas),
+      M('bat', B?'12:30':'11:30', B?'After the gym':'Mid-morning',{ ti:'Shake', det:['At home you can use the blender and put the banana in'], kcal:670 }),
+      M('com', B?'14:00':'13:30','',{ ti:'Free meal', det:[] }, true),
+      M('mer', B?'17:30':'15:30', B?'At home':'Before the squad meet-up',{ ti:'Yoghurt and fruit', det:['Light', ].concat(B?[]:['The match is at 18:45']), kcal:250 }),
+      M('cen','21:00','',{ ti:'Dinner out', det:[] }, true)
     ];
     case 0: return B ? [
-      M('des','09:00','',{ ti:'Desayuno libre', det:[] }, true),
-      M('bat','11:00','En casa',{ ti:'Batido', det:['Antes de salir'], kcal:670 }),
-      M('com','12:30','En casa',{ ti:'Comida en casa', det:['Unas tres horas antes del partido'] }, true),
-      M('mer','16:00','En el bus',{ ti:'Plátano y frutos secos', det:['En la mochila para el viaje'], kcal:300 }),
-      M('cen','21:00','Al llegar', cena('arroz', ['Del arroz que cocinaste el sábado']))
+      M('des','09:00','',{ ti:'Free meal', det:[] }, true),
+      M('bat','11:00','At home',{ ti:'Shake', det:['Before you leave'], kcal:670 }),
+      M('com','12:30','At home',{ ti:'Lunch at home', det:['About three hours before the match'] }, true),
+      M('mer','16:00','On the bus',{ ti:'Banana and nuts', det:['In your rucksack for the journey'], kcal:300 }),
+      M('cen','21:00','When you get back', cena('rice', ['From the rice you cooked on Saturday']))
     ] : [
-      M('des','09:30','',{ ti:'Desayuno libre', det:[] }, true),
-      M('bat','12:30','Después del gimnasio',{ ti:'Batido', det:['En casa puedes usar batidora y meter el plátano dentro'], kcal:670 }),
-      M('com','14:00','En casa',{ ti:'Comida en casa', det:['Lo que se cocine en casa, que ya lleva hidratos'] }, true),
-      M('mer','17:00','En casa',{ ti:'Yogur griego y frutos secos', det:[], kcal:350 }),
-      M('cen','19:45','En casa',{ ti:'Pollo y arroz recién hechos', det:['De la tanda de esta tarde, con verdura'], kcal:850 })
+      M('des','09:30','',{ ti:'Free meal', det:[] }, true),
+      M('bat','12:30','After the gym',{ ti:'Shake', det:['At home you can use the blender and put the banana in'], kcal:670 }),
+      M('com','14:00','At home',{ ti:'Lunch at home', det:['Whatever’s cooked at home, which already has carbs'] }, true),
+      M('mer','17:00','At home',{ ti:'Greek yoghurt and nuts', det:[], kcal:350 }),
+      M('cen','19:45','At home',{ ti:'Freshly made chicken and rice', det:['From this afternoon’s batch cook, with veg'], kcal:850 })
     ];
   }
 }
@@ -313,20 +313,20 @@ function pintarMenu(){
   const hayLibres = comidas.some(c => c.libre);
 
   // Resumen con la barra del día
-  h += '<div class="sum"><div class="top"><div class="big">≈ '+kfmt(total)+'<small>kcal'+(hayLibres?' + libres':'')+'</small></div>'+
-       '<div class="obj">Objetivo<br><b style="color:var(--ink)">'+kfmt(OBJETIVO)+'</b></div></div>';
-  if(B && (st.dia===4 || st.dia===5 || st.dia===6 || st.dia===0)) h += '<span class="tag">Semana con partido el domingo</span>';
-  if(st.dia===2) h += '<span class="tag">Gimnasio y PF: doble sesión</span>';
-  if(st.dia===4) h += '<span class="tag">Futsal y fútbol: el día que más gastas</span>';
+  h += '<div class="sum"><div class="top"><div class="big">≈ '+kfmt(total)+'<small>kcal'+(hayLibres?' + free meals':'')+'</small></div>'+
+       '<div class="obj">Target<br><b style="color:var(--ink)">'+kfmt(OBJETIVO)+'</b></div></div>';
+  if(B && (st.dia===4 || st.dia===5 || st.dia===6 || st.dia===0)) h += '<span class="tag">Sunday match week</span>';
+  if(st.dia===2) h += '<span class="tag">Gym and fitness coach: double session</span>';
+  if(st.dia===4) h += '<span class="tag">Futsal and football: the day you burn the most</span>';
   h += '<div class="bar" id="bar">';
   comidas.forEach((c,i) => {
     if(c.libre || !c.kcal) return;
-    h += '<i data-i="'+i+'" style="width:calc('+(c.kcal/ESCALA*100)+'% - 2px);background:'+TIPO[c.tipo].col+'" title="'+TIPO[c.tipo].nom+' · '+c.kcal+' kcal"></i>';
+    h += '<i data-i="'+i+'" style="width:calc('+(c.kcal/ESCALA*100)+'% - 2px);background:'+TIPO[c.tipo].col+'" title="'+TIPO[c.tipo].nom+' · '+kfmt(c.kcal)+' kcal"></i>';
   });
   h += '<span class="tick" style="left:'+(OBJETIVO/ESCALA*100)+'%"></span></div>';
-  h += '<div class="scale"><span style="left:'+(OBJETIVO/ESCALA*100)+'%">objetivo</span></div>';
-  h += '<div class="legend">'+conKcal.map(c => '<span><i style="background:'+TIPO[c.tipo].col+'"></i>'+TIPO[c.tipo].nom+(comidas.filter(x=>x.tipo===c.tipo&&!x.libre).length>1 ? ' '+c.hora : '')+' <b>'+c.kcal+'</b></span>').join('')+'</div>';
-  h += '<div class="tip">Es una estimación para que veas de dónde salen las calorías. La que manda es la báscula del martes.</div></div>';
+  h += '<div class="scale"><span style="left:'+(OBJETIVO/ESCALA*100)+'%">target</span></div>';
+  h += '<div class="legend">'+conKcal.map(c => '<span><i style="background:'+TIPO[c.tipo].col+'"></i>'+TIPO[c.tipo].nom+(comidas.filter(x=>x.tipo===c.tipo&&!x.libre).length>1 ? ' '+c.hora : '')+' <b>'+kfmt(c.kcal)+'</b></span>').join('')+'</div>';
+  h += '<div class="tip">It’s an estimate so you can see where the calories come from. Tuesday’s weigh-in is what counts.</div></div>';
 
   // Tarjetas de comida
   comidas.forEach((c,i) => {
@@ -334,7 +334,7 @@ function pintarMenu(){
     h += '<div class="meal'+(c.libre?' libre':'')+'" id="m'+i+'">'+
       '<div class="ic" style="background:color-mix(in srgb, '+t.col+' 18%, transparent)">'+(c.ic||t.ic)+'</div>'+
       '<div class="bd"><div class="r1"><span class="ty" style="color:'+t.col+'">'+t.nom+' · '+c.hora+'</span>'+
-      (c.kcal && !c.libre ? '<span class="kc">≈ '+c.kcal+' kcal</span>' : '')+'</div>'+
+      (c.kcal && !c.libre ? '<span class="kc">≈ '+kfmt(c.kcal)+' kcal</span>' : '')+'</div>'+
       '<div class="ti">'+esc(c.ti)+'</div>'+(c.donde?'<div class="wh">'+esc(c.donde)+'</div>':'')+
       (c.det && c.det.length ? '<ul>'+c.det.map(x => '<li>'+esc(x)+'</li>').join('')+'</ul>' : '')+
       '</div></div>';
@@ -342,7 +342,7 @@ function pintarMenu(){
 
   // Aviso de tanda
   const tanda = (st.dia===0 && !B) || (st.dia===6 && B) ? 'domingo' : st.dia===2 ? 'martes' : null;
-  if(tanda) h += '<div class="card hoytoca" style="margin-top:12px"><h2>Hoy toca tanda'+(tanda==='domingo'?' grande':'')+'</h2><p>'+(tanda==='domingo'?'A las 18:00, unos 90 minutos.':'A las 20:30, al volver del PF: unos 40 minutos, mientras cenas.')+' Los pasos están en la pestaña <b>Cocina</b>.</p></div>';
+  if(tanda) h += '<div class="card hoytoca" style="margin-top:12px"><h2>'+(tanda==='domingo'?'Big batch cook':'Tuesday batch')+' today</h2><p>'+(tanda==='domingo'?'At 18:00, about 90 minutes.':'At 20:30, back from the fitness coach: about 40 minutes, while you have dinner.')+' The steps are in the <b>Cooking</b> tab.</p></div>';
 
   v.innerHTML = h;
   v.querySelectorAll('.days button').forEach(b => b.onclick = () => { st.dia = +b.dataset.d; pintarMenu(); });
@@ -364,82 +364,82 @@ function pintarCocina(){
   const step = (t, x, k) => '<div class="st'+(k?' k':'')+'"><span class="t">'+t+'</span><span class="x">'+x+'</span></div>';
   let h = '';
 
-  h += '<div class="card'+(hoyGrande?' hoytoca':'')+'"><h2>Tanda grande'+(hoyGrande?'<span class="badge">Hoy</span>':'')+'</h2>'+
-    '<div class="meta">Domingo a las 18:00 · unos 90 min'+(B?' · esta semana pasa al sábado':'')+'</div>'+
-    '<div class="need"><b>Lo que entra:</b> 600 g de arroz, 4 pechugas, 1,2 kg de patatas, verdura (un brócoli, 2 pimientos, 2 calabacines, 2 cebollas), un yogur natural para la salsa y 3 chapatas para los bocadillos.</div>'+
+  h += '<div class="card'+(hoyGrande?' hoytoca':'')+'"><h2>Big batch cook'+(hoyGrande?'<span class="badge">Today</span>':'')+'</h2>'+
+    '<div class="meta">Sunday at 18:00 · about 90 min'+(B?' · moved to Saturday this week':'')+'</div>'+
+    '<div class="need"><b>What goes in:</b> 600 g of rice, 4 chicken breasts, 1.2 kg of potatoes, veg (one broccoli, 2 peppers, 2 courgettes, 2 onions), a plain yoghurt for the sauce and 3 ciabattas for the sandwiches.</div>'+
     '<div class="steps">'+
-      step('0:00','Horno a 200º. Patatas en gajos, en bandeja con aceite y sal')+
-      step('0:10','Patatas dentro, 45 min. Olla grande con agua al fuego')+
-      step('0:15','Arroz al agua, 18 min. Mientras, cortas toda la verdura')+
-      step('0:33','Escurres el arroz y lo extiendes en una bandeja para que enfríe rápido',1)+
-      step('0:35','Verdura salteada con aceite y sal, 12 min')+
-      step('0:47','Las 4 pechugas a la plancha, en dos tandas')+
-      step('1:00','Patatas fuera del horno')+
-      step('1:05','Salsas: yogur con ajo, limón y sal · 3 de soja por 1 de miel, 2 min al fuego')+
-      step('1:10','Reparto en táperes (abajo)',1)+
-      step('1:15','Cinco bocadillos: media chapata, aceite, embutido y queso. Film bien apretado y al congelador',1)+
-      step('1:25','Fregar. Hoy, no mañana')+
+      step('0:00','Oven to 200°C. Potato wedges on a tray with oil and salt')+
+      step('0:10','Potatoes in, 45 min. Big pot of water on the hob')+
+      step('0:15','Rice into the water, 18 min. Meanwhile, chop all the veg')+
+      step('0:33','Drain the rice and spread it on a tray so it cools quickly',1)+
+      step('0:35','Sauté the veg with oil and salt, 12 min')+
+      step('0:47','The 4 chicken breasts on the griddle, in two batches')+
+      step('1:00','Potatoes out of the oven')+
+      step('1:05','Sauces: yoghurt with garlic, lemon and salt · 3 parts soy to 1 honey, 2 min on the heat')+
+      step('1:10','Split into lunchboxes (below)',1)+
+      step('1:15','Five sandwiches: half a ciabatta, oil, cured meat and cheese. Wrap tightly in cling film and into the freezer',1)+
+      step('1:25','Wash up. Today, not tomorrow')+
     '</div>'+
     '<div class="rep">'+
-      '<span class="d">Lun</span><span class="v">Arroz + pollo + verdura · salsa de yogur</span>'+
-      '<span class="d">Mar</span><span class="v">Arroz + pollo + verdura · salsa de soja</span>'+
-      '<span class="d">Mié</span><span class="v">Pollo + patata + verdura</span>'+
-      '<span class="d">Cenas</span><span class="v">Patata para el lunes, arroz para el martes. El pollo y arroz que sobran, para la cena de hoy</span>'+
-      '<span class="d">Bocatas</span><span class="v">Serrano lunes, miércoles y viernes · lomo martes y jueves</span>'+
+      '<span class="d">Mon</span><span class="v">Rice + chicken + veg · yoghurt sauce</span>'+
+      '<span class="d">Tue</span><span class="v">Rice + chicken + veg · soy and honey sauce</span>'+
+      '<span class="d">Wed</span><span class="v">Chicken + potatoes + veg</span>'+
+      '<span class="d">Dinners</span><span class="v">Potatoes for Monday, rice for Tuesday. The leftover chicken and rice, for tonight’s dinner</span>'+
+      '<span class="d">Sandwiches</span><span class="v">Serrano on Monday, Wednesday and Friday · lomo on Tuesday and Thursday</span>'+
     '</div></div>';
 
-  h += '<div class="card'+(hoyMartes?' hoytoca':'')+'"><h2>Tanda del martes'+(hoyMartes?'<span class="badge">Hoy</span>':'')+'</h2>'+
-    '<div class="meta">Martes a las 20:30, al volver del PF · unos 40 min, mientras cenas</div>'+
-    '<div class="need"><b>Lo que entra:</b> 500 g de pasta, 500 g de carne picada, un bote de tomate frito, una cebolla, 600 g de patatas y verdura.</div>'+
+  h += '<div class="card'+(hoyMartes?' hoytoca':'')+'"><h2>Tuesday batch'+(hoyMartes?'<span class="badge">Today</span>':'')+'</h2>'+
+    '<div class="meta">Tuesday at 20:30, back from the fitness coach · about 40 min, while you have dinner</div>'+
+    '<div class="need"><b>What goes in:</b> 500 g of pasta, 500 g of mince, a jar of tomato sauce, an onion, 600 g of potatoes and veg.</div>'+
     '<div class="steps">'+
-      step('0:00','Horno a 200º con las patatas en gajos. Agua a hervir')+
-      step('0:05','Cebolla picada a la sartén. Cuando esté dorada, la carne picada')+
-      step('0:10','Pasta al agua, 11 min')+
-      step('0:15','A la carne, el tomate frito y pimentón. 10 min a fuego bajo')+
-      step('0:21','Escurres la pasta, un chorro de aceite para que no se pegue',1)+
-      step('0:25','Verdura a la sartén, 10 min')+
-      step('0:35','Patatas fuera y reparto en táperes',1)+
+      step('0:00','Oven to 200°C with the potato wedges. Water on to boil')+
+      step('0:05','Chopped onion into the frying pan. Once it’s golden, the mince')+
+      step('0:10','Pasta into the water, 11 min')+
+      step('0:15','Tomato sauce and paprika into the meat. 10 min on a low heat')+
+      step('0:21','Drain the pasta, a splash of oil so it doesn’t stick',1)+
+      step('0:25','Veg into the frying pan, 10 min')+
+      step('0:35','Potatoes out and split into lunchboxes',1)+
     '</div>'+
     '<div class="rep">'+
-      '<span class="d">Jue</span><span class="v">Macarrones con carne · ración grande</span>'+
-      '<span class="d">Vie</span><span class="v">'+(B?'Macarrones con carne · ración entera':'Media ración de macarrones')+'</span>'+
-      '<span class="d">Cenas</span><span class="v">Pasta para el miércoles y el viernes, patata para el jueves</span>'+
+      '<span class="d">Thu</span><span class="v">Macaroni with mince · big portion</span>'+
+      '<span class="d">Fri</span><span class="v">'+(B?'Macaroni with mince · full portion':'Half a portion of macaroni')+'</span>'+
+      '<span class="d">Dinners</span><span class="v">Pasta for Wednesday and Friday, potatoes for Thursday</span>'+
     '</div></div>';
 
-  h += '<div class="h3">Las dos reglas que no se negocian</div>'+
-    '<div class="card"><h2>Tres días en la nevera, ni uno más</h2><p>El arroz y la pasta cocidos aguantan tres días. De la tanda del domingo, el miércoles va justo. Si algo se va a comer más tarde, al congelador en ración suelta y se baja a la nevera la noche antes.</p></div>'+
-    '<div class="card"><h2>El arroz se enfría rápido</h2><p>Extendido en una bandeja y a la nevera <b>en menos de una hora</b>. El arroz que pasa la tarde templado en la olla es la forma más clásica de acabar con el estómago del revés.</p></div>';
+  h += '<div class="h3">The two non-negotiable rules</div>'+
+    '<div class="card"><h2>Three days in the fridge, not one more</h2><p>Cooked rice and pasta keep for three days. With Sunday’s batch, Wednesday is cutting it fine. If something will be eaten later, freeze it in single portions and move it to the fridge the night before.</p></div>'+
+    '<div class="card"><h2>Rice gets cooled fast</h2><p>Spread out on a tray and into the fridge <b>within an hour</b>. Rice left warm in the pot all afternoon is the classic way to end up with an upset stomach.</p></div>';
   $('v-cocina').innerHTML = h;
 }
 
 // ═══ COMPRA ═════════════════════════════════════════════════
 const LISTA = [
-  ['Carne','Pechuga de pollo','4 piezas · unos 800 g'],
-  ['Carne','Carne picada','500 g'],
-  ['Embutido y queso','Jamón serrano','220 g · bocadillos y jueves'],
-  ['Embutido y queso','Lomo embuchado','120 g'],
-  ['Embutido y queso','Queso curado','150 g'],
-  ['Lácteos y huevos','Leche entera','4 L'],
-  ['Lácteos y huevos','Huevos','1 docena'],
-  ['Lácteos y huevos','Yogur griego','6'],
-  ['Lácteos y huevos','Yogur natural','1 · para la salsa'],
-  ['Fruta y verdura','Plátanos','12'],
-  ['Fruta y verdura','Fruta variada','6 piezas'],
-  ['Fruta y verdura','Patatas','2 kg'],
-  ['Fruta y verdura','Brócoli','1'],
-  ['Fruta y verdura','Pimientos','2'],
-  ['Fruta y verdura','Calabacines','2'],
-  ['Fruta y verdura','Cebollas','3'],
-  ['Fruta y verdura','Limón','1'],
-  ['Panadería','Chapata','3 · el domingo por la mañana'],
-  ['Panadería','Pan de molde o tostadas','1 paquete'],
-  ['Despensa','Avena en polvo','500 g'],
-  ['Despensa','Arroz','1 kg · dura casi dos semanas'],
-  ['Despensa','Pasta','500 g'],
-  ['Despensa','Tomate frito','1 bote'],
-  ['Despensa','Frutos secos','200 g'],
-  ['Despensa','Granola','si se acaba'],
-  ['Despensa','Crema de cacahuete, miel, soja','si se acaban']
+  ['Meat','Chicken breast','4 pieces · about 800 g'],
+  ['Meat','Mince','500 g'],
+  ['Cured meats and cheese','Serrano ham','220 g · sandwiches and Thursday'],
+  ['Cured meats and cheese','Cured pork loin (lomo)','120 g'],
+  ['Cured meats and cheese','Cured cheese','150 g'],
+  ['Dairy and eggs','Whole milk','4 L'],
+  ['Dairy and eggs','Eggs','1 dozen'],
+  ['Dairy and eggs','Greek yoghurt','6'],
+  ['Dairy and eggs','Plain yoghurt','1 · for the sauce'],
+  ['Fruit and veg','Bananas','12'],
+  ['Fruit and veg','Mixed fruit','6 pieces'],
+  ['Fruit and veg','Potatoes','2 kg'],
+  ['Fruit and veg','Broccoli','1'],
+  ['Fruit and veg','Peppers','2'],
+  ['Fruit and veg','Courgettes','2'],
+  ['Fruit and veg','Onions','3'],
+  ['Fruit and veg','Lemon','1'],
+  ['Bakery','Ciabatta','3 · on Sunday morning'],
+  ['Bakery','Sliced bread or crispbread','1 pack'],
+  ['Cupboard','Oat flour','500 g'],
+  ['Cupboard','Rice','1 kg · lasts almost two weeks'],
+  ['Cupboard','Pasta','500 g'],
+  ['Cupboard','Tomato sauce','1 jar'],
+  ['Cupboard','Nuts','200 g'],
+  ['Cupboard','Granola','if it runs out'],
+  ['Cupboard','Peanut butter, honey, soy sauce','if they run out']
 ];
 
 async function cargarLista(){
@@ -447,8 +447,8 @@ async function cargarLista(){
   setSync('syncing');
   try{
     const r = await sb('POST','shopping_items', filas, 'return=representation');
-    st.shop = r || []; setSync('ok'); pintarCompra(); toast('Lista de la semana cargada');
-  }catch(e){ console.error(e); setSync('err'); toast('No se ha podido cargar'); }
+    st.shop = r || []; setSync('ok'); pintarCompra(); toast('This week’s list is loaded');
+  }catch(e){ console.error(e); setSync('err'); toast('Couldn’t load the list'); }
 }
 async function marcar(id){
   const it = st.shop.find(x => String(x.id)===String(id)); if(!it) return;
@@ -458,10 +458,10 @@ async function marcar(id){
   catch(e){ console.error(e); setSync('err'); }
 }
 async function anadir(nom){
-  const fila = { name: nom, category:'Otros', checked:false, week_key: LUNES };
+  const fila = { name: nom, category:'Other', checked:false, week_key: LUNES };
   setSync('syncing');
   try{ const r = await sb('POST','shopping_items', fila, 'return=representation'); st.shop.push(r[0]); setSync('ok'); pintarCompra(); }
-  catch(e){ console.error(e); setSync('err'); toast('No se ha guardado'); }
+  catch(e){ console.error(e); setSync('err'); toast('Not saved'); }
 }
 async function vaciar(){
   setSync('syncing');
@@ -471,16 +471,16 @@ async function vaciar(){
 
 function pintarCompra(){
   const v = $('v-compra'), d0 = pd(LUNES), d6 = pd(add(LUNES,6));
-  const sem = 'Semana del '+d0.getDate()+' '+MESES[d0.getMonth()]+' al '+d6.getDate()+' '+MESES[d6.getMonth()];
+  const sem = 'Week from '+d0.getDate()+' '+MESES[d0.getMonth()]+' to '+d6.getDate()+' '+MESES[d6.getMonth()];
   if(!st.shop.length){
-    v.innerHTML = '<div class="card"><h2>Compra de la semana</h2><div class="meta">'+sem+'</div>'+
-      '<p>La lista sale del menú: lo justo para las comidas, los batidos y los bocadillos. La carne de las cenas la pone la casa y no está aquí.</p>'+
-      '<button class="btn" id="cargar">Cargar la lista de esta semana</button></div>';
+    v.innerHTML = '<div class="card"><h2>The weekly shop</h2><div class="meta">'+sem+'</div>'+
+      '<p>The list comes from the menu: just what you need for the meals, shakes and sandwiches. The meat for dinners is cooked at home, so it isn’t on here.</p>'+
+      '<button class="btn" id="cargar">Load this week’s list</button></div>';
     $('cargar').onclick = cargarLista;
     return;
   }
   const hechos = st.shop.filter(x => x.checked).length;
-  let h = '<div class="shop-top"><b>'+sem+'</b><span>'+hechos+' de '+st.shop.length+'</span></div>'+
+  let h = '<div class="shop-top"><b>'+sem+'</b><span>'+hechos+' of '+st.shop.length+'</span></div>'+
     '<div class="prog"><i style="width:'+(hechos/st.shop.length*100)+'%"></i></div>';
   const cats = [];
   st.shop.forEach(x => { if(!cats.includes(x.category)) cats.push(x.category); });
@@ -494,8 +494,8 @@ function pintarCompra(){
         (q1?'<span class="q">'+esc(q1)+'</span>':'')+'</button>';
     });
   });
-  h += '<div class="addrow"><input id="nuevo" placeholder="Añadir algo más" maxlength="60"><button id="add">Añadir</button></div>'+
-       '<button class="btn ghost" id="vaciar">Empezar la lista de cero</button>';
+  h += '<div class="addrow"><input id="nuevo" placeholder="Add something else" maxlength="60"><button id="add">Add</button></div>'+
+       '<button class="btn ghost" id="vaciar">Start the list from scratch</button>';
   v.innerHTML = h;
   v.querySelectorAll('.item').forEach(b => b.onclick = () => marcar(b.dataset.id));
   $('add').onclick = () => { const t = $('nuevo').value.trim(); if(t) anadir(t); };
@@ -506,24 +506,24 @@ function pintarCompra(){
 // ═══ REGLAS ═════════════════════════════════════════════════
 function pintarReglas(){
   $('v-reglas').innerHTML =
-    '<div class="card"><h2>El plato, sin báscula</h2><div class="meta">Comida y cena, siempre lo mismo</div>'+
+    '<div class="card"><h2>The plate, no scales</h2><div class="meta">Lunch and dinner, always the same</div>'+
       '<div class="plate">'+
-        '<div><span class="ic">🍗</span><b>Carne o pescado</b><span>Que te cubra la palma de la mano y tenga un dedo de grosor</span></div>'+
-        '<div><span class="ic">🍚</span><b>Medio plato de hidrato</b><span>Un vaso raso de arroz crudo, vaso y medio de macarrones o dos patatas como tu puño</span></div>'+
-        '<div><span class="ic">🥦</span><b>Un puñado de verdura</b><span>Lo que queda del plato</span></div>'+
-        '<div><span class="ic">🫒</span><b>Aceite y pan</b><span>Dos cucharadas de aceite sin miedo y pan al lado</span></div>'+
+        '<div><span class="ic">🍗</span><b>Meat or fish</b><span>Enough to cover your palm, a finger thick</span></div>'+
+        '<div><span class="ic">🍚</span><b>Half a plate of carbs</b><span>A level glass of uncooked rice, a glass and a half of macaroni or two fist-sized potatoes</span></div>'+
+        '<div><span class="ic">🥦</span><b>A handful of veg</b><span>The rest of the plate</span></div>'+
+        '<div><span class="ic">🫒</span><b>Oil and bread</b><span>Two tablespoons of oil, don’t be shy, and bread on the side</span></div>'+
       '</div></div>'+
-    '<div class="card"><h2>La cena</h2><p>La carne la pone la casa y es buena. <b>Tu trabajo es la guarnición:</b> mires lo que mires en la sartén, añades medio plato de hidrato de la nevera y pan. La cena no se cae por la carne, se cae por la guarnición que no pusiste.</p></div>'+
-    '<div class="card"><h2>El único mando</h2><div class="meta">Se mira el peso del martes en la app del gimnasio</div>'+
+    '<div class="card"><h2>Dinner</h2><p>The meat is cooked at home and it’s good. <b>Your job is the side:</b> whatever’s in the pan, you add half a plate of carbs from the fridge and bread. Dinner doesn’t fail because of the meat, it fails because of the side you didn’t add.</p></div>'+
+    '<div class="card"><h2>The only dial</h2><div class="meta">Check Tuesday’s weight in the gym app</div>'+
       '<div class="knob">'+
-        '<div><b>+300 a +500 g</b>Al mes: no se toca nada</div>'+
-        '<div><b>Más de +500 g</b>Quitas el pan de la cena</div>'+
-        '<div><b>Menos de +300 g</b>Media ración más de hidrato en la cena</div>'+
-      '</div><p>Solo se toca eso. El desayuno, el batido y el bocadillo se quedan como están.</p></div>'+
-    '<div class="card"><h2>El batido</h2><p><b>400 ml de leche entera, 50 g de avena en polvo, 30 g de whey y la creatina</b>, preparado la noche antes y a la nevera. Por la mañana a la mochila, y en la oficina otra vez a la nevera hasta las 11.</p><p>Leche primero y polvo después, o se apelmaza. Agitar, un minuto de reposo y agitar otra vez. Se enjuaga nada más acabarlo. De creatina bastan 3 a 5 g.</p></div>'+
-    '<div class="card"><h2>El bocadillo</h2><p><b>Chapata o barra rústica</b>, comprada el domingo por la mañana y congelada ese mismo día. Media pieza por bocadillo, unos 60 g de embutido, una loncha gruesa de queso curado y un chorrito de aceite.</p><p>Serrano los lunes, miércoles y viernes. Lomo embuchado los martes y jueves. Nada de tomate ni mayonesa, que no aguantan el congelador. Sale congelado por la mañana y va directo a la nevera de la oficina.</p></div>'+
-    '<div class="card"><h2>Lo que entra y lo que no</h2><div class="yesno"><div class="yes"><b>Sí</b>Brócoli, pimiento, calabacín, cebolla</div><div class="no"><b>No</b>Coliflor</div></div></div>'+
-    '<div class="card"><h2>El fin de semana</h2><p>La <b>comida y la cena del sábado</b> son libres. La <b>comida del domingo</b> es la de casa, que ya lleva hidratos. Lo que no se salta es el batido.</p></div>';
+        '<div><b>+300 to +500 g</b>Per month: change nothing</div>'+
+        '<div><b>Over +500 g</b>Drop the bread at dinner</div>'+
+        '<div><b>Under +300 g</b>Half a portion more carbs at dinner</div>'+
+      '</div><p>That’s the only thing you change. Breakfast, the shake and the sandwich stay as they are.</p></div>'+
+    '<div class="card"><h2>The shake</h2><p><b>400 ml of whole milk, 50 g of oat flour, 30 g of whey and the creatine</b>, made the night before and into the fridge. In the morning into your rucksack, and at the office back into the fridge until 11.</p><p>Milk first and powder after, or it goes lumpy. Shake, leave it a minute and shake again. Rinse it as soon as you finish. 3 to 5 g of creatine is enough.</p></div>'+
+    '<div class="card"><h2>The sandwich</h2><p><b>Ciabatta or a rustic baguette</b>, bought on Sunday morning and frozen the same day. Half a loaf per sandwich, about 60 g of cured meat, a thick slice of cured cheese and a drizzle of oil.</p><p>Serrano on Mondays, Wednesdays and Fridays. Cured pork loin (lomo) on Tuesdays and Thursdays. No tomato or mayonnaise, they don’t survive the freezer. It comes out of the freezer in the morning and goes straight into the office fridge.</p></div>'+
+    '<div class="card"><h2>What’s in and what’s out</h2><div class="yesno"><div class="yes"><b>Yes</b>Broccoli, pepper, courgette, onion</div><div class="no"><b>No</b>Cauliflower</div></div></div>'+
+    '<div class="card"><h2>The weekend</h2><p><b>Saturday lunch and dinner</b> are free meals. <b>Sunday lunch</b> is whatever’s cooked at home, which already has carbs. The one thing you don’t skip is the shake.</p></div>';
 }
 
 // ═══ NAVEGACIÓN ═════════════════════════════════════════════
@@ -539,7 +539,7 @@ $('tabs').onclick = e => { const v = e.target.dataset.v; if(v) ir(v); };
 let tt;
 function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1600); }
 
-$('sub').textContent = 'Hoy, '+DIAS[pd(HOY).getDay()]+' '+pd(HOY).getDate()+' '+MESES[pd(HOY).getMonth()];
+$('sub').textContent = 'Today, '+DIAS[pd(HOY).getDay()]+' '+pd(HOY).getDate()+' '+MESES[pd(HOY).getMonth()];
 ir('menu');
 cargar().then(() => ir(st.vista));
 </script>
