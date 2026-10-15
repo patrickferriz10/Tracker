@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tracker">
-<title>Mi Tracker</title>
+<title>My Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -113,235 +113,239 @@ h3{font-size:13px;font-weight:600;color:var(--muted);margin:20px 0 6px;text-tran
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,10px);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:14px;font-weight:500;opacity:0;transition:.2s;pointer-events:none;z-index:60;white-space:nowrap}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
-</head>
 <body>
 <div class="wrap">
-  <div class="head"><h1>Mi Tracker</h1><span class="dot" id="sync"></span></div>
+  <div class="head"><h1>My Tracker</h1><span class="dot" id="sync"></span></div>
 
   <div class="daynav">
-    <button class="arr" id="prev" aria-label="Día anterior">‹</button>
+    <button class="arr" id="prev" aria-label="Previous day">‹</button>
     <div class="lbl"><b id="dlbl"></b><span id="drel"></span></div>
-    <button class="arr" id="next" aria-label="Día siguiente">›</button>
+    <button class="arr" id="next" aria-label="Next day">›</button>
   </div>
 
   <div class="seg">
-    <span class="t">Partido este finde</span>
+    <span class="t">Match this weekend</span>
     <div class="opts" id="match">
-      <button data-m="sab">Sábado</button>
-      <button data-m="dom">Domingo</button>
+      <button data-m="sab">Saturday</button>
+      <button data-m="dom">Sunday</button>
     </div>
   </div>
 
   <div id="banners"></div>
   <div id="regTop"></div>
-  <h3>El día</h3>
+  <h3>The day</h3>
   <div id="agenda"></div>
   <div id="regBottom"></div>
 
-  <h3>Últimos días</h3>
+  <h3>Last 7 days</h3>
   <div class="wk" id="week"></div>
-  <div class="legend"><span>Arriba: móvil</span><span>Medio: luz</span><span>Abajo: salida</span></div>
+  <div class="legend"><span>Top: phone</span><span>Middle: lights off</span><span>Bottom: leaving home</span></div>
   <div class="rule" id="rule"></div>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══ CONFIGURACIÓN ══════════════════════════════════════════
+// ═══ SETTINGS ═══════════════════════════════════════════════
 const SB_URL = 'https://jqmfbodxyidnwnvqfjfh.supabase.co';
 const SB_KEY = 'sb_publishable_VzI9uNGpvzXuK3ZIodJCNw_H39Ri-ey';
 
-const OBJ = { movil: 90, luz: '23:15', salida: '07:40' }; // minutos de pantalla, hora de luz, hora de salir
+const OBJ = { movil: 90, luz: '23:15', salida: '07:40' }; // screen minutes, lights-off time, time to leave home
 const FESTIVOS = ['2026-10-12', '2026-12-08', '2026-12-25'];
-const TRANSFERENCIA = '1.122 € a Trade Republic: 1.000 al ETF y 122 al colchón';
-const BATIDO = '400 ml de leche, 50 g de avena, 30 g de whey y la creatina';
+const TRANSFER = '€1,122 to Trade Republic: €1,000 to the ETF and €122 to the emergency fund';
+const SHAKE = '400 ml milk, 50 g oat flour, 30 g whey and the creatine';
 
-// ═══ FECHAS ═════════════════════════════════════════════════
-const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+// ═══ DATES ══════════════════════════════════════════════════
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const ds = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const pd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
 const add = (s,n) => { const d = pd(s); d.setDate(d.getDate()+n); return ds(d); };
 const dow = s => pd(s).getDay();
 const lunes = s => add(s, -((dow(s)+6)%7));
 const diff = (a,b) => Math.round((pd(b)-pd(a))/86400000);
-const q = new URLSearchParams(location.search).get('hoy');       // ?hoy=2026-10-06 para probar
-const HOY = q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? q : ds(new Date());
+// The day ends at 04:00: if you log at 00:30, it still counts as the day before.
+const DAY_END = 4;
+const logicalToday = () => ds(new Date(Date.now() - DAY_END*3600*1000));
+const q = new URLSearchParams(location.search).get('hoy');       // ?hoy=2026-10-06 to test
+const HOY = q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? q : logicalToday();
 const esFestivo = s => FESTIVOS.includes(s);
 const laborable = s => dow(s)>=1 && dow(s)<=5 && !esFestivo(s);
 const primerMartes = s => dow(s)===2 && pd(s).getDate()<=7;
+const fmtDate = s => { const d = pd(s); return DAYS[d.getDay()]+' '+d.getDate()+' '+MONTHS[d.getMonth()]; };
 
-// Horas como minutos. Para la luz, de madrugada cuenta como tarde (00:30 → 24:30).
+// Times as minutes. For lights off, after midnight counts as late (00:30 → 24:30).
 const toMin = t => { const [h,m] = t.split(':').map(Number); return h*60+m; };
 const fmt = m => { m = ((m%1440)+1440)%1440; return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); };
 const luzMin = t => { const m = toMin(t); return m < 720 ? m+1440 : m; };
 const fmtMov = m => m==null ? '–' : Math.floor(m/60) ? Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m' : m+' min';
+const nowMin = () => { const n = new Date(); let m = n.getHours()*60+n.getMinutes(); if(n.getHours() < DAY_END) m += 1440; return m; };
 
-// ═══ PLAN SEMANAL ═══════════════════════════════════════════
+// ═══ WEEKLY PLAN ════════════════════════════════════════════
 // k: trabajo · clase · comida · gym · futbol · estudio · rutina · clave
-// Las tres "clave" son la cadena: salir de casa, registro y luz apagada.
+// The "clave" items are the chain: leave home, daily log and lights off.
 function plan(s, partido){
   const d = dow(s), B = partido==='dom', fest = esFestivo(s), it = [];
   const P = (t,txt,k,sub,extra) => it.push(Object.assign({t,txt,k,sub},extra||{}));
   const gymFinde = (d===0 && !B) || (d===6 && B);
   const domTotal = (d===2 || gymFinde) ? 3 : 5;
 
-  // Festivo entre semana: día libre, se mantiene el deporte del día y la noche
+  // Weekday bank holiday: a free day, keeping the day's sport and the evening
   if(fest && d>=1 && d<=5){
-    P('09:00','Levantarse, como muy tarde','rutina','Desayuno tranquilo y 2 series de dominadas');
-    P('10:00','Estudio: inglés','estudio','Hasta las 12:00');
-    P('12:00','Batido + plátano','comida');
-    if(d===2) P('12:30','Gimnasio: tirón','gym','Con el peso muerto rumano. La pierna la pone el PF');
-    if(d===5) P('12:30','Gimnasio: empuje','gym');
-    P('14:00','Comida','comida');
-    P('16:00','Estudio: carrera o GEPR','estudio','Hasta las 17:30');
-    P('18:00','Bocadillo','comida');
-    if(d===2) P('19:00','Entreno con el PF','futbol','Si hay entreno');
-    if(d===3 || d===4) P('19:45','Fútbol','futbol','Si hay entreno');
-    if(d===5 && !B) P('19:30','Clase de inglés','clase','Si hay clase');
-    P('21:30','Cena','comida');
+    P('09:00','Get up, at the latest','rutina','Easy breakfast and 2 sets of pull-ups');
+    P('10:00','Study: English','estudio','Until 12:00');
+    P('12:00','Shake + banana','comida');
+    if(d===2) P('12:30','Gym: pull','gym','With Romanian deadlifts. Legs are the fitness coach’s job');
+    if(d===5) P('12:30','Gym: push','gym');
+    P('14:00','Lunch','comida');
+    P('16:00','Study: uni work or GEPR','estudio','Until 17:30');
+    P('18:00','Sandwich','comida');
+    if(d===2) P('19:00','Training with the fitness coach','futbol','If there’s training');
+    if(d===3 || d===4) P('19:45','Football','futbol','If there’s training');
+    if(d===5 && !B) P('19:30','English class','clase','If there’s a class');
+    P('21:30','Dinner','comida');
   }
 
-  // Mañana de lunes a viernes
+  // Monday to Friday morning
   if(d>=1 && d<=5 && !fest){
-    let sub = 'Agua, 2 series de dominadas y sin móvil hasta salir';
-    if(d===2) sub = 'Peso en ayunas'+(primerMartes(s)?', cintura y foto':'')+' · '+sub.toLowerCase();
-    P('06:55','Levantarse','rutina',sub);
-    P('07:00','Desayuno','comida');
-    P('07:35','A la mochila: batido de la nevera y bocadillo del congelador','rutina');
-    P('07:40','Salir de casa','clave','Si sales a esta hora, llegas',{cadena:'salida'});
-    P('08:15','Trabajo hasta las 14:15','trabajo','El batido, a la nevera de la oficina');
-    P('11:00', d===5 && !B ? 'Batido + yogur o un segundo plátano' : 'Batido + plátano','comida', d===5 && !B ? 'Hoy la comida es ligera, así que la media mañana va más cargada' : null);
+    let sub = 'Water, 2 sets of pull-ups and no phone until you leave';
+    if(d===2) sub = 'Weigh-in on an empty stomach'+(primerMartes(s)?', waist and photo':'')+' · '+sub.charAt(0).toLowerCase()+sub.slice(1);
+    P('06:55','Get up','rutina',sub);
+    P('07:00','Breakfast','comida');
+    P('07:35','Into the bag: shake from the fridge, sandwich from the freezer','rutina');
+    P('07:40','Leave home','clave','Leave at this time and you’re on time',{cadena:'salida'});
+    P('08:15','Work until 14:15','trabajo','Shake into the office fridge');
+    P('11:00', d===5 && !B ? 'Shake + yoghurt or a second banana' : 'Shake + banana','comida', d===5 && !B ? 'Lunch is light today, so the mid-morning snack is bigger' : null);
   }
 
-  // Lo propio de cada día
-  if(fest && d>=1 && d<=5){ /* ya está arriba */ }
+  // Each day's own plan
+  if(fest && d>=1 && d<=5){ /* already above */ }
   else if(d===1){
-    P('13:45','Comida en el trabajo','comida','Táper; alargas la jornada media hora');
-    P('15:00','Clase hasta las 21:00','clase');
-    P('18:00','Bocadillo en el descanso','comida');
-    P('21:30','Cena','comida','Carne a la plancha + guarnición de la nevera');
+    P('13:45','Lunch at work','comida','Lunchbox; your working day runs half an hour longer');
+    P('15:00','Class until 21:00','clase');
+    P('18:00','Sandwich in the break','comida');
+    P('21:30','Dinner','comida','Grilled meat + a side from the fridge');
   }
   else if(d===2){
-    P('14:30','Comida en el gimnasio','comida');
-    P('15:00','Gimnasio: tirón','gym','Con el peso muerto rumano. La pierna la pone el PF');
-    P('16:15','Bocadillo al salir','comida');
-    P('16:30','Estudio: electrónica de potencia','estudio','Hasta las 18:30');
-    P('18:30','Plátano y salir hacia el PF','comida');
-    P('19:00','Entreno con el PF hasta las 20:00','futbol','Fuerza de pierna y aeróbico');
-    P('20:15','Ducha al llegar','rutina');
-    P('20:30','Cena y tanda de cocina a la vez','comida','40 min · macarrones, carne picada y patatas para el jueves y el viernes');
+    P('14:30','Lunch at the gym','comida');
+    P('15:00','Gym: pull','gym','With Romanian deadlifts. Legs are the fitness coach’s job');
+    P('16:15','Sandwich after the gym','comida');
+    P('16:30','Study: power electronics','estudio','Until 18:30');
+    P('18:30','Banana, then off to training','comida');
+    P('19:00','Fitness coach until 20:00','futbol','Leg strength and aerobic work');
+    P('20:15','Shower when you get home','rutina');
+    P('20:30','Dinner and Tuesday batch at the same time','comida','40 min · pasta, mince and potatoes for Thursday and Friday');
   }
   else if(d===3){
-    P('13:45','Comida en el trabajo','comida');
-    P('15:00','Clase hasta las 19:00','clase');
-    P('18:00','Bocadillo','comida');
-    P('19:45','Fútbol','futbol');
-    P('21:45','Cena','comida');
+    P('13:45','Lunch at work','comida');
+    P('15:00','Class until 19:00','clase');
+    P('18:00','Sandwich','comida');
+    P('19:45','Football','futbol');
+    P('21:45','Dinner','comida');
   }
   else if(d===4){
-    P('13:45','Comida ligera en el trabajo','comida','Hoy no toca plato: a las 15:00 hay futsal');
+    P('13:45','Light lunch at work','comida','No proper meal yet: futsal at 15:00');
     P('15:00','Futsal','futbol');
-    P('16:30','Comida de verdad','comida','El segundo táper');
+    P('16:30','Proper lunch','comida','The second lunchbox');
     if(!B){
-      P('17:15','Estudio: carrera o GEPR','estudio','Hasta las 19:00');
-      P('18:30','Bocadillo','comida');
-      P('19:45','Fútbol','futbol');
-      P('21:45','Cena','comida');
+      P('17:15','Study: uni work or GEPR','estudio','Until 19:00');
+      P('18:30','Sandwich','comida');
+      P('19:45','Football','futbol');
+      P('21:45','Dinner','comida');
     } else {
-      P('18:00','Gimnasio: empuje','gym','Esta semana el entreno de fútbol pasa al viernes');
-      P('19:30','Bocadillo al salir','comida');
-      P('21:00','Cena','comida');
+      P('18:00','Gym: push','gym','This week football training moves to Friday');
+      P('19:30','Sandwich after the gym','comida');
+      P('21:00','Dinner','comida');
     }
   }
   else if(d===5){
     if(!B){
-      P('14:30','Comida ligera','comida','En 45 minutos hay gimnasio');
-      P('15:15','Gimnasio: empuje','gym');
-      P('16:40','Bocadillo de camino','comida');
-      P('17:00','Clase hasta las 19:00','clase');
-      P('19:30','Clase de inglés hasta las 20:30','clase','Con la profesora');
-      P('20:45','Cena grande','comida','Hoy es la comida fuerte del día');
-      P('21:30','Noche libre','rutina');
+      P('14:30','Light lunch','comida','Gym in 45 minutes');
+      P('15:15','Gym: push','gym');
+      P('16:40','Sandwich on the way','comida');
+      P('17:00','Class until 19:00','clase');
+      P('19:30','English class until 20:30','clase','With your teacher');
+      P('20:45','Big dinner','comida','Today’s main meal');
+      P('21:30','Free evening','rutina');
     } else {
-      P('14:30','Comida','comida');
-      P('15:15','Estudio: carrera o GEPR','estudio','Hasta las 16:45, en el hueco del gimnasio');
-      P('17:00','Clase hasta las 19:00','clase');
-      P('19:00','Bocadillo al salir','comida');
-      P('19:45','Fútbol','futbol');
-      P('21:45','Cena','comida');
+      P('14:30','Lunch','comida');
+      P('15:15','Study: uni work or GEPR','estudio','Until 16:45, in the gym slot');
+      P('17:00','Class until 19:00','clase');
+      P('19:00','Sandwich after class','comida');
+      P('19:45','Football','futbol');
+      P('21:45','Dinner','comida');
     }
   }
   if(d===6){
     if(!B){
-      P('09:00','Levantarse, como muy tarde','rutina','Desayuno de tortitas');
-      P('10:00','Estudio: inglés','estudio','Hasta las 12:30. Primero, los deberes de la clase de ayer');
-      P('12:30','Compra de la semana','rutina');
-      P('13:30','Comida','comida','Casi tres horas antes de la convocatoria');
-      P('15:30','Merienda ligera','comida');
-      P('16:15','Convocatoria','futbol','Partido a las 18:45');
-      P('21:00','Cena al volver','comida');
+      P('09:00','Get up, at the latest','rutina','Pancakes for breakfast');
+      P('10:00','Study: English','estudio','Until 12:30. Start with yesterday’s homework');
+      P('12:30','Weekly shop','rutina');
+      P('13:30','Lunch','comida','Almost three hours before the squad meet-up');
+      P('15:30','Light snack','comida');
+      P('16:15','Squad meet-up','futbol','Kick-off at 18:45');
+      P('21:00','Dinner when you get back','comida');
     } else {
-      P('09:00','Levantarse, como muy tarde','rutina','Desayuno de tortitas');
-      P('10:00','Clase de inglés hasta las 11:00','clase','Con la profesora');
-      P('11:30','Gimnasio: mixto','gym');
-      P('13:00','Compra de la semana y pan','rutina');
-      P('14:00','Comida','comida');
-      P('16:30','Estudio: inglés','estudio','Hasta las 18:00. Primero, los deberes de la clase');
-      P('18:00','Tanda grande','comida','Táperes y cinco bocadillos al congelador · 90 min');
-      P('19:45','Cena','comida');
-      P('20:30','Finanzas: cerrar la semana','rutina','10 min');
+      P('09:00','Get up, at the latest','rutina','Pancakes for breakfast');
+      P('10:00','English class until 11:00','clase','With your teacher');
+      P('11:30','Gym: mixed','gym');
+      P('13:00','Weekly shop and bread','rutina');
+      P('14:00','Lunch','comida');
+      P('16:30','Study: English','estudio','Until 18:00. Start with the class homework');
+      P('18:00','Big batch cook','comida','Lunchboxes, and five sandwiches into the freezer · 90 min');
+      P('19:45','Dinner','comida');
+      P('20:30','Finances: close the week','rutina','10 min');
     }
   }
   if(d===0){
     if(!B){
-      P('09:00','Levantarse, como muy tarde','rutina','Comprar el pan de los bocadillos');
-      P('11:00','Gimnasio: mixto','gym');
-      P('14:00','Comida','comida');
-      P('16:00','Estudio: inglés','estudio','Hasta las 17:45. La tarde del domingo tiene dueño');
-      P('17:45','Finanzas: cerrar la semana','rutina','10 min');
-      P('18:00','Tanda grande','comida','Táperes y cinco bocadillos al congelador · 90 min');
-      P('19:45','Cena','comida');
-      P('20:30','Ritual ampliado','rutina','Batido, táper del lunes y ropa: mañana es el día largo');
+      P('09:00','Get up, at the latest','rutina','Buy the bread for the sandwiches');
+      P('11:00','Gym: mixed','gym');
+      P('14:00','Lunch','comida');
+      P('16:00','Study: English','estudio','Until 17:45. Sunday afternoon is spoken for');
+      P('17:45','Finances: close the week','rutina','10 min');
+      P('18:00','Big batch cook','comida','Lunchboxes, and five sandwiches into the freezer · 90 min');
+      P('19:45','Dinner','comida');
+      P('20:30','Extended evening routine','rutina','Shake, Monday’s lunchbox and clothes: tomorrow is the long day');
     } else {
-      P('09:00','Levantarse, como muy tarde','rutina');
-      P('09:30','Antes de nada: lo del lunes listo','rutina','Batido, táper y ropa. Vuelves reventado');
-      P('10:00','Estudio: carrera o GEPR','estudio','Hasta las 12:00');
-      P('12:30','Comida','comida','Unas tres horas antes del partido');
-      P('13:30','Bus de ida: inglés de oído','estudio','Podcast, serie o audiolibro. No Instagram');
-      P('16:30','Partido','futbol','La hora cambia según el campo');
-      P('18:30','Bus de vuelta: inglés de oído','estudio');
-      P('21:00','Cena al llegar','comida');
+      P('09:00','Get up, at the latest','rutina');
+      P('09:30','First thing: get Monday ready','rutina','Shake, lunchbox and clothes. You’ll be back exhausted');
+      P('10:00','Study: uni work or GEPR','estudio','Until 12:00');
+      P('12:30','Lunch','comida','About three hours before the match');
+      P('13:30','Bus there: English by ear','estudio','Podcast, series or audiobook. No Instagram');
+      P('16:30','Match','futbol','Kick-off depends on the ground');
+      P('18:30','Bus back: English by ear','estudio');
+      P('21:00','Dinner when you get home','comida');
     }
   }
 
-  // Noche
-  const mañanaTrabajo = d>=0 && d<=4;
+  // Evening
+  const mañanaTrabajo = laborable(add(s,1));
   if(mañanaTrabajo){
-    if(d!==2) P('22:20','Ducha','rutina');   // el martes, al volver del PF
-    const ritualHecho = d===0; // domingo: ampliado a las 20:30 (A) o por la mañana (B)
+    if(d!==2) P('22:20','Shower','rutina');   // on Tuesday, after the fitness coach
+    const ritualHecho = d===0; // Sunday: extended routine at 20:30 (A) or in the morning (B)
     if(!ritualHecho){
-      P('22:35','Ritual de la noche','rutina', 'Batido de mañana ('+BATIDO+'), plátano, '+(d===3?'los dos táperes del jueves':'táper si toca')+', ropa y móvil a cargar fuera');
+      P('22:35','Evening routine','rutina', 'Tomorrow’s shake ('+SHAKE+'), banana, '+(d===3?'both lunchboxes for Thursday':'lunchbox if needed')+', clothes, and the phone charging outside the bedroom');
     }
   }
-  P('22:50','Dominadas: completar las '+domTotal+' de hoy','gym','Con los 5 minutos de movilidad');
-  P('23:00','Registro del día','clave','Aquí abajo, en veinte segundos',{cadena:'registro'});
-  P('23:05','Journaling y lectura','rutina');
-  if(mañanaTrabajo) P('23:15','Luz apagada','clave','El primer eslabón de mañana',{cadena:'luz'});
+  P('22:50','Pull-ups: finish today’s '+domTotal+' sets','gym','Plus 5 minutes of mobility');
+  P('23:00','Journaling and reading','rutina');
+  P('23:10','Daily log','clave','The last thing before lights off · 20 seconds',{cadena:'registro'});
+  if(mañanaTrabajo) P('23:15','Lights off','clave','The first link of tomorrow’s chain',{cadena:'luz'});
 
   return it.sort((a,b) => toMin(a.t)-toMin(b.t));
 }
 
-// Lo que va por calendario, sin hora fija
+// Calendar reminders with no fixed time
 function tambien(s){
   const out = [], dd = pd(s).getDate();
-  if(dd===1) out.push('Transferir '+TRANSFERENCIA);
-  if(dd===2) out.push('Comprobar que la aportación al ETF se ha ejecutado');
+  if(dd===1) out.push('Transfer '+TRANSFER);
+  if(dd===2) out.push('Check that the ETF contribution has gone through');
   const t = ultimoTest();
-  if(t && s>=HOY && add(t,14)<=s && s===HOY) out.push('Toca test de dominadas: una serie al fallo, en frío');
+  if(t && s>=HOY && add(t,14)<=s && s===HOY) out.push('Pull-up test due: one set to failure, from cold');
   return out;
 }
 
-// ═══ DATOS ══════════════════════════════════════════════════
+// ═══ DATA ═══════════════════════════════════════════════════
 const st = { days:{}, weeks:{}, tests:[], sel:HOY, editing:false, draft:null };
 
 function setSync(c){ document.getElementById('sync').className = 'dot '+c; }
@@ -366,13 +370,15 @@ async function cargar(){
     (weeks||[]).forEach(r => st.weeks[r.week_start] = r.match_day);
     st.tests = tests || [];
     setSync('ok');
-  }catch(e){ console.error(e); setSync('err'); toast('No carga. Revisa la conexión'); }
+  }catch(e){ console.error(e); setSync('err'); toast('Couldn’t load. Check your connection'); }
 }
 const ultimoTest = () => st.tests.length ? st.tests[0].date : null;
 const partidoDe = s => st.weeks[lunes(s)] || 'sab';
 
-// ═══ CUMPLIMIENTO ═══════════════════════════════════════════
-function objetivoLuz(s){ return dow(s)>=1 && dow(s)<=5 ? OBJ.luz : null; } // la noche antes de un día laborable
+// ═══ TARGETS ════════════════════════════════════════════════
+// Each day's row holds: phone that day, lights off THAT night, and the time you left home that morning.
+// Lights off only has a target when the next day is a working day.
+function objetivoLuz(s){ return laborable(add(s,1)) ? OBJ.luz : null; }
 function estado(s){
   const r = st.days[s];
   const res = { movil:'none', luz:'none', salida: laborable(s) ? 'none' : 'na' };
@@ -384,30 +390,30 @@ function estado(s){
 }
 const registrado = s => { const r = st.days[s]; return !!(r && r.screen_min!=null && r.lights_off); };
 
-// ═══ PINTAR ═════════════════════════════════════════════════
+// ═══ RENDER ═════════════════════════════════════════════════
 const $ = id => document.getElementById(id);
 const esc = t => String(t).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
 
 function pintar(){
-  const s = st.sel, d = pd(s);
-  $('dlbl').textContent = DIAS[d.getDay()].replace(/^./, c => c.toUpperCase())+' '+d.getDate()+' de '+MESES[d.getMonth()];
+  const s = st.sel;
+  $('dlbl').textContent = fmtDate(s);
   const n = diff(HOY, s);
-  $('drel').textContent = n===0 ? 'Hoy' : n===1 ? 'Mañana' : n===-1 ? 'Ayer' : n>0 ? 'Dentro de '+n+' días' : 'Hace '+(-n)+' días';
+  $('drel').textContent = n===0 ? 'Today' : n===1 ? 'Tomorrow' : n===-1 ? 'Yesterday' : n>0 ? 'In '+n+' days' : (-n)+' days ago';
 
   const m = partidoDe(s);
   [...$('match').children].forEach(b => b.classList.toggle('on', b.dataset.m===m));
 
-  // Avisos
+  // Notices
   let ban = '';
-  if(esFestivo(s)) ban += '<div class="banner"><b>Festivo.</b> Ni trabajo ni clase. Es un día sin estructura: el que más se parece a un domingo en Enschede.</div>';
-  tambien(s).forEach(t => ban += '<div class="banner also"><b>Hoy también:</b> '+esc(t)+'</div>');
+  if(esFestivo(s)) ban += '<div class="banner"><b>Bank holiday.</b> No work and no class. A day with no structure: the closest thing to a Sunday in Enschede.</div>';
+  tambien(s).forEach(t => ban += '<div class="banner also"><b>Also today:</b> '+esc(t)+'</div>');
   $('banners').innerHTML = ban;
 
   // Agenda
   const items = plan(s, m);
   let ahora = -1;
   if(s===HOY){
-    const now = new Date(), nm = now.getHours()*60+now.getMinutes();
+    const nm = q ? 12*60 : nowMin();
     items.forEach((x,i) => { if(toMin(x.t) <= nm) ahora = i; });
   }
   $('agenda').innerHTML = items.map((x,i) => {
@@ -416,14 +422,15 @@ function pintar(){
     if(s===HOY && i<ahora) cls.push('past');
     if(s===HOY && i===ahora) cls.push('now');
     if(s<HOY) cls.push('past');
-    const tag = s===HOY && i===ahora ? '<span class="tag">Ahora</span>' : s===HOY && i===ahora+1 ? '<span class="tag next">Luego</span>' : '';
+    const tag = s===HOY && i===ahora ? '<span class="tag">Now</span>' : s===HOY && i===ahora+1 ? '<span class="tag next">Next</span>' : '';
     return '<div class="'+cls.join(' ')+'"><span class="tm">'+x.t+'</span><span class="bar" style="background:var(--k-'+x.k+')"></span>'+
       '<span class="tx">'+esc(x.txt)+tag+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+'</span></div>';
   }).join('');
 
-  // Registro: arriba por la noche o si miras un día pasado; abajo el resto del día
+  // Daily log: at the top in the evening or for a past day, at the bottom during the day
   const puede = s<=HOY && diff(s,HOY)<=3;
-  const tarde = s<HOY || new Date().getHours()>=21;
+  const h = new Date().getHours();
+  const tarde = s<HOY || h>=21 || h<DAY_END;
   $('regTop').innerHTML = ''; $('regBottom').innerHTML = '';
   if(puede) (tarde ? $('regTop') : $('regBottom')).appendChild(tarjetaRegistro(s));
 
@@ -433,48 +440,52 @@ function pintar(){
 function tarjetaRegistro(s){
   const r = st.days[s], c = document.createElement('div');
   c.className = 'card';
+  const hoy = s===HOY;
   const yaHecho = registrado(s) && !st.editing;
-  const titulo = s===HOY ? 'Registro de hoy' : 'Registro del '+pd(s).getDate()+' de '+MESES[pd(s).getMonth()];
+  const titulo = hoy ? 'Today’s log' : 'Log for '+fmtDate(s);
 
   if(yaHecho){
     const e = estado(s);
     const celda = (l, v, k) => '<div class="c"><div class="l">'+l+'</div><div class="n '+(k==='ok'?'ok-t':k==='bad'?'bad-t':'neu-t')+'">'+v+'</div></div>';
-    c.innerHTML = '<div class="ct"><b>'+titulo+'</b><span>Hecho</span></div>'+
-      '<div class="chainnote">Móvil → luz → salida. Si falla uno, mira el de antes.</div>'+
+    c.innerHTML = '<div class="ct"><b>'+titulo+'</b><span>Done</span></div>'+
+      '<div class="chainnote">Phone → lights off → leaving home. If one slips, look at the one before it.</div>'+
       '<div class="done">'+
-        celda('Móvil', fmtMov(r.screen_min), e.movil)+
-        celda('Luz', r.lights_off || '–', e.luz)+
-        (e.salida==='na' ? '' : celda('Salida', r.left_home || '–', e.salida))+
-      '</div><button class="link" id="edit">Corregir</button>';
+        celda('Phone', fmtMov(r.screen_min), e.movil)+
+        celda('Lights off', r.lights_off || '–', e.luz)+
+        (e.salida==='na' ? '' : celda('Left home', r.left_home || '–', e.salida))+
+      '</div><button class="link" id="edit">Edit</button>';
     c.querySelector('#edit').onclick = () => { st.editing = true; st.draft = null; pintar(); };
     return c;
   }
 
-  // Borrador. Si el día no tiene registro, arranca con lo último que apuntaste en un día del mismo tipo
-  // (no con el objetivo), para que dejarlo tal cual no sea un acierto gratis.
+  // Draft. Lights off starts at the current time when you log tonight (you log right before switching off).
+  // For a past day, it starts with the last value from a similar night, not the target,
+  // so leaving it untouched is never a free win.
   if(!st.draft || st.draft.s!==s){
     const o = objetivoLuz(s);
     const previo = campo => { for(let i=1;i<=14;i++){ const p = add(s,-i), x = st.days[p]; if(x && x[campo] && (campo==='left_home' || !!objetivoLuz(p)===!!o)) return x[campo]; } return null; };
+    const hr = new Date().getHours();
+    const ahoraLuz = hoy && !q && (hr>=20 || hr<DAY_END) ? Math.ceil(nowMin()/5)*5 : null;
     st.draft = {
       s,
       h: r && r.screen_min!=null ? Math.floor(r.screen_min/60) : '',
       mi: r && r.screen_min!=null ? r.screen_min%60 : '',
-      luz: luzMin((r && r.lights_off) || previo('lights_off') || o || '00:00'),
+      luz: r && r.lights_off ? luzMin(r.lights_off) : ahoraLuz!=null ? ahoraLuz : luzMin(previo('lights_off') || o || '23:30'),
       sal: toMin((r && r.left_home) || previo('left_home') || OBJ.salida)
     };
   }
   const D = st.draft, conSalida = laborable(s), oLuz = objetivoLuz(s);
 
-  c.innerHTML = '<div class="ct"><b>'+titulo+'</b><span>Una vez al día</span></div>'+
-    '<div class="chainnote">Las tres cosas son la misma cadena: móvil por la noche → luz tarde → salir tarde.</div>'+
-    '<div class="row"><div class="q"><span>Móvil hoy, según Tiempo de uso</span><em id="vm"></em></div>'+
+  c.innerHTML = '<div class="ct"><b>'+titulo+'</b><span>Once a day, at the end of it</span></div>'+
+    '<div class="chainnote">One chain: phone at night → late lights off → leaving home late.</div>'+
+    '<div class="row"><div class="q"><span>'+(hoy?'Phone today':'Phone that day')+' (Screen Time)</span><em id="vm"></em></div>'+
       '<div class="hm"><input id="ih" inputmode="numeric" pattern="[0-9]*" placeholder="0"><span class="u">h</span>'+
       '<input id="im" inputmode="numeric" pattern="[0-9]*" placeholder="0"><span class="u">min</span></div></div>'+
-    '<div class="row"><div class="q"><span>Anoche apagaste la luz a las</span><em id="vl"></em></div>'+
+    '<div class="row"><div class="q"><span>'+(hoy?'Lights off tonight at':'Lights off that night at')+'</span><em id="vl"></em></div>'+
       '<div class="step"><button id="lmenos">−</button><div class="v" id="lv"></div><button id="lmas">+</button></div></div>'+
-    (conSalida ? '<div class="row"><div class="q"><span>Hoy saliste de casa a las</span><em id="vs"></em></div>'+
+    (conSalida ? '<div class="row"><div class="q"><span>'+(hoy?'This morning you left home at':'You left home at')+'</span><em id="vs"></em></div>'+
       '<div class="step"><button id="smenos">−</button><div class="v" id="sv"></div><button id="smas">+</button></div></div>' : '')+
-    '<button class="save" id="guardar">Guardar</button>';
+    '<button class="save" id="guardar">Save</button>';
 
   const ih = c.querySelector('#ih'), im = c.querySelector('#im');
   ih.value = D.h; im.value = D.mi;
@@ -483,19 +494,19 @@ function tarjetaRegistro(s){
   const refrescar = () => {
     D.h = ih.value; D.mi = im.value;
     const mv = movil();
-    verd(c.querySelector('#vm'), mv==null ? null : mv <= OBJ.movil, 'Dentro', 'Por encima de 1 h 30');
+    verd(c.querySelector('#vm'), mv==null ? null : mv <= OBJ.movil, 'On target', 'Over 1 h 30');
     c.querySelector('#lv').textContent = fmt(D.luz);
-    if(oLuz) verd(c.querySelector('#vl'), D.luz <= luzMin(oLuz), 'A tiempo', 'Tarde'); else { const e = c.querySelector('#vl'); e.textContent = 'Fin de semana'; e.className = 'neu-t'; }
+    if(oLuz) verd(c.querySelector('#vl'), D.luz <= luzMin(oLuz), 'On time', 'Late'); else { const e = c.querySelector('#vl'); e.textContent = 'No work tomorrow'; e.className = 'neu-t'; }
     if(conSalida){
       c.querySelector('#sv').textContent = fmt(D.sal);
-      verd(c.querySelector('#vs'), D.sal <= toMin(OBJ.salida), 'A tiempo', 'Tarde');
+      verd(c.querySelector('#vs'), D.sal <= toMin(OBJ.salida), 'On time', 'Late');
     }
     c.querySelector('#guardar').disabled = mv==null;
   };
   ih.oninput = refrescar; im.oninput = refrescar;
   [ih, im].forEach(i => i.onfocus = () => i.select());
   const paso = (id, campo, delta, min, max) => c.querySelector(id).onclick = () => { D[campo] = Math.min(max, Math.max(min, D[campo]+delta)); refrescar(); };
-  paso('#lmenos','luz',-5, 20*60, 27*60); paso('#lmas','luz',5, 20*60, 27*60);
+  paso('#lmenos','luz',-5, 20*60, (24+DAY_END)*60); paso('#lmas','luz',5, 20*60, (24+DAY_END)*60);
   if(conSalida){ paso('#smenos','sal',-5, 6*60, 10*60); paso('#smas','sal',5, 6*60, 10*60); }
   c.querySelector('#guardar').onclick = () => guardar(s, movil(), fmt(D.luz), conSalida ? fmt(D.sal) : null);
   refrescar();
@@ -505,18 +516,18 @@ function tarjetaRegistro(s){
 async function guardar(s, mv, luz, sal){
   const row = { date:s, screen_min:mv, lights_off:luz, left_home:sal, updated_at:new Date().toISOString() };
   st.days[s] = row; st.editing = false; st.draft = null;
-  pintar(); toast('Registrado');
+  pintar(); toast('Logged');
   setSync('syncing');
   try{ await upsert('tracker_days','date',row); setSync('ok'); }
-  catch(e){ console.error(e); setSync('err'); toast('No se ha guardado. Inténtalo otra vez'); }
+  catch(e){ console.error(e); setSync('err'); toast('Not saved. Try again'); }
 }
 
 async function cambiarPartido(m){
   const w = lunes(st.sel);
   st.weeks[w] = m; pintar();
   setSync('syncing');
-  try{ await upsert('tracker_weeks','week_start',{ week_start:w, match_day:m }); setSync('ok'); toast(m==='dom' ? 'Semana con partido el domingo' : 'Semana con partido el sábado'); }
-  catch(e){ console.error(e); setSync('err'); toast('No se ha guardado'); }
+  try{ await upsert('tracker_weeks','week_start',{ week_start:w, match_day:m }); setSync('ok'); toast(m==='dom' ? 'Week with a Sunday match' : 'Week with a Saturday match'); }
+  catch(e){ console.error(e); setSync('err'); toast('Not saved'); }
 }
 
 function pintarSemana(){
@@ -525,13 +536,13 @@ function pintarSemana(){
   for(let i=6; i>=0; i--){
     const s = add(fin,-i), e = estado(s), d = pd(s);
     const dot = k => '<i class="'+(['ok','bad','na','neu'].includes(k)?k:'')+'"></i>';
-    h += '<div class="wd'+(s===st.sel?' sel':'')+'" data-s="'+s+'"><div class="l">'+DIAS[d.getDay()].slice(0,3)+'</div><div class="n">'+d.getDate()+'</div>'+
+    h += '<div class="wd'+(s===st.sel?' sel':'')+'" data-s="'+s+'"><div class="l">'+DAYS[d.getDay()].slice(0,3)+'</div><div class="n">'+d.getDate()+'</div>'+
       '<div class="ds">'+dot(e.movil)+dot(e.luz)+dot(e.salida)+'</div></div>';
   }
   $('week').innerHTML = h;
   [...$('week').children].forEach(x => x.onclick = () => { st.sel = x.dataset.s; st.editing = false; st.draft = null; pintar(); });
 
-  // Regla para añadir el siguiente hábito: 4 semanas seguidas registrando 6 de 7 días
+  // Rule for adding the next habit: 4 weeks in a row logging 6 of 7 days
   const semActual = lunes(HOY);
   let racha = 0;
   for(let w = add(semActual,-7); ; w = add(w,-7)){
@@ -541,13 +552,13 @@ function pintarSemana(){
   }
   let esta = 0; for(let i=0;i<7;i++){ const s = add(semActual,i); if(s<=HOY && registrado(s)) esta++; }
   const prog = Math.min(racha,4);
-  $('rule').innerHTML = 'Esta semana llevas <b>'+esta+' de 7</b> días registrados. '+
-    (prog>=4 ? '<b>Cuatro semanas seguidas con 6 de 7: toca añadir el siguiente hábito.</b>'
-             : 'Semanas seguidas con 6 de 7: <b>'+prog+' de 4</b>. Cuando llegues a cuatro, entra el siguiente hábito. Cuenta registrar, no acertar.')+
+  $('rule').innerHTML = 'This week you’ve logged <b>'+esta+' of 7</b> days. '+
+    (prog>=4 ? '<b>Four weeks in a row with 6 of 7: time to add the next habit.</b>'
+             : 'Weeks in a row with 6 of 7: <b>'+prog+' of 4</b>. When you reach four, the next habit comes in. Logging is what counts, not hitting the targets.')+
     '<div class="prog">'+[0,1,2,3].map(i => '<i class="'+(i<prog?'on':'')+'"></i>').join('')+'</div>';
 }
 
-// ═══ EVENTOS ════════════════════════════════════════════════
+// ═══ EVENTS ═════════════════════════════════════════════════
 $('prev').onclick = () => { st.sel = add(st.sel,-1); st.editing = false; st.draft = null; pintar(); };
 $('next').onclick = () => { st.sel = add(st.sel, 1); st.editing = false; st.draft = null; pintar(); };
 $('match').onclick = e => { const m = e.target.dataset.m; if(m && m!==partidoDe(st.sel)) cambiarPartido(m); };
@@ -555,10 +566,10 @@ $('match').onclick = e => { const m = e.target.dataset.m; if(m && m!==partidoDe(
 let tt;
 function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1600); }
 
-// Si vuelves a la app otro día, se recarga sola; si es el mismo día, se repinta para mover el "Ahora"
+// Coming back on another day reloads the app; on the same day it repaints to move "Now"
 document.addEventListener('visibilitychange', () => {
   if(document.hidden) return;
-  if(!q && ds(new Date())!==HOY) location.reload(); else pintar();
+  if(!q && logicalToday()!==HOY) location.reload(); else pintar();
 });
 setInterval(() => { const a = document.activeElement; if(!document.hidden && !(a && a.tagName==='INPUT')) pintar(); }, 5*60*1000);
 
