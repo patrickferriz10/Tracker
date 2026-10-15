@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -154,8 +154,8 @@ h3{font-size:13px;font-weight:600;color:var(--muted);margin:26px 0 6px}
   </div>
 
   <div class="seg" id="seg">
-    <button data-v="sem" class="on">Semana</button>
-    <button data-v="mes">Mes</button>
+    <button data-v="sem" class="on">Week</button>
+    <button data-v="mes">Month</button>
     <button data-v="plan">Plan</button>
   </div>
 
@@ -163,50 +163,50 @@ h3{font-size:13px;font-weight:600;color:var(--muted);margin:26px 0 6px}
 
   <section id="v-sem">
     <div class="hero">
-      <div class="lab">Te queda esta semana</div>
+      <div class="lab">Left this week</div>
       <div class="amt" id="h-amt">—</div>
       <div class="sub" id="h-sub"></div>
     </div>
     <div id="bolsas"></div>
-    <h3>Movimientos de la semana</h3>
+    <h3>This week's spending</h3>
     <div id="lista"></div>
     <p class="err" id="err"></p>
   </section>
 
   <section id="v-mes" class="hide">
     <div class="monthnav">
-      <button id="prev" aria-label="Mes anterior">‹</button>
+      <button id="prev" aria-label="Previous month">‹</button>
       <strong id="mesTit"></strong>
-      <button id="next" aria-label="Mes siguiente">›</button>
+      <button id="next" aria-label="Next month">›</button>
     </div>
     <div class="bigrow"><span class="n" id="m-gas"></span><span class="when" id="m-de"></span></div>
     <div class="track" style="margin-bottom:18px"><i id="m-bar"></i></div>
     <div class="panel" id="m-bolsas"></div>
-    <h3>Semana a semana</h3>
+    <h3>Week by week</h3>
     <div id="m-semanas"></div>
     <p class="note" id="m-nota"></p>
   </section>
 
   <section id="v-plan" class="hide">
     <div class="panel" id="p-flujo"></div>
-    <h3>Si todo va según el plan</h3>
+    <h3>If everything goes to plan</h3>
     <table class="proj" id="p-proj"></table>
-    <h3>Cada mes</h3>
+    <h3>Every month</h3>
     <div class="panel" id="p-rec"></div>
   </section>
 
 </div>
 
-<div class="fab"><div class="in"><button id="open">Apuntar gasto</button></div></div>
+<div class="fab"><div class="in"><button id="open">Add expense</button></div></div>
 
 <div class="scrim" id="scrim"></div>
-<div class="sheet" id="sheet" role="dialog" aria-label="Apuntar gasto">
+<div class="sheet" id="sheet" role="dialog" aria-label="Add expense">
   <div class="grab"></div>
-  <div class="amount zero" id="amt">0,00 €</div>
+  <div class="amount zero" id="amt">€0.00</div>
   <div class="chips" id="chips">
-    <button data-b="ocio">Ocio</button>
-    <button data-b="comida">Comida</button>
-    <button data-b="mensual">Mensual</button>
+    <button data-b="ocio">Going out</button>
+    <button data-b="comida">Eating out</button>
+    <button data-b="mensual">Monthly</button>
   </div>
   <div class="keys" id="keys">
     <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
@@ -215,10 +215,10 @@ h3{font-size:13px;font-weight:600;color:var(--muted);margin:26px 0 6px}
     <button data-k="c">C</button><button data-k="0">0</button><button data-k="del">⌫</button>
   </div>
   <div class="meta">
-    <input id="nota" type="text" placeholder="Nota" maxlength="60">
+    <input id="nota" type="text" placeholder="Note" maxlength="60">
     <input id="fecha" type="date">
   </div>
-  <button class="save" id="save" disabled>Guardar gasto</button>
+  <button class="save" id="save" disabled>Save expense</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -233,7 +233,7 @@ const CFG = {
   inicioPlan: "2026-09-01",
   finPlan: "2027-01-31",
   ingresos: 1460,
-  fijos: [ {k:"Claude", v:23}, {k:"Barbería", v:15} ],
+  fijos: [ {k:"Claude", v:23}, {k:"Barber", v:15} ],
   aportacionETF: 1000,
   alColchon: 122,
   etfInicial: 2000,
@@ -241,9 +241,9 @@ const CFG = {
 };
 
 const BOLSAS = {
-  ocio:    { nom:"Ocio y salidas", col:"var(--ocio)" },
-  comida:  { nom:"Comida fuera",   col:"var(--comida)" },
-  mensual: { nom:"Bolsa mensual",  col:"var(--mensual)" }
+  ocio:    { nom:"Going out",      col:"var(--ocio)" },
+  comida:  { nom:"Eating out",     col:"var(--comida)" },
+  mensual: { nom:"Monthly pot",    col:"var(--mensual)" }
 };
 
 const DEMO = !CFG.url || !CFG.anon;
@@ -255,8 +255,8 @@ const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-$
 const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
 const lunes = d => { const x=new Date(d); x.setDate(x.getDate()-((x.getDay()+6)%7)); x.setHours(0,0,0,0); return x; };
 const dias = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
-const eur = n => n.toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2}) + " €";
-const eur0 = n => Math.round(n).toLocaleString("es-ES") + " €";
+const eur = n => (n<0?"-":"") + "€" + Math.abs(n).toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2});
+const eur0 = n => { const r = Math.round(n); return (r<0?"-":"") + "€" + Math.abs(r).toLocaleString("en-GB"); };
 const dm = d => `${d.getDate()}/${d.getMonth()+1}`;
 const hoy = () => { const d=new Date(); d.setHours(0,0,0,0); return d; };
 
@@ -264,12 +264,12 @@ function semillaDemo(){
   const l = lunes(hoy());
   const ayer = dias(hoy(),-1), antes = dias(hoy(),-3);
   return [
-    { id:1, fecha:fmt(dias(l,-6)), importe:24.00, bolsa:"ocio",    nota:"Cena del sábado" },
-    { id:2, fecha:fmt(dias(l,-4)), importe:7.80,  bolsa:"comida",  nota:"Menú" },
-    { id:3, fecha:fmt(dias(l,-2)), importe:45.00, bolsa:"mensual", nota:"Espinilleras" },
-    { id:4, fecha:fmt(antes),      importe:12.50, bolsa:"ocio",    nota:"Cañas tras el partido" },
-    { id:5, fecha:fmt(ayer),       importe:4.20,  bolsa:"comida",  nota:"Café y bocadillo" },
-    { id:6, fecha:fmt(hoy()),      importe:3.30,  bolsa:"comida",  nota:"Café" }
+    { id:1, fecha:fmt(dias(l,-6)), importe:24.00, bolsa:"ocio",    nota:"Saturday dinner" },
+    { id:2, fecha:fmt(dias(l,-4)), importe:7.80,  bolsa:"comida",  nota:"Set lunch" },
+    { id:3, fecha:fmt(dias(l,-2)), importe:45.00, bolsa:"mensual", nota:"Shin pads" },
+    { id:4, fecha:fmt(antes),      importe:12.50, bolsa:"ocio",    nota:"Beers after the match" },
+    { id:5, fecha:fmt(ayer),       importe:4.20,  bolsa:"comida",  nota:"Coffee and sandwich" },
+    { id:6, fecha:fmt(hoy()),      importe:3.30,  bolsa:"comida",  nota:"Coffee" }
   ];
 }
 let seq = 100;
@@ -278,7 +278,7 @@ async function cargar(){
   $("#err").textContent = "";
   if(DEMO){ if(!state.gastos.length) state.gastos = semillaDemo(); return pinta(); }
   const { data, error } = await sb.from("gastos").select("*").order("fecha",{ascending:false}).order("created_at",{ascending:false});
-  if(error){ $("#err").textContent = "No he podido cargar los datos. Comprueba la conexión y vuelve a entrar."; return; }
+  if(error){ $("#err").textContent = "Couldn't load your data. Check your connection and open the app again."; return; }
   state.gastos = data || [];
   pinta();
 }
@@ -286,7 +286,7 @@ async function cargar(){
 async function guardar(fila){
   if(DEMO){ state.gastos.push(Object.assign({id:++seq}, fila)); return true; }
   const { error } = await sb.from("gastos").insert(fila);
-  if(error){ $("#err").textContent = "No se ha guardado. Inténtalo otra vez."; return false; }
+  if(error){ $("#err").textContent = "Not saved. Try again."; return false; }
   await cargar();
   return true;
 }
@@ -311,8 +311,8 @@ function pintaSemana(){
   $("#h-amt").classList.toggle("over", queda < 0);
   $("#h-amt").textContent = (queda < 0 ? "−" : "") + eur(Math.abs(queda));
   $("#h-sub").textContent = queda < 0
-    ? `Te has pasado ${eur(-queda)} de los ${eur0(topeSem)} de la semana`
-    : `De ${eur0(topeSem)} · ${restan === 1 ? "último día" : restan + " días por delante"}`;
+    ? `You're ${eur(-queda)} over this week's ${eur0(topeSem)}`
+    : `Out of ${eur0(topeSem)} · ${restan === 1 ? "last day" : restan + " days to go"}`;
 
   const i = parse(CFG.inicioPlan);
   const h = hoy();
@@ -321,9 +321,9 @@ function pintaSemana(){
   const gastMens = state.gastos.filter(g => g.bolsa==="mensual" && parse(g.fecha)>=i).reduce((a,g)=>a+Number(g.importe),0);
 
   const filas = [
-    { b:"ocio",    gastado:suma("ocio"),   tope:CFG.topes.ocio,   pie:"esta semana" },
-    { b:"comida",  gastado:suma("comida"), tope:CFG.topes.comida, pie:"esta semana" },
-    { b:"mensual", gastado:gastMens,       tope:topeMens,         pie:`acumulado en ${meses} ${meses===1?"mes":"meses"}` }
+    { b:"ocio",    gastado:suma("ocio"),   tope:CFG.topes.ocio,   pie:"this week" },
+    { b:"comida",  gastado:suma("comida"), tope:CFG.topes.comida, pie:"this week" },
+    { b:"mensual", gastado:gastMens,       tope:topeMens,         pie:`accumulated over ${meses} ${meses===1?"month":"months"}` }
   ];
 
   $("#bolsas").innerHTML = filas.map(f => {
@@ -336,21 +336,21 @@ function pintaSemana(){
         <span class="val" style="color:${col}">${q<0?"−":""}${eur(Math.abs(q))}</span>
       </div>
       <div class="track"><i style="width:${pct}%;background:${col}"></i></div>
-      <div class="r2"><span>${eur(f.gastado)} de ${eur0(f.tope)}</span><span>${f.pie}</span></div>
+      <div class="r2"><span>${eur(f.gastado)} of ${eur0(f.tope)}</span><span>${f.pie}</span></div>
     </div>`;
   }).join("");
 
   if(!sem.length){
-    $("#lista").innerHTML = `<p class="empty">Semana limpia de momento. El primer gasto que hagas, apúntalo aquí mismo.</p>`;
+    $("#lista").innerHTML = `<p class="empty">A clean week so far. Log your first expense right here.</p>`;
     return;
   }
   const porDia = {};
   sem.forEach(g => { (porDia[g.fecha] = porDia[g.fecha] || []).push(g); });
   const etiqueta = f => {
     const d = parse(f), t = hoy();
-    if(f === fmt(t)) return "Hoy";
-    if(f === fmt(dias(t,-1))) return "Ayer";
-    return d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric"});
+    if(f === fmt(t)) return "Today";
+    if(f === fmt(dias(t,-1))) return "Yesterday";
+    return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric"});
   };
   $("#lista").innerHTML = Object.keys(porDia).sort().reverse().map(f => {
     const total = porDia[f].reduce((a,g)=>a+Number(g.importe),0);
@@ -361,7 +361,7 @@ function pintaSemana(){
           <span class="txt"><span class="t1">${g.nota ? esc(g.nota) : BOLSAS[g.bolsa].nom}</span>
           <span class="t2">${BOLSAS[g.bolsa].nom}</span></span>
           <span class="num">${eur(Number(g.importe))}</span>
-        </button>` + (open ? `<div class="rm"><button data-del="${g.id}">Borrar gasto</button></div>` : "");
+        </button>` + (open ? `<div class="rm"><button data-del="${g.id}">Delete expense</button></div>` : "");
     }).join("");
   }).join("");
 }
@@ -371,20 +371,20 @@ const esc = s => s.replace(/[<>&]/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;"}[c
 function pintaMes(){
   const y = state.mes.getFullYear(), m = state.mes.getMonth();
   const ini = new Date(y,m,1), fin = new Date(y,m+1,0);
-  $("#mesTit").textContent = ini.toLocaleDateString("es-ES",{month:"long",year:"numeric"});
+  $("#mesTit").textContent = ini.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
 
   const mes = state.gastos.filter(g => { const f=parse(g.fecha); return f>=ini && f<=fin; });
   const total = mes.reduce((a,g)=>a+Number(g.importe),0);
   const sobra = CFG.gastoMes - total;
   $("#m-gas").textContent = eur(total);
-  $("#m-de").textContent = `de ${eur0(CFG.gastoMes)}`;
+  $("#m-de").textContent = `of ${eur0(CFG.gastoMes)}`;
   $("#m-bar").style.width = Math.min(100, total/CFG.gastoMes*100) + "%";
   $("#m-bar").style.background = total <= CFG.gastoMes ? "var(--comida)" : "var(--over)";
 
   $("#m-bolsas").innerHTML = Object.keys(BOLSAS).map(b => {
     const s = mes.filter(g=>g.bolsa===b).reduce((a,g)=>a+Number(g.importe),0);
     return `<div class="line"><span class="k"><span style="color:${BOLSAS[b].col}">●</span> ${BOLSAS[b].nom}</span><span class="v">${eur(s)}</span></div>`;
-  }).join("") + `<div class="line"><span class="k">${sobra>=0?"Sobrante al colchón":"Te has pasado"}</span><span class="v ${sobra>=0?"good":"bad"}">${eur(Math.abs(sobra))}</span></div>`;
+  }).join("") + `<div class="line"><span class="k">${sobra>=0?"Left over, to emergency fund":"You've gone over"}</span><span class="v ${sobra>=0?"good":"bad"}">${eur(Math.abs(sobra))}</span></div>`;
 
   const sems = [];
   for(let d = lunes(ini); d <= fin; d = dias(d,7)){
@@ -401,18 +401,18 @@ function pintaMes(){
       <span class="b"><i style="width:${Math.min(100,s.total/tope*100)}%"></i></span>
       <span class="n">${eur(s.total)}</span>
     </div>`).join("");
-  $("#m-nota").textContent = "La barra compara las semanas entre sí. Solo cuentan ocio y comida fuera, porque la bolsa mensual no tiene tope semanal.";
+  $("#m-nota").textContent = "The bars compare the weeks with each other. Only going out and eating out count, because the monthly pot has no weekly limit.";
 }
 
 /* ── plan ───────────────────────────────── */
 function pintaPlan(){
   const fijos = CFG.fijos.reduce((a,f)=>a+f.v,0);
   const filas = [
-    ["Entra cada mes", CFG.ingresos, ""],
+    ["Coming in each month", CFG.ingresos, ""],
     ...CFG.fijos.map(f => [f.k, -f.v, ""]),
-    ["Al ETF, día 2", -CFG.aportacionETF, ""],
-    ["Al colchón", -CFG.alColchon, "good"],
-    ["Para gastar", CFG.ingresos - fijos - CFG.aportacionETF - CFG.alColchon, ""]
+    ["To the ETF, on the 2nd", -CFG.aportacionETF, ""],
+    ["To the emergency fund", -CFG.alColchon, "good"],
+    ["To spend", CFG.ingresos - fijos - CFG.aportacionETF - CFG.alColchon, ""]
   ];
   $("#p-flujo").innerHTML = filas.map(([k,v,c]) =>
     `<div class="line"><span class="k">${k}</span><span class="v ${c}">${v<0?"−":""}${eur0(Math.abs(v))}</span></div>`).join("");
@@ -423,19 +423,19 @@ function pintaPlan(){
   for(let d = new Date(ini); d <= fin; d.setMonth(d.getMonth()+1)){
     etf += CFG.aportacionETF; col += CFG.alColchon;
     filas2.push({
-      nom: d.toLocaleDateString("es-ES",{month:"long"}),
+      nom: d.toLocaleDateString("en-GB",{month:"long"}),
       etf, col,
       now: (d.getMonth()+"-"+d.getFullYear()) === mesActual
     });
   }
   $("#p-proj").innerHTML =
-    `<tr><th>Al cerrar</th><th>Puesto en el ETF</th><th>Colchón</th></tr>` +
+    `<tr><th>End of</th><th>Put into the ETF</th><th>Emergency fund</th></tr>` +
     filas2.map(f => `<tr class="${f.now?"now":""}"><td>${f.nom}</td><td>${eur0(f.etf)}</td><td>${eur0(f.col)}</td></tr>`).join("");
 
   $("#p-rec").innerHTML = [
-    ["Día 1", `Transferir ${eur0(CFG.aportacionETF + CFG.alColchon)} a Trade Republic`],
-    ["Día 2", "Comprobar que el plan se ha ejecutado"],
-    ["Domingo", "Mirar la semana y cerrar cuentas"]
+    ["1st", `Transfer ${eur0(CFG.aportacionETF + CFG.alColchon)} to Trade Republic`],
+    ["2nd", "Check the savings plan has gone through"],
+    ["Sunday", "Review the week and close the books"]
   ].map(([k,v]) => `<div class="line"><span class="k">${k}</span><span class="v" style="font-weight:500;font-size:14px">${v}</span></div>`).join("");
 }
 
@@ -482,12 +482,12 @@ $("#save").onclick = async () => {
   $("#save").disabled = true;
   const ok = await guardar(fila);
   cerrar();
-  if(ok){ pinta(); toast("Gasto apuntado"); }
+  if(ok){ pinta(); toast("Expense logged"); }
 };
 
 $("#lista").onclick = async e => {
   const del = e.target.closest("[data-del]");
-  if(del){ await borrar(del.dataset.del); state.abierto=null; pinta(); toast("Gasto borrado"); return; }
+  if(del){ await borrar(del.dataset.del); state.abierto=null; pinta(); toast("Expense deleted"); return; }
   const it = e.target.closest(".item");
   if(!it) return;
   state.abierto = String(state.abierto)===it.dataset.id ? null : it.dataset.id;
@@ -507,7 +507,7 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("on"); 
 
 if(DEMO){
   $("#banner").classList.remove("hide");
-  $("#banner").textContent = "Modo demo con datos de ejemplo. Pon tu Project URL y tu clave anon en CFG para conectarlo a Supabase.";
+  $("#banner").textContent = "Demo mode with sample data. Put your Project URL and anon key in CFG to connect it to Supabase.";
 }
 cargar();
 </script>
